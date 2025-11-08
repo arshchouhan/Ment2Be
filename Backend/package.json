@@ -1,0 +1,17 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "Online Mentor Platform",
+  "keywords": [
+    "Online",
+    "Mentor",
+    "Platform"
+  ],
+  "license": "ISC",
+  "author": "Arsh Chauhan",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
