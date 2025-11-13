@@ -97,7 +97,7 @@ export const userAPI = {
   updateProfile: (data) => 
     apiRequest('/user/profile', {
       method: 'PUT',
-      body: data,
+      body: data
     }),
 };
 
