@@ -22,6 +22,9 @@ const MentorDashboard = () => {
     linkedinProfile: false,
   });
   const [socialSaving, setSocialSaving] = useState(false);
+  const [showFullBio, setShowFullBio] = useState(false);
+  const [isBioTruncated, setIsBioTruncated] = useState(false);
+  const bioRef = React.useRef(null);
 
   const PRESET_SKILLS = [
     "System Design",
@@ -124,17 +127,51 @@ const MentorDashboard = () => {
 
   const saveProfile = async (overrides = {}) => {
     try {
-      await fetch("http://localhost:4000/api/mentors/profile", {
+      const payload = buildProfilePayload(overrides);
+      console.log('Saving profile with payload:', payload);
+      
+      const response = await fetch("http://localhost:4000/api/mentors/profile", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(buildProfilePayload(overrides)),
+        body: JSON.stringify(payload),
       });
-      await fetchProfile();
+      
+      const responseData = await response.json();
+      
+      if (!response.ok) {
+        console.error('Server responded with error:', {
+          status: response.status,
+          statusText: response.statusText,
+          response: responseData
+        });
+        throw new Error(responseData.message || 'Failed to save profile');
+      }
+      
+      // Update the local state with the updated profile data
+      if (responseData.data) {
+        setMentorProfile(prev => ({
+          ...prev,
+          ...responseData.data,
+          skills: responseData.data.skills || prev?.skills || []
+        }));
+      }
+      
+      // Only fetch profile if needed (for full refresh)
+      if (Object.keys(overrides).length === 0) {
+        await fetchProfile();
+      }
+      
+      return responseData;
     } catch (error) {
-      console.error("Profile save failed:", error);
+      console.error("Profile save failed:", {
+        error: error.message,
+        stack: error.stack,
+        timestamp: new Date().toISOString()
+      });
+      throw error;
     }
   };
 
@@ -180,7 +217,13 @@ const MentorDashboard = () => {
   };
 
   const persistSkills = async (updatedSkills) => {
-    await saveProfile({ skills: updatedSkills });
+    try {
+      await saveProfile({ skills: updatedSkills });
+    } catch (error) {
+      console.error("Failed to update skills:", error);
+      // Revert skills on error
+      setSkills(mentorProfile?.skills || []);
+    }
   };
 
   const handleSocialInputChange = (field, value) => {
@@ -190,20 +233,47 @@ const MentorDashboard = () => {
 
   const handleSocialSave = async (field) => {
     setSocialSaving(true);
-    await saveProfile({ [field]: socialInputs[field] });
-    setSocialEdit((prev) => ({ ...prev, [field]: false }));
-    setSocialSaving(false);
+    try {
+      await saveProfile({ [field]: socialInputs[field] });
+      setSocialEdit((prev) => ({ ...prev, [field]: false }));
+    } catch (error) {
+      console.error(`Failed to update ${field}:`, error);
+      // Revert the input field on error
+      setSocialInputs(prev => ({
+        ...prev,
+        [field]: mentorProfile?.[field] || ''
+      }));
+    } finally {
+      setSocialSaving(false);
+    }
   };
+
+  // Check if bio needs to be truncated
+  useEffect(() => {
+    if (bioRef.current) {
+      const element = bioRef.current;
+      setIsBioTruncated(element.scrollHeight > element.clientHeight);
+    }
+  }, [mentorProfile?.bio]);
 
   // ✅ UPDATE PROFILE
   const handleUpdate = async (e) => {
     e.preventDefault();
-
-    await saveProfile({ ...formData, skills });
-    setEditing(false);
+    try {
+      await saveProfile({ ...formData, skills });
+      setEditing(false);
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      // Optionally show an error message to the user
+    }
   };
 
-  if (loading) return <p>Loading...</p>;
+  if (loading)
+    return (
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+        <p className="text-gray-500 text-sm">Loading your dashboard...</p>
+      </div>
+    );
 
   const initials = profile?.name
     ? profile.name
@@ -294,9 +364,27 @@ const MentorDashboard = () => {
                   )}
                 </div>
               </div>
-              <p className="mt-4 text-gray-600 leading-relaxed">
-                {mentorProfile?.bio || "Add a short bio to let mentees know more about you."}
-              </p>
+              {mentorProfile?.headline && (
+                <h3 className="mt-4 text-lg font-medium text-gray-800">
+                  {mentorProfile.headline}
+                </h3>
+              )}
+              <div className="relative">
+                <p 
+                  ref={bioRef}
+                  className={`mt-2 text-gray-600 leading-relaxed ${!showFullBio ? 'line-clamp-3' : ''}`}
+                >
+                  {mentorProfile?.bio || "Add a short bio to let mentees know more about you."}
+                </p>
+                {mentorProfile?.bio && isBioTruncated && (
+                  <button
+                    onClick={() => setShowFullBio(!showFullBio)}
+                    className="mt-1 text-sm font-medium text-cyan-600 hover:text-cyan-700 focus:outline-none"
+                  >
+                    {showFullBio ? 'Show less' : 'Read more'}
+                  </button>
+                )}
+              </div>
             </div>
 
             <div className="bg-white rounded-xl shadow p-6">
@@ -368,7 +456,7 @@ const MentorDashboard = () => {
                   )}
                   <button
                     onClick={() => setSocialEdit((prev) => ({ ...prev, githubProfile: !prev.githubProfile }))}
-                    className="mt-2 text-xs font-medium text-cyan-700"
+                    className="mt-2 text-xs font-medium text-cyan-700 block"
                   >
                     {socialEdit.githubProfile ? "Close" : "Edit GitHub URL"}
                   </button>

@@ -18,7 +18,7 @@ const mentorProfileSchema = new mongoose.Schema(
       type: String,
       required: [true, 'Bio is required'],
       trim: true,
-      maxlength: [2000, 'Bio cannot be more than 2000 characters']
+      maxlength: [4000, 'Bio cannot be more than 4000 characters']
     },
     skills: [{
       type: String,
@@ -39,7 +39,7 @@ const mentorProfileSchema = new mongoose.Schema(
     company: {
       type: String,
       trim: true,
-      maxlength: [100, 'Company name cannot be more than 100 characters']
+      maxlength: [200, 'Company name cannot be more than 200 characters']
     },
     linkedinProfile: {
       type: String,

@@ -56,12 +56,16 @@ const ExplorePage = () => {
             companies: mentor.company || 'N/A',
             experience: mentor.experience || 'N/A',
             bio: mentor.bio || '',
-            tags: mentor.skills?.map(skill => skill.name) || [],
+            tags: Array.isArray(mentor.skills)
+              ? mentor.skills
+                  .map((skill) => (typeof skill === 'string' ? skill : skill?.name))
+                  .filter(Boolean)
+              : [],
             rating: mentor.averageRating || 0,
             ratedCount: mentor.totalReviews || 0,
             price: mentor.hourlyRate || 0,
             priceUnit: 'Per Min',
-            image: mentor.profilePicture || 'https://randomuser.me/api/portraits/men/32.jpg',
+            image: mentor.profilePicture || mentor.mentorProfile?.profilePicture || '',
             isOnline: mentor.isOnline || false
           }));
           
