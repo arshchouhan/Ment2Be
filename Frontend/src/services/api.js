@@ -1,3 +1,4 @@
+// Central API service for MentorLink platform
 const API_URL = 'http://localhost:4000/api';
 
 const apiRequest = async (endpoint, options = {}) => {
