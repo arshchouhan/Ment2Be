@@ -1,0 +1,30 @@
+/* Custom scrollbar styles for chat components */
+.chat-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.chat-scrollbar::-webkit-scrollbar-track {
+  background: #212121;
+  border-radius: 4px;
+}
+
+.chat-scrollbar::-webkit-scrollbar-thumb {
+  background: #535353;
+  border-radius: 4px;
+  border: 1px solid #212121;
+}
+
+.chat-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #6b7280;
+}
+
+/* Firefox scrollbar */
+.chat-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #535353 #212121;
+}
+
+/* Ensure scrollbar is visible on all elements */
+.chat-scrollbar {
+  overflow-y: auto;
+}

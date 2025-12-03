@@ -22,7 +22,7 @@ const MentorNavbar = ({ userName = 'Mentor' }) => {
   ];
 
   return (
-    <nav className="bg-white border-b border-gray-200 sticky top-0 z-50">
+    <nav className="bg-[#121212] border-b border-gray-700 rounded-b-xl sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-14">
           
@@ -31,7 +31,7 @@ const MentorNavbar = ({ userName = 'Mentor' }) => {
             <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
               <span className="text-white font-bold text-xs">U</span>
             </div>
-            <span className="text-lg font-bold text-gray-900">UpLoom</span>
+            <span className="text-lg font-bold text-white">UpLoom</span>
           </Link>
 
           {/* Desktop Navigation Items */}
@@ -42,11 +42,11 @@ const MentorNavbar = ({ userName = 'Mentor' }) => {
                 <Link
                   key={item.label}
                   to={item.href}
-                  className="p-1.5 rounded-lg hover:bg-gray-100 flex items-center gap-1.5 transition-colors"
+                  className="p-1.5 rounded-lg hover:bg-gray-700 flex items-center gap-1.5 transition-colors"
                   title={item.label}
                 >
-                  <Icon size={18} className="text-gray-600 hover:text-blue-600" />
-                  <span className="text-xs font-medium text-gray-700 hover:text-blue-600">{item.label}</span>
+                  <Icon size={18} className="text-gray-300 hover:text-cyan-400" />
+                  <span className="text-xs font-medium text-gray-300 hover:text-cyan-400">{item.label}</span>
                 </Link>
               );
             })}
@@ -61,7 +61,7 @@ const MentorNavbar = ({ userName = 'Mentor' }) => {
             {/* Mobile Menu Button */}
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="md:hidden p-1.5"
+              className="md:hidden p-1.5 text-gray-300 hover:text-white"
             >
               {isMenuOpen ? <X size={20} /> : <Menu size={20} />}
             </button>

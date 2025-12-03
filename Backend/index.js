@@ -1,4 +1,6 @@
 import express from 'express';
+import { createServer } from 'http';
+import { Server } from 'socket.io';
 import cors from 'cors';
 // import { env } from './config/env.js';
 import connectDB from './config/db.js';
@@ -9,12 +11,26 @@ import sessionsRouter from './routes/session.routes.js';
 import paymentsRouter from './routes/payments.routes.js';
 import reviewsRouter from './routes/reviews.routes.js';
 import mentorRouter from './routes/mentor.routes.js';
+import bookingRouter from './routes/booking.routes.js';
+import { handleSocketConnection, getRoomCount, getTotalParticipants } from './socket/socketHandlers.js';
 
 import dotenv from "dotenv"
 
 dotenv.config()
 
 const app = express();
+const server = createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: [
+      "http://localhost:3000", 
+      "http://localhost:5173", // Vite default port
+      process.env.FRONTEND_URL
+    ].filter(Boolean), // Remove any undefined values
+    methods: ["GET", "POST"]
+  }
+});
+
 const PORT = process.env.PORT || 4000;
 const NODE_ENV = process.env.NODE_ENV || 'development';
 
@@ -43,6 +59,7 @@ app.get('/', (req, res) => {
       auth: '/api/auth',
       users: '/api/user',
       mentors: '/api/mentors',
+      bookings: '/api/bookings',
       skills: '/api/skills',
       sessions: '/api/sessions',
       payments: '/api/payments',
@@ -59,15 +76,30 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+// Socket.IO statistics endpoint (optional)
+app.get('/api/socket/stats', (req, res) => {
+  res.status(200).json({
+    success: true,
+    data: {
+      activeRooms: getRoomCount(),
+      totalParticipants: getTotalParticipants(),
+      timestamp: new Date().toISOString()
+    }
+  });
+});
+
 app.use('/api/auth', authRouter);
 app.use('/api/user', userRouter);
 app.use('/api/mentors', mentorRouter);
+app.use('/api/bookings', bookingRouter);
 
 app.use('/api/skills', skillsRouter);
 app.use('/api/sessions', sessionsRouter);
 app.use('/api/payments', paymentsRouter);
 app.use('/api/reviews', reviewsRouter);
 
+// Initialize Socket.IO handlers
+handleSocketConnection(io);
 
 app.use((req, res) => {
   res.status(404).json({
@@ -132,11 +164,12 @@ const startServer = async () => {
   try {
     await connectDB();
     
-    app.listen(PORT, '0.0.0.0', () => {
+    server.listen(PORT, '0.0.0.0', () => {
       console.log('\n' + '='.repeat(50));
       console.log(`Server running in ${NODE_ENV} mode`);
       console.log(`Port: ${PORT}`);
       console.log(`Local: http://localhost:${PORT}`);
+      console.log(`Socket.IO enabled for real-time meetings`);
       console.log('='.repeat(50) + '\n');
     });
   } catch (error) {
@@ -146,13 +179,19 @@ const startServer = async () => {
 };
 
 process.on('unhandledRejection', (err) => {
-  console.error('Unhandled Rejection:', err);
-  process.exit(1);
+  console.error(' Unhandled Rejection:', err);
+  // Don't exit in development to prevent disconnections
+  if (process.env.NODE_ENV === 'production') {
+    process.exit(1);
+  }
 });
 
 process.on('uncaughtException', (err) => {
-  console.error('Uncaught Exception:', err);
-  process.exit(1);
+  console.error(' Uncaught Exception:', err);
+  // Don't exit in development to prevent disconnections
+  if (process.env.NODE_ENV === 'production') {
+    process.exit(1);
+  }
 });
 
 startServer();

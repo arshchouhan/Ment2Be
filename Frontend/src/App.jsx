@@ -16,30 +16,20 @@ import MentorGetMenteesPage from './pages/MentorGetMenteesPage';
 import MentorProfilePage from './pages/MentorProfilePage';
 import MentorProfileSetup from './pages/MentorProfileSetup';
 import MentorDetailPage from './pages/MentorDetailPage';
+import BookSession from './pages/BookSession';
+import MeetingRoomZego from './pages/MeetingRoomZego';
 import NotFoundPage from './assets/NotFoundPage';
-import LoadingBar from './components/Common/LoadingBar';
 
 function App() {
   const location = useLocation();
-  const [isLoading, setIsLoading] = useState(false);
-
-  useEffect(() => {
-    // ✅ Show loader on EVERY route change
-    setIsLoading(true);
-
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 800); // adjust delay if needed
-
-    return () => clearTimeout(timer);
-  }, [location]); // ✅ NOT pathname – full location object
 
   return (
     <>
-      <LoadingBar isLoading={isLoading} />
-
       {/* ✅ key forces rerender on every navigation */}
       <Routes location={location} key={location.key}>
+        {/* Root redirect */}
+        <Route path="/" element={<Login />} />
+        
         {/* Public Routes */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Login />} />
@@ -52,6 +42,10 @@ function App() {
         <Route path="/student/sessions" element={<SessionsPage />} />
         <Route path="/student/profile" element={<ProfilePage />} />
         <Route path="/mentor-profile" element={<MentorDetailPage />} />
+        <Route path="/booking" element={<BookSession />} />
+        
+        {/* Meeting Route */}
+        <Route path="/meeting" element={<MeetingRoomZego />} />
 
         {/* Mentor Routes */}
         <Route path="/mentor/dashboard" element={<MentorDashboard />} />

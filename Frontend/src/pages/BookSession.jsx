@@ -1,0 +1,568 @@
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { FiArrowLeft, FiCalendar, FiClock, FiUser, FiDollarSign } from 'react-icons/fi';
+import Navbar from '../components/StudentDashboard/Navbar';
+
+const BookSession = () => {
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const mentorName = searchParams.get('mentor');
+  const mentorId = searchParams.get('mentorId');
+  
+  const [loading, setLoading] = useState(false);
+  const [mentorData, setMentorData] = useState(null);
+  const [step, setStep] = useState(1);
+  const [formData, setFormData] = useState({
+    sessionTitle: '',
+    sessionDescription: '',
+    sessionType: 'one-on-one',
+    sessionDate: '',
+    sessionTime: '',
+    duration: 60,
+    topics: [],
+    studentNotes: ''
+  });
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [selectedTimeSlot, setSelectedTimeSlot] = useState('');
+  const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
+  const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate("/login");
+      return;
+    }
+
+    const fetchMentorData = async () => {
+      if (!mentorName || !mentorId) {
+        navigate('/');
+        return;
+      }
+
+      try {
+        setLoading(true);
+        const response = await fetch('http://localhost:4000/api/mentors', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        const data = await response.json();
+        
+        if (data.success && data.mentors) {
+          const mentor = data.mentors.find(m => m._id === mentorId);
+          if (mentor) {
+            setMentorData({
+              id: mentor._id,
+              name: mentor.name,
+              title: mentor.headline || mentor.mentorProfile?.headline || 'Mentor',
+              company: mentor.company || mentor.mentorProfile?.company || 'N/A',
+              profileImage: mentor.profilePicture || mentor.mentorProfile?.profilePicture || null,
+              hourlyRate: mentor.hourlyRate || mentor.mentorProfile?.hourlyRate || 0,
+              skills: Array.isArray(mentor.skills)
+                ? mentor.skills.map((skill) => (typeof skill === 'string' ? skill : skill?.name)).filter(Boolean)
+                : []
+            });
+            
+            // Set default session title
+            setFormData(prev => ({
+              ...prev,
+              sessionTitle: `Mentoring Session with ${mentor.name}`,
+              topics: mentor.skills?.slice(0, 3) || []
+            }));
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching mentor data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchMentorData();
+  }, [mentorName, mentorId, navigate]);
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleDateSelect = (date) => {
+    setSelectedDate(date);
+    setFormData(prev => ({ ...prev, sessionDate: date }));
+  };
+
+  const handleTimeSlotSelect = (time) => {
+    setSelectedTimeSlot(time);
+    setFormData(prev => ({ ...prev, sessionTime: time }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (!selectedDate || !selectedTimeSlot) {
+      alert('Please select date and time');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const token = localStorage.getItem("token");
+      
+      const bookingData = {
+        mentorId: mentorId,
+        sessionTitle: formData.sessionTitle,
+        sessionDescription: formData.sessionDescription,
+        sessionType: formData.sessionType,
+        sessionDate: selectedDate,
+        sessionTime: selectedTimeSlot,
+        duration: formData.duration,
+        topics: formData.topics,
+        studentNotes: formData.studentNotes
+      };
+
+      const response = await fetch('http://localhost:4000/api/bookings', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(bookingData)
+      });
+
+      const data = await response.json();
+      
+      if (data.success) {
+        alert('Booking created successfully!');
+        navigate('/student/sessions');
+      } else {
+        alert(data.message || 'Failed to create booking');
+      }
+    } catch (error) {
+      console.error('Booking error:', error);
+      alert('Failed to create booking');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Navigation functions for calendar
+  const goToPreviousMonth = () => {
+    if (currentMonth === 0) {
+      setCurrentMonth(11);
+      setCurrentYear(currentYear - 1);
+    } else {
+      setCurrentMonth(currentMonth - 1);
+    }
+  };
+
+  const goToNextMonth = () => {
+    if (currentMonth === 11) {
+      setCurrentMonth(0);
+      setCurrentYear(currentYear + 1);
+    } else {
+      setCurrentMonth(currentMonth + 1);
+    }
+  };
+
+  const handleMonthChange = (e) => {
+    setCurrentMonth(parseInt(e.target.value));
+  };
+
+  const handleYearChange = (e) => {
+    setCurrentYear(parseInt(e.target.value));
+  };
+
+  const generateCalendar = () => {
+    const today = new Date();
+    const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+    const firstDayOfMonth = new Date(currentYear, currentMonth, 1).getDay();
+    
+    const days = [];
+    
+    // Empty cells for days before the first day of the month
+    for (let i = 0; i < firstDayOfMonth; i++) {
+      days.push(null);
+    }
+    
+    // Days of the month
+    for (let day = 1; day <= daysInMonth; day++) {
+      const date = new Date(currentYear, currentMonth, day);
+      // Create date string manually to avoid timezone issues
+      const dateString = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+      const isToday = day === today.getDate() && currentMonth === today.getMonth() && currentYear === today.getFullYear();
+      const isPast = date < today;
+      
+      days.push({
+        day,
+        date: dateString,
+        isToday,
+        isPast,
+        isSelected: selectedDate === dateString
+      });
+    }
+    
+    return days;
+  };
+
+  const timeSlots = [
+    '9:00 AM', '10:00 AM', '11:00 AM', '12:00 PM',
+    '1:00 PM', '2:00 PM', '3:00 PM', '4:00 PM',
+    '5:00 PM', '6:00 PM', '7:00 PM', '8:00 PM'
+  ];
+
+  const user = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null;
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Navbar userName={user?.name || 'Student'} />
+        <div className="flex items-center justify-center h-64">
+          <div className="text-gray-500">Loading...</div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <Navbar userName={user?.name || 'Student'} />
+      
+      <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
+        {/* Back Button */}
+        <button
+          onClick={() => navigate(-1)}
+          className="flex items-center text-gray-600 hover:text-gray-900 mb-6 transition-colors"
+        >
+          <FiArrowLeft className="w-4 h-4 mr-2" />
+          Back
+        </button>
+
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-4">Book a Session</h1>
+          {mentorData && (
+            <div className="flex items-center space-x-4 bg-white rounded-lg p-4 shadow-sm border border-gray-200">
+              {mentorData.profileImage ? (
+                <img
+                  src={mentorData.profileImage}
+                  alt={mentorData.name}
+                  className="w-12 h-12 rounded-full object-cover"
+                />
+              ) : (
+                <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center">
+                  <FiUser className="w-6 h-6 text-gray-500" />
+                </div>
+              )}
+              <div>
+                <p className="text-gray-900 font-semibold text-lg">{mentorData.name}</p>
+                <p className="text-gray-600">{mentorData.title}</p>
+                <p className="text-gray-500 text-sm">{mentorData.company}</p>
+              </div>
+            </div>
+          )}
+        </div>
+
+        <form onSubmit={handleSubmit}>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Left Column - Session Details Form */}
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-6">Session Details</h3>
+              
+              <div className="space-y-6">
+                <div>
+                  <label className="text-sm text-gray-700 block mb-2">Session Title</label>
+                  <input
+                    type="text"
+                    name="sessionTitle"
+                    value={formData.sessionTitle}
+                    onChange={handleInputChange}
+                    required
+                    className="w-full px-3 py-3 bg-white border border-gray-300 rounded text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:outline-none"
+                    placeholder="Enter session title"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-sm text-gray-700 block mb-2">Session Type</label>
+                  <select
+                    name="sessionType"
+                    value={formData.sessionType}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-3 bg-white border border-gray-300 rounded text-gray-900 focus:border-blue-500 focus:outline-none"
+                  >
+                    <option value="one-on-one">One-on-One</option>
+                    <option value="group">Group Session</option>
+                    <option value="workshop">Workshop</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="text-sm text-gray-700 block mb-2">Duration</label>
+                  <select
+                    name="duration"
+                    value={formData.duration}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-3 bg-white border border-gray-300 rounded text-gray-900 focus:border-blue-500 focus:outline-none"
+                  >
+                    <option value={30}>30 minutes</option>
+                    <option value={60}>60 minutes</option>
+                    <option value={90}>90 minutes</option>
+                    <option value={120}>120 minutes</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="text-sm text-gray-700 block mb-2">Description (Optional)</label>
+                  <textarea
+                    name="sessionDescription"
+                    value={formData.sessionDescription}
+                    onChange={handleInputChange}
+                    rows={3}
+                    className="w-full px-3 py-3 bg-white border border-gray-300 rounded text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:outline-none"
+                    placeholder="Describe what you'd like to learn or discuss..."
+                  />
+                </div>
+
+                {/* Price Display */}
+                {mentorData && (
+                  <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-700 flex items-center">
+                        <FiDollarSign className="w-4 h-4 mr-1" />
+                        Session Price:
+                      </span>
+                      <span className="text-gray-900 font-bold text-lg">
+                        {mentorData.hourlyRate > 0 ? `$${mentorData.hourlyRate}` : 'Free'}
+                      </span>
+                    </div>
+                  </div>
+                )}
+
+                {/* Additional Notes */}
+                <div>
+                  <label className="text-sm text-gray-700 block mb-2">Additional Notes (Optional)</label>
+                  <textarea
+                    name="studentNotes"
+                    value={formData.studentNotes}
+                    onChange={handleInputChange}
+                    rows={3}
+                    className="w-full px-3 py-3 bg-white border border-gray-300 rounded text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:outline-none"
+                    placeholder="Any specific topics or questions you'd like to discuss..."
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Right Column - Date & Time Selection */}
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-6">Select Date & Time</h3>
+              
+              <div className="space-y-6">
+                {/* Date Selection */}
+                <div>
+                  <label className="text-sm text-gray-700 block mb-3">
+                    <FiCalendar className="inline w-4 h-4 mr-1" />
+                    Select Date
+                  </label>
+                  
+                  {/* Manual Date Input */}
+                  <div className="mb-4">
+                    <label className="text-xs text-gray-600 block mb-2">Enter Custom Date</label>
+                    <input
+                      type="date"
+                      min="2020-01-01"
+                      max="2050-12-31"
+                      onChange={(e) => {
+                        if (e.target.value) {
+                          setSelectedDate(e.target.value);
+                          // Update calendar to show the selected month/year
+                          const selectedDateObj = new Date(e.target.value);
+                          setCurrentMonth(selectedDateObj.getMonth());
+                          setCurrentYear(selectedDateObj.getFullYear());
+                        }
+                      }}
+                      className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:border-blue-500"
+                      placeholder="Select any date"
+                    />
+                  </div>
+                  
+                  <div className="text-center text-xs text-gray-500 mb-3">OR use calendar below</div>
+                  <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                    {/* Calendar Header with Month/Year Navigation */}
+                    <div className="flex items-center justify-between mb-4">
+                      <button
+                        type="button"
+                        onClick={goToPreviousMonth}
+                        className="p-1 hover:bg-gray-200 rounded transition-colors"
+                      >
+                        <FiArrowLeft className="w-4 h-4" />
+                      </button>
+                      
+                      <div className="flex items-center space-x-2">
+                        <select
+                          value={currentMonth}
+                          onChange={handleMonthChange}
+                          className="px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:border-blue-500"
+                        >
+                          {[
+                            'January', 'February', 'March', 'April', 'May', 'June',
+                            'July', 'August', 'September', 'October', 'November', 'December'
+                          ].map((month, index) => (
+                            <option key={index} value={index}>{month}</option>
+                          ))}
+                        </select>
+                        
+                        <input
+                          type="number"
+                          value={currentYear}
+                          onChange={(e) => setCurrentYear(parseInt(e.target.value) || new Date().getFullYear())}
+                          min="2020"
+                          max="2050"
+                          className="px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:border-blue-500 w-20"
+                          placeholder="Year"
+                        />
+                      </div>
+                      
+                      <button
+                        type="button"
+                        onClick={goToNextMonth}
+                        className="p-1 hover:bg-gray-200 rounded transition-colors"
+                      >
+                        <FiArrowLeft className="w-4 h-4 rotate-180" />
+                      </button>
+                    </div>
+                    
+                    <div className="grid grid-cols-7 gap-1 text-center text-sm mb-2">
+                      {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
+                        <div key={day} className="p-2 font-medium text-gray-600">{day}</div>
+                      ))}
+                    </div>
+                    <div className="grid grid-cols-7 gap-1 text-center text-sm">
+                      {generateCalendar().map((dayObj, index) => (
+                        <div key={index} className="p-2">
+                          {dayObj && (
+                            <button
+                              type="button"
+                              onClick={() => !dayObj.isPast && handleDateSelect(dayObj.date)}
+                              disabled={dayObj.isPast}
+                              className={`w-8 h-8 rounded transition-colors ${
+                                dayObj.isSelected
+                                  ? 'bg-blue-600 text-white'
+                                  : dayObj.isPast
+                                  ? 'text-gray-400 cursor-not-allowed'
+                                  : dayObj.isToday
+                                  ? 'bg-blue-100 text-blue-600 hover:bg-blue-200'
+                                  : 'text-gray-700 hover:bg-gray-100'
+                              }`}
+                            >
+                              {dayObj.day}
+                            </button>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Time Selection */}
+                <div>
+                  <label className="text-sm text-gray-700 block mb-3">
+                    <FiClock className="inline w-4 h-4 mr-1" />
+                    Select Time
+                  </label>
+                  
+                  {/* Manual Time Input */}
+                  <div className="mb-4">
+                    <label className="text-xs text-gray-600 block mb-2">Enter Custom Time (24-hour format)</label>
+                    <input
+                      type="time"
+                      onChange={(e) => {
+                        if (e.target.value) {
+                          // Convert 24-hour to 12-hour format for consistency
+                          const [hours, minutes] = e.target.value.split(':');
+                          const hour24 = parseInt(hours);
+                          const hour12 = hour24 === 0 ? 12 : hour24 > 12 ? hour24 - 12 : hour24;
+                          const ampm = hour24 >= 12 ? 'PM' : 'AM';
+                          const timeFormatted = `${hour12}:${minutes} ${ampm}`;
+                          setSelectedTimeSlot(timeFormatted);
+                        }
+                      }}
+                      className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:border-blue-500"
+                      placeholder="Select any time"
+                    />
+                  </div>
+                  
+                  <div className="text-center text-xs text-gray-500 mb-3">OR choose from preset times</div>
+                  
+                  {/* Preset Time Slots */}
+                  <div className="grid grid-cols-3 gap-2">
+                    {timeSlots.map((time) => (
+                      <button
+                        key={time}
+                        type="button"
+                        onClick={() => handleTimeSlotSelect(time)}
+                        className={`p-3 text-center border rounded-lg transition-colors text-sm ${
+                          selectedTimeSlot === time
+                            ? 'bg-blue-600 text-white border-blue-600'
+                            : 'bg-white text-gray-700 border-gray-300 hover:border-blue-500 hover:bg-blue-50'
+                        }`}
+                      >
+                        {time}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Selected Date & Time Display */}
+                {(selectedDate || selectedTimeSlot) && (
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <h4 className="text-blue-800 font-medium mb-2">Selected Session</h4>
+                    {selectedDate && (
+                      <p className="text-blue-700 text-sm">
+                        Date: {(() => {
+                          // Parse the date string properly to avoid timezone issues
+                          const [year, month, day] = selectedDate.split('-').map(Number);
+                          const date = new Date(year, month - 1, day);
+                          return date.toLocaleDateString('en-US', {
+                            weekday: 'long',
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                          });
+                        })()}
+                      </p>
+                    )}
+                    {selectedTimeSlot && (
+                      <p className="text-blue-700 text-sm">Time: {selectedTimeSlot}</p>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Submit Button - Full Width Below Both Columns */}
+          <div className="mt-8 pt-6 border-t border-gray-200">
+            <button
+              type="submit"
+              disabled={loading || !selectedDate || !selectedTimeSlot}
+              className={`w-full py-3 px-4 rounded-lg font-medium transition-colors ${
+                loading || !selectedDate || !selectedTimeSlot
+                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  : 'bg-blue-600 text-white hover:bg-blue-700'
+              }`}
+            >
+              {loading ? 'Creating Booking...' : 'Book Session'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+export default BookSession;

@@ -45,4 +45,7 @@ export const authenticateToken = (req, res, next) => {
   }
 };
 
+// Export as 'protect' for consistency with other route files
+export const protect = authenticateToken;
+
 export default authenticateToken;

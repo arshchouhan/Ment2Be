@@ -121,7 +121,8 @@ const MentorDetailPage = () => {
 
   // Function to handle booking button click
   const handleBookSession = () => {
-    setShowBookingModal(true);
+    // Navigate to booking page with mentor info in URL
+    navigate(`/booking?mentor=${encodeURIComponent(mentorName)}&mentorId=${mentorData.id}`);
   };
 
   // Function to handle continue from first modal to time slot selection

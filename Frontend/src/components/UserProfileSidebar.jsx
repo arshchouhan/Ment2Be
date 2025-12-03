@@ -40,7 +40,7 @@ const UserProfileSidebar = ({ userName = 'User' }) => {
       {/* User Name Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="text-xs font-medium text-gray-800 hover:text-blue-600 transition-colors cursor-pointer"
+        className="text-xs font-medium text-gray-300 hover:text-cyan-400 transition-colors cursor-pointer"
       >
         {userName}
       </button>
@@ -76,7 +76,7 @@ const UserProfileSidebar = ({ userName = 'User' }) => {
 
         {/* Role Badge */}
         <div className="px-6 py-3">
-          <span className="inline-block px-3 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded-full capitalize">
+          <span className="inline-block px-3 py-1 bg-cyan-100 text-cyan-700 text-xs font-medium rounded-full capitalize">
             {user?.role || 'user'}
           </span>
         </div>
