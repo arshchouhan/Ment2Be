@@ -23,16 +23,16 @@ const Navbar = ({ userName = 'Student' }) => {
   ];
 
   return (
-    <nav className="bg-white border-b border-gray-200 sticky top-0 z-50">
+    <nav className="bg-[#121212] border-b border-gray-700 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-14">
           
           {/* Logo */}
           <Link to="/student/dashboard" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-xs">U</span>
+            <div className="w-8 h-8 bg-gradient-to-br from-gray-700 to-gray-800 rounded-lg flex items-center justify-center border border-gray-600">
+              <span className="text-gray-200 font-bold text-xs">U</span>
             </div>
-            <span className="text-lg font-bold text-gray-900">UpLoom</span>
+            <span className="text-lg font-bold text-white">UpLoom</span>
           </Link>
 
           {/* Desktop Navigation Items */}
@@ -43,15 +43,15 @@ const Navbar = ({ userName = 'Student' }) => {
                 <div key={item.label} className="relative group">
                   {item.href === '#' ? (
                     <button
-                      className="p-1.5 rounded-lg hover:bg-gray-100 flex items-center gap-1.5 transition-colors relative"
+                      className="p-1.5 rounded-lg hover:bg-gray-800 flex items-center gap-1.5 transition-colors relative"
                       title={item.label}
                     >
-                      <Icon size={18} className="text-gray-600 group-hover:text-blue-600" />
-                      <span className="text-xs font-medium text-gray-700 group-hover:text-blue-600">{item.label}</span>
+                      <Icon size={18} className="text-gray-400 group-hover:text-white" />
+                      <span className="text-xs font-medium text-gray-300 group-hover:text-white">{item.label}</span>
                       
                       {/* Badge for New */}
                       {item.badge && (
-                        <span className="absolute -top-1 -right-1 bg-blue-600 text-white text-xs px-1 py-0.5 rounded-full font-semibold text-xxs">
+                        <span className="absolute -top-1 -right-1 bg-gray-700 border border-gray-600 text-gray-200 text-xs px-1 py-0.5 rounded-full font-semibold text-xxs">
                           {item.badge}
                         </span>
                       )}
@@ -59,15 +59,15 @@ const Navbar = ({ userName = 'Student' }) => {
                   ) : (
                     <Link
                       to={item.href}
-                      className="p-1.5 rounded-lg hover:bg-gray-100 flex items-center gap-1.5 transition-colors relative"
+                      className="p-1.5 rounded-lg hover:bg-gray-800 flex items-center gap-1.5 transition-colors relative"
                       title={item.label}
                     >
-                      <Icon size={18} className="text-gray-600 group-hover:text-blue-600" />
-                      <span className="text-xs font-medium text-gray-700 group-hover:text-blue-600">{item.label}</span>
+                      <Icon size={18} className="text-gray-400 group-hover:text-white" />
+                      <span className="text-xs font-medium text-gray-300 group-hover:text-white">{item.label}</span>
                       
                       {/* Badge for New */}
                       {item.badge && (
-                        <span className="absolute -top-1 -right-1 bg-blue-600 text-white text-xs px-1 py-0.5 rounded-full font-semibold text-xxs">
+                        <span className="absolute -top-1 -right-1 bg-gray-700 border border-gray-600 text-gray-200 text-xs px-1 py-0.5 rounded-full font-semibold text-xxs">
                           {item.badge}
                         </span>
                       )}
@@ -96,14 +96,14 @@ const Navbar = ({ userName = 'Student' }) => {
 
         {/* Mobile Menu */}
         {isMenuOpen && (
-          <div className="md:hidden pb-3 space-y-1 border-t border-gray-200">
+          <div className="md:hidden pb-3 space-y-1 border-t border-gray-700">
             {menuItems.map((item) => {
               const Icon = item.icon;
               return (
                 <div key={item.label}>
                   {item.href === '#' ? (
                     <button
-                      className="w-full text-left px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors flex items-center gap-2 text-xs"
+                      className="w-full text-left px-3 py-2 text-gray-300 hover:bg-gray-800 rounded-lg transition-colors flex items-center gap-2 text-sm"
                     >
                       <Icon size={16} />
                       {item.label}
@@ -112,7 +112,7 @@ const Navbar = ({ userName = 'Student' }) => {
                     <Link
                       to={item.href}
                       onClick={() => setIsMenuOpen(false)}
-                      className="w-full block px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors text-xs"
+                      className="w-full block px-3 py-2 text-gray-300 hover:bg-gray-800 rounded-lg transition-colors text-sm"
                     >
                       <div className="flex items-center gap-2">
                         <Icon size={16} />
@@ -125,7 +125,7 @@ const Navbar = ({ userName = 'Student' }) => {
             })}
             <button
               onClick={handleLogout}
-              className="w-full text-left px-3 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors flex items-center gap-2 text-xs"
+              className="w-full text-left px-3 py-2 bg-red-900 hover:bg-red-800 text-white rounded-lg font-medium transition-colors flex items-center gap-2 text-sm mt-2"
             >
               <LogOut size={16} />
               Logout

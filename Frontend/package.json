@@ -13,6 +13,7 @@
     "@react-oauth/google": "^0.12.2",
     "@zegocloud/zego-uikit-prebuilt": "^2.17.1",
     "axios": "^1.13.2",
+    "framer-motion": "^12.23.25",
     "jwt-decode": "^4.0.0",
     "lucide-react": "^0.553.0",
     "react": "^19.1.1",
