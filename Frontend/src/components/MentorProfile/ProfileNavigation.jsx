@@ -9,7 +9,7 @@ const ProfileNavigation = ({ activeTab = 'overview', onTabChange }) => {
   ];
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg">
+    <div className="bg-[#121212] border border-gray-200 rounded-lg">
       <div className="border-b border-gray-200">
         <nav className="flex space-x-8 px-6">
           {tabs.map((tab) => (

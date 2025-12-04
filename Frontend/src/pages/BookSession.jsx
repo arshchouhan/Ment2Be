@@ -228,71 +228,71 @@ const BookSession = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#000000]">
       <Navbar userName={user?.name || 'Student'} />
       
-      <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
+      <div className="max-w-7xl mx-auto p-3 sm:p-4 lg:p-6">
         {/* Back Button */}
         <button
           onClick={() => navigate(-1)}
-          className="flex items-center text-gray-600 hover:text-gray-900 mb-6 transition-colors"
+          className="flex items-center text-gray-400 hover:text-white mb-4 transition-colors text-sm"
         >
-          <FiArrowLeft className="w-4 h-4 mr-2" />
+          <FiArrowLeft className="w-3.5 h-3.5 mr-1.5" />
           Back
         </button>
 
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">Book a Session</h1>
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-white mb-3">Book a Session</h1>
           {mentorData && (
-            <div className="flex items-center space-x-4 bg-white rounded-lg p-4 shadow-sm border border-gray-200">
+            <div className="flex items-center space-x-3 bg-[#121212] rounded-lg p-3 shadow-sm border border-gray-700">
               {mentorData.profileImage ? (
                 <img
                   src={mentorData.profileImage}
                   alt={mentorData.name}
-                  className="w-12 h-12 rounded-full object-cover"
+                  className="w-10 h-10 rounded-full object-cover"
                 />
               ) : (
-                <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center">
-                  <FiUser className="w-6 h-6 text-gray-500" />
+                <div className="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center">
+                  <FiUser className="w-5 h-5 text-gray-400" />
                 </div>
               )}
               <div>
-                <p className="text-gray-900 font-semibold text-lg">{mentorData.name}</p>
-                <p className="text-gray-600">{mentorData.title}</p>
-                <p className="text-gray-500 text-sm">{mentorData.company}</p>
+                <p className="text-white font-semibold text-base">{mentorData.name}</p>
+                <p className="text-gray-400 text-sm">{mentorData.title}</p>
+                <p className="text-gray-500 text-xs">{mentorData.company}</p>
               </div>
             </div>
           )}
         </div>
 
         <form onSubmit={handleSubmit}>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
             {/* Left Column - Session Details Form */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-6">Session Details</h3>
+            <div className="bg-[#121212] rounded-lg shadow-sm border border-gray-700 p-4">
+              <h3 className="text-base font-semibold text-white mb-4">Session Details</h3>
               
-              <div className="space-y-6">
+              <div className="space-y-4">
                 <div>
-                  <label className="text-sm text-gray-700 block mb-2">Session Title</label>
+                  <label className="text-xs text-gray-400 block mb-1.5">Session Title</label>
                   <input
                     type="text"
                     name="sessionTitle"
                     value={formData.sessionTitle}
                     onChange={handleInputChange}
                     required
-                    className="w-full px-3 py-3 bg-white border border-gray-300 rounded text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:outline-none"
+                    className="w-full px-3 py-2 text-sm bg-[#202327] border border-gray-700 rounded text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none"
                     placeholder="Enter session title"
                   />
                 </div>
 
                 <div>
-                  <label className="text-sm text-gray-700 block mb-2">Session Type</label>
+                  <label className="text-xs text-gray-400 block mb-1.5">Session Type</label>
                   <select
                     name="sessionType"
                     value={formData.sessionType}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-3 bg-white border border-gray-300 rounded text-gray-900 focus:border-blue-500 focus:outline-none"
+                    className="w-full px-3 py-2 text-sm bg-[#202327] border border-gray-700 rounded text-white focus:border-blue-500 focus:outline-none"
                   >
                     <option value="one-on-one">One-on-One</option>
                     <option value="group">Group Session</option>
@@ -301,12 +301,12 @@ const BookSession = () => {
                 </div>
 
                 <div>
-                  <label className="text-sm text-gray-700 block mb-2">Duration</label>
+                  <label className="text-xs text-gray-400 block mb-1.5">Duration</label>
                   <select
                     name="duration"
                     value={formData.duration}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-3 bg-white border border-gray-300 rounded text-gray-900 focus:border-blue-500 focus:outline-none"
+                    className="w-full px-3 py-2 text-sm bg-[#202327] border border-gray-700 rounded text-white focus:border-blue-500 focus:outline-none"
                   >
                     <option value={30}>30 minutes</option>
                     <option value={60}>60 minutes</option>
@@ -316,26 +316,26 @@ const BookSession = () => {
                 </div>
 
                 <div>
-                  <label className="text-sm text-gray-700 block mb-2">Description (Optional)</label>
+                  <label className="text-xs text-gray-400 block mb-1.5">Description (Optional)</label>
                   <textarea
                     name="sessionDescription"
                     value={formData.sessionDescription}
                     onChange={handleInputChange}
-                    rows={3}
-                    className="w-full px-3 py-3 bg-white border border-gray-300 rounded text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:outline-none"
+                    rows={2}
+                    className="w-full px-3 py-2 text-sm bg-[#202327] border border-gray-700 rounded text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none"
                     placeholder="Describe what you'd like to learn or discuss..."
                   />
                 </div>
 
                 {/* Price Display */}
                 {mentorData && (
-                  <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                  <div className="bg-[#202327] rounded-lg p-3 border border-gray-700">
                     <div className="flex items-center justify-between">
-                      <span className="text-gray-700 flex items-center">
-                        <FiDollarSign className="w-4 h-4 mr-1" />
+                      <span className="text-gray-400 text-xs flex items-center">
+                        <FiDollarSign className="w-3.5 h-3.5 mr-1" />
                         Session Price:
                       </span>
-                      <span className="text-gray-900 font-bold text-lg">
+                      <span className="text-white font-bold text-base">
                         {mentorData.hourlyRate > 0 ? `$${mentorData.hourlyRate}` : 'Free'}
                       </span>
                     </div>
@@ -344,13 +344,13 @@ const BookSession = () => {
 
                 {/* Additional Notes */}
                 <div>
-                  <label className="text-sm text-gray-700 block mb-2">Additional Notes (Optional)</label>
+                  <label className="text-xs text-gray-400 block mb-1.5">Additional Notes (Optional)</label>
                   <textarea
                     name="studentNotes"
                     value={formData.studentNotes}
                     onChange={handleInputChange}
-                    rows={3}
-                    className="w-full px-3 py-3 bg-white border border-gray-300 rounded text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:outline-none"
+                    rows={2}
+                    className="w-full px-3 py-2 text-sm bg-[#202327] border border-gray-700 rounded text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none"
                     placeholder="Any specific topics or questions you'd like to discuss..."
                   />
                 </div>
@@ -358,20 +358,20 @@ const BookSession = () => {
             </div>
 
             {/* Right Column - Date & Time Selection */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-6">Select Date & Time</h3>
+            <div className="bg-[#121212] rounded-lg shadow-sm border border-gray-700 p-4">
+              <h3 className="text-base font-semibold text-white mb-4">Select Date & Time</h3>
               
-              <div className="space-y-6">
+              <div className="space-y-4">
                 {/* Date Selection */}
                 <div>
-                  <label className="text-sm text-gray-700 block mb-3">
-                    <FiCalendar className="inline w-4 h-4 mr-1" />
+                  <label className="text-xs text-gray-400 block mb-2">
+                    <FiCalendar className="inline w-3.5 h-3.5 mr-1" />
                     Select Date
                   </label>
                   
                   {/* Manual Date Input */}
-                  <div className="mb-4">
-                    <label className="text-xs text-gray-600 block mb-2">Enter Custom Date</label>
+                  <div className="mb-3">
+                    <label className="text-[10px] text-gray-500 block mb-1">Enter Custom Date</label>
                     <input
                       type="date"
                       min="2020-01-01"
@@ -379,38 +379,37 @@ const BookSession = () => {
                       onChange={(e) => {
                         if (e.target.value) {
                           setSelectedDate(e.target.value);
-                          // Update calendar to show the selected month/year
                           const selectedDateObj = new Date(e.target.value);
                           setCurrentMonth(selectedDateObj.getMonth());
                           setCurrentYear(selectedDateObj.getFullYear());
                         }
                       }}
-                      className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:border-blue-500"
+                      className="w-full px-2 py-1.5 border border-gray-600 bg-[#202327] text-white rounded text-xs focus:outline-none focus:border-blue-500"
                       placeholder="Select any date"
                     />
                   </div>
                   
-                  <div className="text-center text-xs text-gray-500 mb-3">OR use calendar below</div>
-                  <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                  <div className="text-center text-[10px] text-gray-500 mb-2">OR use calendar below</div>
+                  <div className="bg-[#202327] rounded-lg p-3 border border-gray-700">
                     {/* Calendar Header with Month/Year Navigation */}
-                    <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center justify-between mb-3">
                       <button
                         type="button"
                         onClick={goToPreviousMonth}
-                        className="p-1 hover:bg-gray-200 rounded transition-colors"
+                        className="p-0.5 hover:bg-gray-700 rounded transition-colors"
                       >
-                        <FiArrowLeft className="w-4 h-4" />
+                        <FiArrowLeft className="w-3.5 h-3.5 text-gray-400" />
                       </button>
                       
-                      <div className="flex items-center space-x-2">
+                      <div className="flex items-center space-x-1.5">
                         <select
                           value={currentMonth}
                           onChange={handleMonthChange}
-                          className="px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:border-blue-500"
+                          className="px-1.5 py-0.5 border border-gray-600 bg-[#121212] text-white rounded text-[11px] focus:outline-none focus:border-blue-500"
                         >
                           {[
-                            'January', 'February', 'March', 'April', 'May', 'June',
-                            'July', 'August', 'September', 'October', 'November', 'December'
+                            'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                            'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
                           ].map((month, index) => (
                             <option key={index} value={index}>{month}</option>
                           ))}
@@ -422,7 +421,7 @@ const BookSession = () => {
                           onChange={(e) => setCurrentYear(parseInt(e.target.value) || new Date().getFullYear())}
                           min="2020"
                           max="2050"
-                          className="px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:border-blue-500 w-20"
+                          className="px-1.5 py-0.5 border border-gray-600 bg-[#121212] text-white rounded text-[11px] focus:outline-none focus:border-blue-500 w-14"
                           placeholder="Year"
                         />
                       </div>
@@ -430,33 +429,33 @@ const BookSession = () => {
                       <button
                         type="button"
                         onClick={goToNextMonth}
-                        className="p-1 hover:bg-gray-200 rounded transition-colors"
+                        className="p-0.5 hover:bg-gray-700 rounded transition-colors"
                       >
-                        <FiArrowLeft className="w-4 h-4 rotate-180" />
+                        <FiArrowLeft className="w-3.5 h-3.5 rotate-180 text-gray-400" />
                       </button>
                     </div>
                     
-                    <div className="grid grid-cols-7 gap-1 text-center text-sm mb-2">
-                      {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
-                        <div key={day} className="p-2 font-medium text-gray-600">{day}</div>
+                    <div className="grid grid-cols-7 gap-0.5 text-center text-[10px] mb-1.5">
+                      {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, i) => (
+                        <div key={i} className="p-1 font-medium text-gray-500">{day}</div>
                       ))}
                     </div>
-                    <div className="grid grid-cols-7 gap-1 text-center text-sm">
+                    <div className="grid grid-cols-7 gap-0.5 text-center text-xs">
                       {generateCalendar().map((dayObj, index) => (
-                        <div key={index} className="p-2">
+                        <div key={index} className="p-0.5">
                           {dayObj && (
                             <button
                               type="button"
                               onClick={() => !dayObj.isPast && handleDateSelect(dayObj.date)}
                               disabled={dayObj.isPast}
-                              className={`w-8 h-8 rounded transition-colors ${
+                              className={`w-7 h-7 rounded transition-colors text-[11px] ${
                                 dayObj.isSelected
                                   ? 'bg-blue-600 text-white'
                                   : dayObj.isPast
-                                  ? 'text-gray-400 cursor-not-allowed'
+                                  ? 'text-gray-600 cursor-not-allowed'
                                   : dayObj.isToday
-                                  ? 'bg-blue-100 text-blue-600 hover:bg-blue-200'
-                                  : 'text-gray-700 hover:bg-gray-100'
+                                  ? 'bg-blue-500/20 text-blue-400 hover:bg-blue-500/30'
+                                  : 'text-gray-300 hover:bg-gray-700'
                               }`}
                             >
                               {dayObj.day}
@@ -470,19 +469,18 @@ const BookSession = () => {
 
                 {/* Time Selection */}
                 <div>
-                  <label className="text-sm text-gray-700 block mb-3">
-                    <FiClock className="inline w-4 h-4 mr-1" />
+                  <label className="text-xs text-gray-400 block mb-2">
+                    <FiClock className="inline w-3.5 h-3.5 mr-1" />
                     Select Time
                   </label>
                   
                   {/* Manual Time Input */}
-                  <div className="mb-4">
-                    <label className="text-xs text-gray-600 block mb-2">Enter Custom Time (24-hour format)</label>
+                  <div className="mb-3">
+                    <label className="text-[10px] text-gray-500 block mb-1">Enter Custom Time (24-hour format)</label>
                     <input
                       type="time"
                       onChange={(e) => {
                         if (e.target.value) {
-                          // Convert 24-hour to 12-hour format for consistency
                           const [hours, minutes] = e.target.value.split(':');
                           const hour24 = parseInt(hours);
                           const hour12 = hour24 === 0 ? 12 : hour24 > 12 ? hour24 - 12 : hour24;
@@ -491,24 +489,24 @@ const BookSession = () => {
                           setSelectedTimeSlot(timeFormatted);
                         }
                       }}
-                      className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:border-blue-500"
+                      className="w-full px-2 py-1.5 border border-gray-600 bg-[#202327] text-white rounded text-xs focus:outline-none focus:border-blue-500"
                       placeholder="Select any time"
                     />
                   </div>
                   
-                  <div className="text-center text-xs text-gray-500 mb-3">OR choose from preset times</div>
+                  <div className="text-center text-[10px] text-gray-500 mb-2">OR choose from preset times</div>
                   
                   {/* Preset Time Slots */}
-                  <div className="grid grid-cols-3 gap-2">
+                  <div className="grid grid-cols-3 gap-1.5">
                     {timeSlots.map((time) => (
                       <button
                         key={time}
                         type="button"
                         onClick={() => handleTimeSlotSelect(time)}
-                        className={`p-3 text-center border rounded-lg transition-colors text-sm ${
+                        className={`p-2 text-center border rounded transition-colors text-xs ${
                           selectedTimeSlot === time
                             ? 'bg-blue-600 text-white border-blue-600'
-                            : 'bg-white text-gray-700 border-gray-300 hover:border-blue-500 hover:bg-blue-50'
+                            : 'bg-[#202327] text-gray-300 border-gray-700 hover:border-blue-500 hover:bg-blue-500/10'
                         }`}
                       >
                         {time}
@@ -519,12 +517,11 @@ const BookSession = () => {
 
                 {/* Selected Date & Time Display */}
                 {(selectedDate || selectedTimeSlot) && (
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                    <h4 className="text-blue-800 font-medium mb-2">Selected Session</h4>
+                  <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-3">
+                    <h4 className="text-blue-400 font-medium mb-1.5 text-xs">Selected Session</h4>
                     {selectedDate && (
-                      <p className="text-blue-700 text-sm">
+                      <p className="text-blue-300 text-[11px]">
                         Date: {(() => {
-                          // Parse the date string properly to avoid timezone issues
                           const [year, month, day] = selectedDate.split('-').map(Number);
                           const date = new Date(year, month - 1, day);
                           return date.toLocaleDateString('en-US', {
@@ -537,7 +534,7 @@ const BookSession = () => {
                       </p>
                     )}
                     {selectedTimeSlot && (
-                      <p className="text-blue-700 text-sm">Time: {selectedTimeSlot}</p>
+                      <p className="text-blue-300 text-[11px]">Time: {selectedTimeSlot}</p>
                     )}
                   </div>
                 )}
@@ -546,13 +543,13 @@ const BookSession = () => {
           </div>
 
           {/* Submit Button - Full Width Below Both Columns */}
-          <div className="mt-8 pt-6 border-t border-gray-200">
+          <div className="mt-5 pt-4 border-t border-gray-700">
             <button
               type="submit"
               disabled={loading || !selectedDate || !selectedTimeSlot}
-              className={`w-full py-3 px-4 rounded-lg font-medium transition-colors ${
+              className={`w-full py-2.5 px-4 rounded-lg font-medium transition-colors text-sm ${
                 loading || !selectedDate || !selectedTimeSlot
-                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
                   : 'bg-blue-600 text-white hover:bg-blue-700'
               }`}
             >

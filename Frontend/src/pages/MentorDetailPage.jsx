@@ -137,13 +137,13 @@ const MentorDetailPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#000000]">
       <Navbar userName={user?.name || 'Student'} />
       
-      <div className="max-w-6xl mx-auto p-4 sm:p-6 lg:p-8">
+      <div className="max-w-7xl mx-auto px-1 sm:px-2 lg:px-4 py-4 sm:py-6">
         {loading ? (
           <div className="flex justify-center items-center h-64">
-            <div className="text-gray-500">Loading mentor profile...</div>
+            <div className="text-white">Loading mentor profile...</div>
           </div>
         ) : error ? (
           <div className="flex justify-center items-center h-64">
@@ -162,9 +162,9 @@ const MentorDetailPage = () => {
             <ProfileHeader mentorData={mentorData} />
 
             {/* Main Content Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
               {/* Left Column - Main Content */}
-              <div className="lg:col-span-3 space-y-6">
+              <div className="lg:col-span-9 space-y-6">
                 {/* Navigation Tabs */}
                 <ProfileNavigation 
                   activeTab={activeTab} 
@@ -182,7 +182,7 @@ const MentorDetailPage = () => {
               </div>
 
               {/* Right Column - Sidebar */}
-              <div className="lg:col-span-1">
+              <div className="lg:col-span-3">
                 <ProfileSidebar 
                   mentorData={mentorData} 
                   onBookSession={handleBookSession} 
@@ -200,8 +200,8 @@ const MentorDetailPage = () => {
             {/* Modal Header */}
             <div className="flex justify-between items-center p-6 border-b">
               <div>
-                <h2 className="text-xl font-bold text-gray-900">{mentorData?.name}</h2>
-                <p className="text-gray-600">{mentorData?.title}</p>
+                <h2 className="text-xl font-bold text-white">{mentorData?.name}</h2>
+                <p className="text-white">{mentorData?.title}</p>
               </div>
               <button 
                 onClick={() => setShowBookingModal(false)}

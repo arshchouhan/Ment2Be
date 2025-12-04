@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { ObjectId } from 'mongodb';
 import { 
   GetAllMentors, 
   GetMentorById, 
@@ -13,9 +14,21 @@ import upload from '../middleware/upload.middleware.js';
 
 const mentorRouter = Router();
 
+// Middleware to validate MongoDB ObjectId
+const validateMongoId = (req, res, next) => {
+  const { id } = req.params;
+  if (!ObjectId.isValid(id)) {
+    return res.status(400).json({
+      success: false,
+      message: 'Invalid ID format. ID must be a valid MongoDB ObjectId.'
+    });
+  }
+  next();
+};
+
 mentorRouter.get('/', GetAllMentors);
 mentorRouter.get('/carousel', GetCarouselMentors);
-mentorRouter.get('/:id', GetMentorById);
+mentorRouter.get('/:id', validateMongoId, GetMentorById);
 mentorRouter.get('/skill/:skillId', GetMentorsBySkill);
 
 // Create or update mentor profile

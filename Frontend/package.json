@@ -13,6 +13,7 @@
     "@react-oauth/google": "^0.12.2",
     "@zegocloud/zego-uikit-prebuilt": "^2.17.1",
     "axios": "^1.13.2",
+    "date-fns": "^4.1.0",
     "framer-motion": "^12.23.25",
     "jwt-decode": "^4.0.0",
     "lucide-react": "^0.553.0",
@@ -22,6 +23,7 @@
     "react-icons": "^5.5.0",
     "react-player": "^3.4.0",
     "react-router-dom": "^7.9.6",
+    "react-toastify": "^11.0.5",
     "socket.io-client": "^4.8.1",
     "tailwind-scrollbar-hide": "^4.0.0"
   },

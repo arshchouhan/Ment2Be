@@ -13,6 +13,8 @@ import reviewsRouter from './routes/reviews.routes.js';
 import mentorRouter from './routes/mentor.routes.js';
 import bookingRouter from './routes/booking.routes.js';
 import messageRouter from './routes/message.routes.js';
+import karmaPointsRouter from './routes/karmaPoints.routes.js';
+import mentorKarmaRouter from './routes/mentorKarma.routes.js';
 import { handleSocketConnection, getRoomCount, getTotalParticipants } from './socket/socketHandlers.js';
 
 import dotenv from "dotenv"
@@ -64,7 +66,8 @@ app.get('/', (req, res) => {
       skills: '/api/skills',
       sessions: '/api/sessions',
       payments: '/api/payments',
-      reviews: '/api/reviews'
+      reviews: '/api/reviews',
+      karma: '/api/karma'
     }
   });
 });
@@ -92,6 +95,7 @@ app.get('/api/socket/stats', (req, res) => {
 app.use('/api/auth', authRouter);
 app.use('/api/user', userRouter);
 app.use('/api/mentors', mentorRouter);
+app.use('/api/mentors/karma', mentorKarmaRouter);
 app.use('/api/bookings', bookingRouter);
 
 app.use('/api/skills', skillsRouter);
@@ -99,6 +103,7 @@ app.use('/api/sessions', sessionsRouter);
 app.use('/api/payments', paymentsRouter);
 app.use('/api/reviews', reviewsRouter);
 app.use('/api/messages', messageRouter);
+app.use('/api/karma', karmaPointsRouter);
 
 // Initialize Socket.IO handlers
 handleSocketConnection(io);

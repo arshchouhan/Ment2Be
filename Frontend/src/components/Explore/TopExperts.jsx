@@ -34,41 +34,41 @@ const experts = [
 
 const TopExperts = () => {
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden flex flex-col h-[350px]">
-      <div className="p-2 border-b border-gray-200 flex-shrink-0">
-        <h3 className="text-md font-semibold text-gray-900">Top Experts</h3>
+    <div className="bg-[#121212] rounded-lg border border-[#202327] overflow-hidden flex flex-col h-[350px] w-[270px]">
+      <div className="p-2 border-b border-gray-700 flex-shrink-0">
+        <h3 className="text-md font-semibold text-white">Top Experts</h3>
       </div>
-      <div className="divide-y divide-gray-200 overflow-y-auto flex-1 scrollbar-hide">
+      <div className="divide-y divide-gray-700 overflow-y-auto flex-1 scrollbar-hide">
         {experts.map((expert) => (
-          <div key={expert.id} className="p-3 hover:bg-gray-50 cursor-pointer transition-colors">
+          <div key={expert.id} className="p-3 hover:bg-gray-700/50 cursor-pointer transition-colors">
             <div className="flex items-center">
               <div className="relative">
                 <img
-                  className="h-10 w-10 rounded-full object-cover"
+                  className="h-10 w-10 rounded-full object-cover border border-gray-600"
                   src={expert.image}
                   alt={expert.name}
                 />
                 {expert.verified && (
-                  <div className="absolute -bottom-1 -right-1 bg-blue-500 text-white rounded-full p-0.5">
+                  <div className="absolute -bottom-1 -right-1 bg-cyan-500 text-white rounded-full p-0.5">
                     <FiCheckCircle className="h-3 w-3" />
                   </div>
                 )}
               </div>
               <div className="ml-3 flex-1 min-w-0">
                 <div className="flex items-center">
-                  <span className="text-sm font-medium text-gray-900">{expert.name}</span>
+                  <span className="text-sm font-medium text-white">{expert.name}</span>
                   {expert.verified && (
-                    <FiCheckCircle className="ml-1 h-4 w-4 text-blue-500" />
+                    <FiCheckCircle className="ml-1 h-4 w-4 text-cyan-400" />
                   )}
                 </div>
-                <p className="text-xs text-gray-500">{expert.company}</p>
+                <p className="text-xs text-gray-400">{expert.company}</p>
               </div>
             </div>
           </div>
         ))}
       </div>
-      <div className="p-2 border-t border-gray-200 text-center">
-        <button className="text-sm font-medium text-blue-600 hover:text-blue-800">
+      <div className="p-2 border-t border-gray-700 text-center">
+        <button className="text-sm font-medium text-white hover:bg-[#535353]">
           View All
         </button>
       </div>

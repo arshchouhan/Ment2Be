@@ -19,6 +19,7 @@ import MentorDetailPage from './pages/MentorDetailPage';
 import BookSession from './pages/BookSession';
 import MeetingRoomZego from './pages/MeetingRoomZego';
 import NotFoundPage from './assets/NotFoundPage';
+import ProfileCompletionPage from './pages/ProfileCompletionPage';
 
 function App() {
   const location = useLocation();
@@ -41,6 +42,7 @@ function App() {
         <Route path="/student/chat" element={<ChatPage />} />
         <Route path="/student/sessions" element={<SessionsPage />} />
         <Route path="/student/profile" element={<ProfilePage />} />
+        <Route path="/complete-profile" element={<ProfileCompletionPage />} />
         <Route path="/mentor-profile" element={<MentorDetailPage />} />
         <Route path="/booking" element={<BookSession />} />
         

@@ -12,11 +12,80 @@ const SessionsPage = () => {
   const [error, setError] = useState(null);
   const [filter, setFilter] = useState('all'); // all, upcoming, past
 
-  const handleJoinSession = (session) => {
-    if (session.meetingLink) {
-      window.open(session.meetingLink, '_blank');
-    } else {
-      alert('Meeting link not available. Please contact the mentor.');
+  const handleJoinSession = async (session) => {
+    try {
+      console.log('Attempting to join session:', session);
+      
+      // For ZegoCloud meetings
+      if (session.meetingType === 'zegocloud' || (session.meetingLink && session.meetingLink.includes('zegocloud'))) {
+        const roomId = session.meetingId || session.roomId || session.meetingLink?.split('/').pop();
+        if (roomId) {
+          const meetingUrl = `/meeting-zego?roomId=${encodeURIComponent(roomId)}&sessionId=${session._id}`;
+          console.log('Opening ZegoCloud meeting:', meetingUrl);
+          window.open(meetingUrl, '_blank');
+          return;
+        }
+      }
+      
+      // For Zoom meetings
+      if (session.meetingLink && session.meetingLink.includes('zoom.us')) {
+        if (session.meetingLink.includes('?') || session.meetingLink.includes('/j/')) {
+          console.log('Opening Zoom meeting with direct link');
+          window.open(session.meetingLink, '_blank');
+        } else if (session.meetingId) {
+          const zoomUrl = `https://zoom.us/j/${session.meetingId}${session.passcode ? `?pwd=${session.passcode}` : ''}`;
+          console.log('Opening Zoom meeting with ID:', zoomUrl);
+          window.open(zoomUrl, '_blank');
+        } else {
+          console.log('Opening Zoom meeting with basic link');
+          window.open(session.meetingLink, '_blank');
+        }
+        return;
+      }
+      
+      // For direct meeting links
+      if (session.meetingLink) {
+        console.log('Opening direct meeting link');
+        window.open(session.meetingLink, '_blank');
+        return;
+      }
+      
+      // For meeting ID only
+      const roomId = session.meetingId || session.roomId;
+      if (roomId) {
+        const meetingUrl = `/meeting?roomId=${encodeURIComponent(roomId)}&sessionId=${session._id}`;
+        console.log('Opening default meeting room:', meetingUrl);
+        window.open(meetingUrl, '_blank');
+        return;
+      }
+      
+      // If we get here, we couldn't determine how to join
+      console.error('Could not join meeting - missing required parameters. Session data:', {
+        meetingType: session.meetingType,
+        meetingLink: session.meetingLink,
+        meetingId: session.meetingId,
+        roomId: session.roomId,
+        sessionId: session._id,
+        sessionDate: session.sessionDate,
+        status: session.status
+      });
+      
+      // Check if this is a session that should have a meeting link
+      const sessionDate = session.sessionDate ? new Date(session.sessionDate) : null;
+      const now = new Date();
+      
+      if (!sessionDate) {
+        alert('This session does not have a scheduled date. Please contact the mentor for assistance.');
+      } else if ((sessionDate - now) > (24 * 60 * 60 * 1000)) {
+        alert('This session is more than 24 hours away. The meeting link will be available closer to the session time.');
+      } else if (sessionDate > now) {
+        alert('The meeting link is not available yet. Please check back closer to your session time or contact the mentor.');
+      } else {
+        alert('Unable to join the meeting. Please contact the mentor for assistance.');
+      }
+    } catch (error) {
+      console.error('Error joining meeting:', error, 'Session data:', session);
+      alert('An error occurred while trying to join the meeting. Please try again or contact support.');
     }
   };
 
@@ -111,215 +180,150 @@ const SessionsPage = () => {
     );
   }
 
+  // Categorize bookings
+  const completedSessions = bookings.filter(booking => booking.status === 'completed');
+  const upcomingSessions = bookings.filter(booking => 
+    ['scheduled', 'confirmed', 'pending'].includes(booking.status) && 
+    new Date(booking.sessionDate) >= new Date()
+  );
+  const cancelledSessions = bookings.filter(booking => booking.status === 'cancelled');
+
+  const SessionCard = ({ booking }) => {
+    return (
+      <div className="bg-[#121212] rounded-lg p-4 border border-gray-700 mb-3 hover:border-white transition-colors">
+        <div className="flex items-start space-x-3">
+          <div className="flex-shrink-0">
+            <div className="h-10 w-10 rounded-full bg-gray-800 flex items-center justify-center">
+              <FiUser className="h-5 w-5 text-gray-300" />
+            </div>
+          </div>
+          <div className="flex-1 min-w-0">
+            <h4 className="text-sm font-medium text-white truncate">
+              {booking.mentor?.name || 'Mentor Name'}
+            </h4>
+            <p className="text-xs text-gray-400">{booking.mentor?.title || 'Mentor'}</p>
+            
+            <div className="mt-2 flex items-center text-xs text-gray-400">
+              <FiCalendar className="mr-1 h-3 w-3" />
+              {new Date(booking.sessionDate).toLocaleDateString()}
+              <span className="mx-1">•</span>
+              <FiClock className="mr-1 h-3 w-3" />
+              {new Date(booking.sessionDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+            </div>
+            
+            <div className="mt-2">
+              <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
+                booking.status === 'completed' 
+                  ? 'bg-[#2c2c2c] text-gray-300 border border-gray-600' 
+                  : booking.status === 'cancelled' 
+                    ? 'bg-[#2c2c2c] text-gray-400 border border-gray-600'
+                    : 'bg-[#2c2c2c] text-white border border-gray-600'
+              }`}>
+                {booking.status ? booking.status.charAt(0).toUpperCase() + booking.status.slice(1) : 'Scheduled'}
+              </span>
+            </div>
+          </div>
+        </div>
+        
+        {!['completed', 'cancelled'].includes(booking.status) && (
+          <div className="mt-3 pt-3 border-t border-gray-700">
+            <button
+              onClick={() => handleJoinSession(booking)}
+              className="w-full py-2 px-3 bg-white hover:bg-gray-200 text-gray-900 text-xs font-medium rounded transition-colors"
+            >
+              Join Session
+            </button>
+          </div>
+        )}
+      </div>
+    );
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-black text-white">
       <Navbar userName={user?.name || 'Student'} />
       
       <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
-            <h1 className="text-3xl font-bold text-gray-900">My Sessions</h1>
-            <button
-              onClick={fetchBookings}
-              disabled={loading}
-              className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <FiRefreshCw className={`w-4 h-4 mr-1 ${loading ? 'animate-spin' : ''}`} />
-              Refresh
-            </button>
-          </div>
-          
-          {/* Filter Tabs */}
-          <div className="flex space-x-1 bg-gray-100 rounded-lg p-1 w-fit">
-            <button
-              onClick={() => setFilter('all')}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                filter === 'all'
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              All Sessions
-            </button>
-            <button
-              onClick={() => setFilter('upcoming')}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                filter === 'upcoming'
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              Upcoming
-            </button>
-            <button
-              onClick={() => setFilter('past')}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                filter === 'past'
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              Past
-            </button>
-          </div>
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold">My Sessions</h1>
+          <p className="text-sm text-gray-400 mt-1">Manage your mentoring sessions</p>
         </div>
 
         {error ? (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-6">
-            <h3 className="text-red-800 font-semibold mb-2">Error</h3>
-            <p className="text-red-700">{error}</p>
-          </div>
-        ) : filteredBookings.length === 0 ? (
-          <div className="bg-white border border-gray-200 rounded-lg p-12 text-center">
-            <FiCalendar className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No sessions found</h3>
-            <p className="text-gray-600">
-              {filter === 'upcoming' 
-                ? "You don't have any upcoming sessions."
-                : filter === 'past'
-                ? "You don't have any past sessions."
-                : "You haven't booked any sessions yet."
-              }
-            </p>
+          <div className="bg-red-900/20 border border-red-700 rounded-lg p-4 text-center">
+            <p className="text-red-400">{error}</p>
+            <button
+              onClick={fetchBookings}
+              className="mt-2 px-4 py-2 bg-gray-800 rounded-lg text-sm font-medium text-gray-300 hover:bg-gray-700 flex items-center mx-auto"
+            >
+              <FiRefreshCw className="mr-2" /> Try Again
+            </button>
           </div>
         ) : (
-          <div className="space-y-4">
-            {filteredBookings.map((booking) => (
-              <div key={booking._id} className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                {/* Use SessionTimer for upcoming sessions, fallback to original layout for past sessions */}
-                {filter === 'upcoming' || (['pending', 'confirmed'].includes(booking.status) && new Date(booking.sessionDate) >= new Date()) ? (
-                  <div className="p-4">
-                    <SessionTimer
-                      session={booking}
-                      onJoinSession={handleJoinSession}
-                      userRole="student"
-                    />
-                  </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Upcoming Sessions */}
+            <div>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold text-white">Upcoming</h2>
+                <span className="text-xs bg-[#2c2c2c] text-gray-300 px-2 py-1 rounded-full">
+                  {upcomingSessions.length} sessions
+                </span>
+              </div>
+              <div className="space-y-3">
+                {upcomingSessions.length > 0 ? (
+                  upcomingSessions.map(booking => (
+                    <SessionCard key={booking._id} booking={booking} />
+                  ))
                 ) : (
-                  <div className="p-6 hover:shadow-md transition-shadow">
-                    <div className="flex items-center justify-between">
-                      {/* Left Section - Session Info */}
-                      <div className="flex items-center space-x-6 flex-1">
-                        {/* Mentor Avatar */}
-                        <div className="flex-shrink-0">
-                          {booking.mentor.profilePicture ? (
-                            <img
-                              src={booking.mentor.profilePicture}
-                              alt={booking.mentor.name}
-                              className="w-16 h-16 rounded-full object-cover"
-                            />
-                          ) : (
-                            <div className="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center">
-                              <FiUser className="w-8 h-8 text-gray-500" />
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Session Details */}
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center space-x-3 mb-2">
-                            <h3 className="text-lg font-semibold text-gray-900 truncate">
-                              {booking.sessionTitle}
-                            </h3>
-                            <span className={`px-3 py-1 rounded-full text-sm font-medium border ${getStatusColor(booking.status)}`}>
-                              {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
-                            </span>
-                          </div>
-                          
-                          <div className="flex items-center space-x-4 text-sm text-gray-600 mb-2">
-                            <div className="flex items-center">
-                              <FiUser className="w-4 h-4 mr-1" />
-                              <span className="font-medium">{booking.mentor.name}</span>
-                            </div>
-                            <div className="flex items-center">
-                              <FiCalendar className="w-4 h-4 mr-1" />
-                              <span>{formatDate(booking.sessionDate)}</span>
-                            </div>
-                            <div className="flex items-center">
-                              <FiClock className="w-4 h-4 mr-1" />
-                              <span>{booking.sessionTime} ({booking.duration} min)</span>
-                            </div>
-                            <div className="flex items-center">
-                              <FiDollarSign className="w-4 h-4 mr-1" />
-                              <span>{booking.price > 0 ? `$${booking.price}` : 'Free'}</span>
-                            </div>
-                          </div>
-
-                          {/* Session Type & Topics */}
-                          <div className="flex items-center space-x-2">
-                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                              {booking.sessionType}
-                            </span>
-                            {booking.topics && booking.topics.length > 0 && (
-                              <>
-                                {booking.topics.slice(0, 2).map((topic, index) => (
-                                  <span key={index} className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                    {topic}
-                                  </span>
-                                ))}
-                                {booking.topics.length > 2 && (
-                                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
-                                    +{booking.topics.length - 2} more
-                                  </span>
-                                )}
-                              </>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Right Section - Actions */}
-                      <div className="flex items-center space-x-3">
-                        <button
-                          onClick={() => navigate(`/booking?bookingId=${booking._id}`)}
-                          className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors"
-                        >
-                          <FiEye className="w-4 h-4 mr-1" />
-                          View Details
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Session Description (if available) */}
-                    {booking.sessionDescription && (
-                      <div className="mt-4 pt-4 border-t border-gray-100">
-                        <p className="text-sm text-gray-600 line-clamp-2">{booking.sessionDescription}</p>
-                      </div>
-                    )}
+                  <div className="bg-[#121212] rounded-lg p-6 border border-dashed border-gray-700 text-center">
+                    <FiCalendar className="mx-auto h-8 w-8 text-gray-500" />
+                    <p className="mt-2 text-sm text-gray-400">No upcoming sessions</p>
                   </div>
                 )}
               </div>
-            ))}
-          </div>
-        )}
-
-        {/* Summary Stats */}
-        {bookings.length > 0 && (
-          <div className="mt-8 bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Session Summary</h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-gray-900">{bookings.length}</div>
-                <div className="text-sm text-gray-600">Total Sessions</div>
+            </div>
+            
+            {/* Completed Sessions */}
+            <div>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold text-white">Completed</h2>
+                <span className="text-xs bg-[#2c2c2c] text-gray-300 px-2 py-1 rounded-full">
+                  {completedSessions.length} sessions
+                </span>
               </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-green-600">
-                  {bookings.filter(b => b.status === 'completed').length}
-                </div>
-                <div className="text-sm text-gray-600">Completed</div>
+              <div className="space-y-3">
+                {completedSessions.length > 0 ? (
+                  completedSessions.map(booking => (
+                    <SessionCard key={booking._id} booking={booking} />
+                  ))
+                ) : (
+                  <div className="bg-[#121212] rounded-lg p-6 border border-dashed border-gray-700 text-center">
+                    <FiCalendar className="mx-auto h-8 w-8 text-gray-500" />
+                    <p className="mt-2 text-sm text-gray-400">No completed sessions</p>
+                  </div>
+                )}
               </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-yellow-600">
-                  {bookings.filter(b => ['pending', 'confirmed'].includes(b.status) && new Date(b.sessionDate) >= new Date()).length}
-                </div>
-                <div className="text-sm text-gray-600">Upcoming</div>
+            </div>
+            
+            {/* Cancelled Sessions */}
+            <div>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold text-white">Cancelled</h2>
+                <span className="text-xs bg-[#2c2c2c] text-gray-300 px-2 py-1 rounded-full">
+                  {cancelledSessions.length} sessions
+                </span>
               </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-blue-600">
-                  {Math.round(bookings.filter(b => b.status === 'completed').reduce((sum, b) => sum + b.duration, 0) / 60)}h
-                </div>
-                <div className="text-sm text-gray-600">Total Hours</div>
+              <div className="space-y-3">
+                {cancelledSessions.length > 0 ? (
+                  cancelledSessions.map(booking => (
+                    <SessionCard key={booking._id} booking={booking} />
+                  ))
+                ) : (
+                  <div className="bg-[#121212] rounded-lg p-6 border border-dashed border-gray-700 text-center">
+                    <FiCalendar className="mx-auto h-8 w-8 text-gray-500" />
+                    <p className="mt-2 text-sm text-gray-400">No cancelled sessions</p>
+                  </div>
+                )}
               </div>
             </div>
           </div>

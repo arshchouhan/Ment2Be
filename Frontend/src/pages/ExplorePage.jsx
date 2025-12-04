@@ -94,15 +94,15 @@ const ExplorePage = () => {
   const user = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null;
 
   return (
-    <div className="h-screen overflow-hidden flex flex-col bg-gray-50">
+    <div className="h-screen overflow-hidden flex flex-col bg-[#000000] text-gray-100">
       <Navbar userName={user?.name || 'Student'} />
       
       <div className="flex-1 overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 h-full">
+        <div className="max-w-7xl mx-auto pl-2 pr-2 sm:pl-3 sm:pr-3 lg:pl-4 lg:pr-4 py-8 h-full">
           {/* Main Grid Layout */}
-          <div className="grid grid-cols-4 gap-6 h-full">
+          <div className="grid grid-cols-12 gap-3 h-full">
             {/* Left Sidebar - Column 1 */}
-            <div className="space-y-6">
+            <div className="col-span-2 space-y-6 -ml-[60px]">
               <CategoryList 
                 activeCategory={activeCategory} 
                 onCategoryClick={setActiveCategory} 
@@ -110,14 +110,14 @@ const ExplorePage = () => {
               <UserProfileCard user={user} />
             </div>
 
-            {/* Main Content - Columns 2 & 3 */}
-            <div className="col-span-2 flex flex-col h-full overflow-hidden">
+            {/* Main Content - Middle Column */}
+            <div className="col-span-8 flex flex-col h-full overflow-hidden">
               {/* Search Bar */}
               <div className="relative mb-6 flex-shrink-0">
                 <input
                   type="text"
                   placeholder="Search mentors, skills, or topics..."
-                  className="w-full px-4 py-3 pl-10 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-3 pl-10 rounded-3xl bg-[#202327] border border-[#202327] text-white focus:outline-white focus:ring-0 focus:border-[#202327]"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
@@ -140,7 +140,7 @@ const ExplorePage = () => {
               <div className="flex-1 overflow-y-auto scrollbar-hide space-y-4 pr-2">
                 {loading ? (
                   <div className="flex justify-center items-center h-full">
-                    <div className="text-gray-500">Loading mentors...</div>
+                    <div className="text-gray-400">Loading mentors...</div>
                   </div>
                 ) : error ? (
                   <div className="flex justify-center items-center h-full">
@@ -148,7 +148,7 @@ const ExplorePage = () => {
                   </div>
                 ) : filteredMentors.length === 0 ? (
                   <div className="flex justify-center items-center h-full">
-                    <div className="text-gray-500">No mentors found</div>
+                    <div className="text-gray-400">No mentors found</div>
                   </div>
                 ) : (
                   filteredMentors.map((mentor) => (
@@ -158,8 +158,8 @@ const ExplorePage = () => {
               </div>
             </div>
 
-            {/* Right Sidebar - Column 4 */}
-            <div className="space-y-6">
+            {/* Right Sidebar - Column 3 */}
+            <div className="col-span-2 space-y-6">
               <TopExperts />
               <TopOfferings />
             </div>
