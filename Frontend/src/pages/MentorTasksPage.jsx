@@ -1,17 +1,19 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import MentorNavbar from '../components/MentorDashboard/Navbar';
-import { Header } from '../components/TaskDashboard/Header';
 import { StatsCards } from '../components/TaskDashboard/StatsCards';
 import { MenteesSidebar } from '../components/TaskDashboard/MenteesSidebar';
 import { TasksSection } from '../components/TaskDashboard/TasksSection';
-import { CreateTaskModal } from '../components/TaskDashboard/CreateTaskModal';
+import { CreateTaskForm } from '../components/TaskDashboard/CreateTaskForm';
 
 const MentorTasksPage = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const user = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null;
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedMentee, setSelectedMentee] = useState(null);
+  
+  // Check if we're in create mode
+  const isCreateMode = searchParams.get('action') === 'create';
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -19,6 +21,19 @@ const MentorTasksPage = () => {
       navigate("/login");
     }
   }, [navigate]);
+
+  const handleCreateTask = () => {
+    navigate('/mentor/tasks?action=create');
+  };
+
+  if (isCreateMode) {
+    return (
+      <div className="min-h-screen bg-[#202327]">
+        <MentorNavbar userName={user?.name || 'Mentor'} />
+        <CreateTaskForm />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#202327]">
@@ -32,12 +47,10 @@ const MentorTasksPage = () => {
             <MenteesSidebar selectedMentee={selectedMentee} onSelectMentee={setSelectedMentee} />
           </div>
           <div className="w-full lg:w-3/4">
-            <TasksSection selectedMentee={selectedMentee} />
+            <TasksSection selectedMentee={selectedMentee} onCreateTask={handleCreateTask} />
           </div>
         </div>
       </main>
-
-      <CreateTaskModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </div>
   );
 };

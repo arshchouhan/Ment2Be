@@ -16,7 +16,7 @@ const priorityBorder = {
   low: "border-l-gray-600",
 };
 
-export function TasksSection({ selectedMentee }) {
+export function TasksSection({ selectedMentee, onCreateTask }) {
   const [activeTab, setActiveTab] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [tasks, setTasks] = useState([]);
@@ -32,7 +32,8 @@ export function TasksSection({ selectedMentee }) {
 
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:4000/api/tasks', {
+      // Use Java backend API (port 8081)
+      const response = await fetch('http://localhost:8081/api/tasks', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -46,6 +47,9 @@ export function TasksSection({ selectedMentee }) {
         setTasks(data.tasks);
       } else if (response.ok && Array.isArray(data)) {
         setTasks(data);
+      } else {
+        console.error('Error fetching tasks:', data.message);
+        setTasks([]);
       }
     } catch (err) {
       console.error('Error fetching tasks:', err);
@@ -133,7 +137,7 @@ export function TasksSection({ selectedMentee }) {
                 : "No tasks created yet. Start by creating a task for your mentees."}
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <button className="inline-flex items-center justify-center px-6 py-2.5 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors font-medium">
+              <button onClick={onCreateTask} className="inline-flex items-center justify-center px-6 py-2.5 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors font-medium">
                 <Plus className="w-4 h-4 mr-2" />
                 Create Task
               </button>
