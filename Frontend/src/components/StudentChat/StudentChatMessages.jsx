@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import { StudentMessageBubble } from "./StudentMessageBubble";
+import "../Chat/chat-scrollbar.css";
 
 export function StudentChatMessages({ messages }) {
   const messagesEndRef = useRef(null);
@@ -9,9 +10,9 @@ export function StudentChatMessages({ messages }) {
   }, [messages]);
 
   return (
-    <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-[#121212]">
-      {messages.map((message) => (
-        <StudentMessageBubble key={message.id} message={message} />
+    <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4 bg-[#121212] chat-scrollbar">
+      {messages.map((message, index) => (
+        <StudentMessageBubble key={message.id || `msg-${index}`} message={message} />
       ))}
       <div ref={messagesEndRef} />
     </div>

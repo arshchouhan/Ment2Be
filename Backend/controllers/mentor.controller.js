@@ -4,6 +4,7 @@ import MentorSkill from "../models/mentorSkills.model.js";
 import Session from "../models/Session.model.js";
 import Review from "../models/review.model.js";
 import MentorProfile from "../models/mentorProfile.model.js";
+import axios from 'axios';
 
 export async function CreateOrUpdateMentorProfile(req, res) {
   try {
@@ -57,6 +58,8 @@ export async function CreateOrUpdateMentorProfile(req, res) {
       profileData.skills = normalizedSkills;
     }
 
+    const isNewProfile = !profile;
+
     if (profile) {
       // Update existing profile
       profile = await MentorProfile.findByIdAndUpdate(
@@ -68,6 +71,31 @@ export async function CreateOrUpdateMentorProfile(req, res) {
       // Create new profile
       profile = new MentorProfile(profileData);
       await profile.save();
+    }
+
+    // If profile is marked as complete and this is a new profile, award karma points
+    if (isNewProfile && isProfileComplete) {
+      try {
+        console.log('Calling Java microservice to award profile completion karma...');
+        const JAVA_KARMA_API = process.env.JAVA_KARMA_API || 'http://localhost:8081/api/karma';
+        
+        const response = await axios.get(`${JAVA_KARMA_API}/profile-complete`, {
+          timeout: 5000
+        });
+        
+        if (response.data && response.data.karmaPoints) {
+          // Update user's karma points
+          const user = await User.findById(userId);
+          if (user) {
+            user.karmaPoints = (user.karmaPoints || 0) + response.data.karmaPoints;
+            await user.save();
+            console.log(`Profile completion karma awarded to mentor: ${response.data.karmaPoints} points. Total: ${user.karmaPoints}`);
+          }
+        }
+      } catch (karmaError) {
+        console.error('Error calling Java karma service:', karmaError.message);
+        // Continue even if karma service fails - profile update is still successful
+      }
     }
 
     res.status(200).json({

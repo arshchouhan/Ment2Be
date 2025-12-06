@@ -7,6 +7,7 @@ import { ContextSidebar } from "./ContextSidebar";
 import { ChatList } from "./ChatList";
 import { MessageTypes, createMessage, createConversation } from "../../lib/types";
 import { messageService } from "../../services/messageService";
+import * as streamChatClient from "../../services/streamChatClient";
 
 
 export function MentorshipChat() {
@@ -17,7 +18,9 @@ export function MentorshipChat() {
   const [activeConversationId, setActiveConversationId] = useState(null);
   const [activeParticipant, setActiveParticipant] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [loadingMessages, setLoadingMessages] = useState(false);
   const [error, setError] = useState(null);
+  const [channel, setChannel] = useState(null);
 
   // Get current user info
   const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
@@ -46,11 +49,84 @@ export function MentorshipChat() {
     }
   }, [token, userId]);
 
-  // Fetch conversations on component mount
+  // Initialize Stream Chat connection and fetch conversations on component mount
   useEffect(() => {
+    const initializeStreamChat = async () => {
+      try {
+        if (!token || !userId) return;
+
+        const apiKey = import.meta.env.VITE_STREAM_CHAT_API_KEY;
+        if (!apiKey) {
+          console.error('Stream Chat API Key not configured');
+          return;
+        }
+
+        // Fetch token from backend
+        const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
+        const apiUrl = `${baseUrl}/stream/auth/token`;
+        console.log('🔌 Fetching Stream Chat token from:', apiUrl);
+        console.log('📝 Backend Base URL:', baseUrl);
+        console.log('🔑 Has JWT Token:', !!token);
+        console.log('👤 User ID:', userId);
+        
+        const tokenResponse = await fetch(apiUrl, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            name: currentUser.name || 'Mentor',
+            image: currentUser.profilePicture || ''
+          })
+        });
+
+        if (!tokenResponse.ok) {
+          const errorData = await tokenResponse.json().catch(() => ({}));
+          console.error('Stream Chat token error response:', {
+            status: tokenResponse.status,
+            statusText: tokenResponse.statusText,
+            error: errorData
+          });
+          throw new Error(`Failed to get Stream Chat token: ${tokenResponse.status} ${tokenResponse.statusText}`);
+        }
+
+        const responseData = await tokenResponse.json();
+        const { apiKey: responseApiKey, token: streamToken } = responseData;
+        
+        if (!streamToken) {
+          throw new Error('No Stream Chat token in response');
+        }
+        
+        console.log('✓ Got Stream Chat token from backend');
+
+        // Connect to Stream Chat
+        await streamChatClient.connectUser(
+          responseApiKey || apiKey,
+          userId,
+          streamToken,
+          {
+            name: currentUser.name || 'Mentor',
+            image: currentUser.profilePicture || ''
+          }
+        );
+
+        console.log('✓ Stream Chat initialized for mentor');
+        fetchConversations();
+      } catch (error) {
+        console.error('Error initializing Stream Chat:', error);
+        setError('Failed to initialize chat');
+      }
+    };
+
     if (token && userId) {
-      fetchConversations();
+      initializeStreamChat();
     }
+
+    // Don't disconnect on unmount - keep the connection alive for other components
+    return () => {
+      // No cleanup needed - connection is shared across components
+    };
   }, [token, userId]);
 
   // Listen for storage changes (when user logs in in another tab)
@@ -65,12 +141,108 @@ export function MentorshipChat() {
     return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
 
-  // Fetch messages when active conversation changes
+  // Join Stream Chat channel when active conversation changes
   useEffect(() => {
-    if (activeParticipant) {
-      fetchMessages(activeParticipant.participantId);
-    }
-  }, [activeParticipant]);
+    const joinChannel = async () => {
+      if (!activeConversationId || !token || !activeParticipant) return;
+
+      setLoadingMessages(true);
+      try {
+        // Create or get channel on backend
+        const channelResponse = await fetch(
+          `${import.meta.env.VITE_API_URL || 'http://localhost:4000/api'}/stream/channels/upsert`,
+          {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              studentId: activeParticipant.participantId,
+              mentorId: userId
+            })
+          }
+        );
+
+        if (!channelResponse.ok) {
+          throw new Error('Failed to create/get channel');
+        }
+
+        const { channelId } = await channelResponse.json();
+
+        // Get or create channel on client
+        const ch = await streamChatClient.getOrCreateChannel(channelId, {
+          name: `Mentor-Student: ${userId}-${activeParticipant.participantId}`,
+          members: [userId, activeParticipant.participantId]
+        });
+
+        setChannel(ch);
+
+        // Load message history
+        const msgs = await streamChatClient.getMessages(ch, 50);
+        const formatted = msgs.map(m => ({
+          id: m.id,
+          content: m.text,
+          text: m.text,
+          sender: m.user.id === userId ? 'mentor' : 'mentee',
+          type: m.type || '',
+          custom_type: m.custom_type || MessageTypes.NORMAL,
+          timestamp: new Date(m.created_at),
+          created_at: m.created_at,
+          senderName: m.user?.name || 'Unknown User',
+          receiverName: activeParticipant?.name
+        }));
+
+        setMessages(formatted);
+
+        // Listen to new messages
+        streamChatClient.onMessageReceived(ch, (message) => {
+          console.log('New message received:', message);
+          console.log('Message user:', message.user);
+          console.log('Message user name:', message.user?.name);
+          
+          setMessages(prev => {
+            const isDuplicate = prev.some(m => m.id === message.id);
+            if (isDuplicate) return prev;
+
+            return [...prev, {
+              id: message.id,
+              content: message.text,
+              text: message.text,
+              sender: message.user.id === userId ? 'mentor' : 'mentee',
+              type: message.type || '',
+              custom_type: message.custom_type || MessageTypes.NORMAL,
+              timestamp: new Date(message.created_at),
+              created_at: message.created_at,
+              senderName: message.user?.name || 'Unknown User',
+              receiverName: activeParticipant?.name
+            }];
+          });
+
+          // Update conversation list with last message
+          setConversations(prev => prev.map(conv => {
+            if (conv.participantId === activeParticipant.participantId) {
+              return {
+                ...conv,
+                lastMessage: message.text,
+                lastMessageTime: new Date(message.created_at)
+              };
+            }
+            return conv;
+          }));
+        });
+
+        console.log('✓ Joined Stream Chat channel:', channelId);
+      } catch (error) {
+        console.error('Error joining channel:', error);
+        setError('Failed to join chat channel');
+      } finally {
+        setLoadingMessages(false);
+      }
+    };
+
+    joinChannel();
+  }, [activeConversationId, activeParticipant?.participantId, userId, token]);
 
   // Fetch and transform confirmed sessions into conversation format
   const fetchConfirmedSessions = async () => {
@@ -192,22 +364,28 @@ export function MentorshipChat() {
   };
 
   const handleSendMessage = async (content) => {
-    if (!activeParticipant) return;
+    if (!activeParticipant || !channel) return;
+
+    // Check if Stream Chat client is connected
+    if (!streamChatClient.isConnected()) {
+      console.error('Stream Chat client not connected');
+      setError('Chat connection lost. Please refresh the page.');
+      return;
+    }
 
     try {
-      const sentMessage = await messageService.sendMessage(
-        activeParticipant.participantId,
-        content,
-        selectedType
-      );
+      // Send message via Stream Chat
+      const sentMessage = await streamChatClient.sendMessage(channel, content, {
+        type: selectedType
+      });
 
       // Add message to local state
       const newMessage = {
-        id: sentMessage._id,
-        content: sentMessage.content,
+        id: sentMessage.id,
+        content: sentMessage.text,
         sender: 'mentor', // Current user is mentor
-        type: sentMessage.messageType,
-        timestamp: new Date(sentMessage.createdAt),
+        type: sentMessage.type || MessageTypes.NORMAL,
+        timestamp: new Date(sentMessage.created_at),
         senderName: currentUser.name,
         receiverName: activeParticipant.name
       };
@@ -225,6 +403,13 @@ export function MentorshipChat() {
             }
           : conv
       ));
+
+      // Also save to database for persistence
+      await messageService.sendMessage(
+        activeParticipant.participantId,
+        content,
+        selectedType
+      );
     } catch (err) {
       console.error('Error sending message:', err);
       setError('Failed to send message');
@@ -343,7 +528,19 @@ export function MentorshipChat() {
                 participantAvatar={activeParticipant.avatar}
                 sessionData={activeParticipant.sessionData}
               />
-              <ChatMessages messages={messages} />
+              {loadingMessages ? (
+                <div className="flex-1 flex items-center justify-center bg-[#121212]">
+                  <div className="flex flex-col items-center gap-4">
+                    <div className="relative w-12 h-12">
+                      <div className="absolute inset-0 rounded-full border-4 border-[#535353]/30"></div>
+                      <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-[#b3b3b3] animate-spin"></div>
+                    </div>
+                    <p className="text-[#b3b3b3] text-sm">Loading messages...</p>
+                  </div>
+                </div>
+              ) : (
+                <ChatMessages messages={messages} />
+              )}
               <ChatInput 
                 selectedType={selectedType} 
                 onTypeChange={setSelectedType} 

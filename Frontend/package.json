@@ -25,6 +25,7 @@
     "react-router-dom": "^7.9.6",
     "react-toastify": "^11.0.5",
     "socket.io-client": "^4.8.1",
+    "stream-chat": "^9.26.1",
     "tailwind-scrollbar-hide": "^4.0.0"
   },
   "devDependencies": {

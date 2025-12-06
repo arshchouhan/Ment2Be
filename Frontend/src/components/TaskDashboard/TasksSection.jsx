@@ -1,67 +1,7 @@
-import React, { useState } from "react";
-import { Search, Filter, Calendar, MoreVertical, User, Target, Clock, MessageSquare } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { Search, Filter, Calendar, MoreVertical, User, Target, Clock, MessageSquare, Plus } from "lucide-react";
 
 const tabs = ["All", "In Progress", "Pending Review", "Completed"];
-
-const tasks = [
-  {
-    id: "1",
-    title: "Complete React Hooks Tutorial",
-    mentee: "Sarah Chen",
-    menteeId: "1",
-    category: "Technical Skills",
-    deadline: "Dec 15, 2025",
-    status: "in-progress",
-    priority: "high",
-    progress: 65,
-    hasQuestion: true,
-  },
-  {
-    id: "2",
-    title: "Write Blog Post on API Design",
-    mentee: "Michael Park",
-    menteeId: "2",
-    category: "Content Creation",
-    deadline: "Dec 18, 2025",
-    status: "pending-review",
-    priority: "medium",
-    progress: 100,
-  },
-  {
-    id: "3",
-    title: "Practice Mock Interviews",
-    mentee: "Emma Wilson",
-    menteeId: "3",
-    category: "Career Development",
-    deadline: "Dec 20, 2025",
-    status: "in-progress",
-    priority: "medium",
-    progress: 40,
-  },
-  {
-    id: "4",
-    title: "Leadership Workshop Exercises",
-    mentee: "James Rodriguez",
-    menteeId: "4",
-    category: "Soft Skills",
-    deadline: "Dec 10, 2025",
-    status: "completed",
-    priority: "low",
-    progress: 100,
-  },
-  {
-    id: "5",
-    title: "Build Portfolio Website",
-    mentee: "Priya Sharma",
-    menteeId: "5",
-    category: "Technical Skills",
-    deadline: "Dec 25, 2025",
-    status: "not-started",
-    priority: "high",
-    progress: 0,
-    hasQuestion: true,
-  },
-];
 
 const statusConfig = {
   "in-progress": { label: "In Progress", color: "text-gray-300", bg: "bg-gray-800" },
@@ -79,6 +19,41 @@ const priorityBorder = {
 export function TasksSection({ selectedMentee }) {
   const [activeTab, setActiveTab] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
+  const [tasks, setTasks] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchTasks();
+  }, []);
+
+  const fetchTasks = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    try {
+      setLoading(true);
+      const response = await fetch('http://localhost:4000/api/tasks', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      const data = await response.json();
+      
+      if (response.ok && data.success && data.tasks) {
+        setTasks(data.tasks);
+      } else if (response.ok && Array.isArray(data)) {
+        setTasks(data);
+      }
+    } catch (err) {
+      console.error('Error fetching tasks:', err);
+      setTasks([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const filteredTasks = tasks.filter((task) => {
     const matchesMentee = !selectedMentee || task.menteeId === selectedMentee;
@@ -137,8 +112,36 @@ export function TasksSection({ selectedMentee }) {
 
       {/* Task List */}
       <div className="divide-y divide-gray-700">
-        {filteredTasks.length === 0 ? (
-          <div className="p-8 text-center text-gray-400">No tasks found</div>
+        {loading ? (
+          <div className="p-12 text-center">
+            <div className="flex items-center justify-center mb-4">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-400"></div>
+            </div>
+            <p className="text-gray-400">Loading tasks...</p>
+          </div>
+        ) : filteredTasks.length === 0 ? (
+          <div className="p-12 text-center">
+            <div className="flex justify-center mb-6">
+              <svg className="w-24 h-24 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+              </svg>
+            </div>
+            <h3 className="text-xl font-semibold text-gray-300 mb-2">No tasks yet</h3>
+            <p className="text-gray-400 mb-6 max-w-md mx-auto">
+              {selectedMentee 
+                ? "No tasks assigned to this mentee yet. Create one to get started!" 
+                : "No tasks created yet. Start by creating a task for your mentees."}
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <button className="inline-flex items-center justify-center px-6 py-2.5 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors font-medium">
+                <Plus className="w-4 h-4 mr-2" />
+                Create Task
+              </button>
+              <button className="inline-flex items-center justify-center px-6 py-2.5 border border-gray-600 text-gray-300 hover:bg-gray-800 rounded-lg transition-colors font-medium">
+                View Guidelines
+              </button>
+            </div>
+          </div>
         ) : (
           filteredTasks.map((task) => (
             <div

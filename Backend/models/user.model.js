@@ -10,6 +10,17 @@ const UserSchema = new mongoose.Schema(
     googleId: { type: String, unique: true, sparse: true },
     bio: { type: String, required: false },
     hourlyRate: { type: Number, required: false },
+    skills: [{ type: String }],
+    interests: [{ type: String }],
+    goals: { type: String, default: '' },
+    socialLinks: {
+      linkedIn: { type: String, default: '' },
+      github: { type: String, default: '' },
+      portfolio: { type: String, default: '' }
+    },
+    profilePicture: { type: String, default: '' },
+    isProfileComplete: { type: Boolean, default: false },
+    karmaPoints: { type: Number, default: 0 }
   },
   { timestamps: true }
 );

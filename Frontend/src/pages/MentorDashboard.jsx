@@ -1,8 +1,10 @@
-import React, { useEffect, useState, useRef } from "react";
-import { useNavigate } from "react-router-dom";
-import MentorNavbar from "../components/MentorDashboard/Navbar";
-import SessionTimer from "../components/SessionTimer";
-import { FiUpload, FiX, FiCalendar, FiUsers, FiClock, FiEdit3, FiSettings, FiLogOut, FiPlus, FiFolder, FiMoreVertical } from "react-icons/fi";
+import React, { useEffect, useState, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
+import MentorNavbar from '../components/MentorDashboard/Navbar';
+import SessionTimer from '../components/SessionTimer';
+import { FiUpload, FiX, FiCalendar, FiUsers, FiClock, FiEdit3, FiSettings, FiLogOut, FiPlus, FiFolder, FiMoreVertical, FiBookOpen, FiTrendingUp, FiUserPlus } from 'react-icons/fi';
+import { formatDistanceToNow } from 'date-fns';
+import KarmaPointsCard from '../components/KarmaPointsCard/KarmaPointsCard';
 
 const MentorDashboard = () => {
   const navigate = useNavigate();
@@ -30,6 +32,10 @@ const MentorDashboard = () => {
   const [uploadError, setUploadError] = useState(null);
   const [upcomingSessions, setUpcomingSessions] = useState([]);
   const [sessionsLoading, setSessionsLoading] = useState(true);
+  const [recentMessages, setRecentMessages] = useState([]);
+  const [messagesLoading, setMessagesLoading] = useState(true);
+  const [recentMentees, setRecentMentees] = useState([]);
+  const [menteesLoading, setMenteesLoading] = useState(true);
   const fileInputRef = useRef(null);
   const bioRef = useRef(null);
 
@@ -102,6 +108,8 @@ const MentorDashboard = () => {
 
     fetchProfile();
     fetchUpcomingSessions();
+    fetchRecentMessages();
+    fetchRecentMentees();
   }, [navigate]);
 
   const fetchUpcomingSessions = async () => {
@@ -134,6 +142,113 @@ const MentorDashboard = () => {
       console.error('Error fetching sessions:', err);
     } finally {
       setSessionsLoading(false);
+    }
+  };
+
+  const fetchRecentMessages = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    try {
+      setMessagesLoading(true);
+      const response = await fetch('http://localhost:4000/api/messages/conversations', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Messages API Response:', data);
+        
+        const conversations = Array.isArray(data.data) ? data.data : (Array.isArray(data.conversations) ? data.conversations : []);
+        
+        // Get the latest message from each conversation and limit to 3
+        const messages = conversations
+          .filter(conv => conv.lastMessage)
+          .map(conv => {
+            // Handle different possible data structures
+            const lastMsg = conv.lastMessage;
+            return {
+              _id: conv._id || Math.random(),
+              senderId: lastMsg.senderId || lastMsg.sender?._id,
+              senderName: conv.participantName || conv.participant?.name || lastMsg.sender?.name || 'Unknown',
+              senderAvatar: conv.participant?.profilePicture || conv.participantAvatar || '',
+              content: lastMsg.content || lastMsg.message || '',
+              timestamp: lastMsg.timestamp || lastMsg.createdAt || new Date().toISOString(),
+              participantId: conv.participantId || conv.participant?._id
+            };
+          })
+          .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+          .slice(0, 3);
+
+        console.log('Processed messages:', messages);
+        setRecentMessages(messages);
+      } else {
+        console.error('API Error:', response.status);
+      }
+    } catch (err) {
+      console.error('Error fetching messages:', err);
+    } finally {
+      setMessagesLoading(false);
+    }
+  };
+
+  const fetchRecentMentees = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    try {
+      setMenteesLoading(true);
+      const response = await fetch('http://localhost:4000/api/bookings/mentor', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      const data = await response.json();
+      
+      if (response.ok && data.success && data.bookings) {
+        // Process mentees from bookings
+        const menteesMap = new Map();
+        
+        data.bookings.forEach(booking => {
+          if (!booking.student) return;
+          
+          const studentId = booking.student._id;
+          if (!menteesMap.has(studentId)) {
+            menteesMap.set(studentId, {
+              ...booking.student,
+              lastSession: booking.sessionDate,
+              sessions: [],
+              skills: booking.student.skills || ['General Mentoring']
+            });
+          }
+          
+          const mentee = menteesMap.get(studentId);
+          mentee.sessions.push(booking);
+          
+          // Update last session date if this one is more recent
+          if (new Date(booking.sessionDate) > new Date(mentee.lastSession)) {
+            mentee.lastSession = booking.sessionDate;
+          }
+        });
+        
+        // Convert to array and sort by last session date
+        const menteesArray = Array.from(menteesMap.values())
+          .sort((a, b) => new Date(b.lastSession) - new Date(a.lastSession))
+          .slice(0, 2); // Show only 2 most recent mentees
+        
+        setRecentMentees(menteesArray);
+      }
+    } catch (err) {
+      console.error('Error fetching mentees:', err);
+    } finally {
+      setMenteesLoading(false);
     }
   };
 
@@ -656,51 +771,74 @@ const MentorDashboard = () => {
               </button>
             </div>
             
-            <div className="space-y-3 max-h-48 overflow-y-auto custom-scroll">
-              {/* Message Item */}
-              <div className="flex items-start space-x-3 p-3 bg-[#202327] rounded-lg hover:bg-[#2a2d32] transition-colors cursor-pointer">
-                <div className="h-10 w-10 rounded-full bg-gray-600 flex items-center justify-center text-white font-semibold text-sm">
-                  JS
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between">
-                    <p className="text-white font-medium text-sm truncate">John Smith</p>
-                    <span className="text-gray-400 text-xs">2h ago</span>
-                  </div>
-                  <p className="text-gray-300 text-sm mt-1 line-clamp-2">
-                    Thank you for the session! The system design concepts were really helpful...
-                  </p>
-                </div>
-                <div className="h-2 w-2 bg-gray-400 rounded-full flex-shrink-0 mt-2"></div>
+            {messagesLoading ? (
+              <div className="flex items-center justify-center py-8">
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-green-500"></div>
               </div>
-              
-              {/* Message Item */}
-              <div className="flex items-start space-x-3 p-3 bg-[#202327] rounded-lg hover:bg-[#2a2d32] transition-colors cursor-pointer">
-                <div className="h-10 w-10 rounded-full bg-gray-600 flex items-center justify-center text-white font-semibold text-sm">
-                  AM
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between">
-                    <p className="text-white font-medium text-sm truncate">Alice Miller</p>
-                    <span className="text-gray-400 text-xs">1d ago</span>
-                  </div>
-                  <p className="text-gray-300 text-sm mt-1 line-clamp-2">
-                    Hi! I have a question about the React hooks we discussed yesterday...
-                  </p>
-                </div>
+            ) : recentMessages.length > 0 ? (
+              <div className="space-y-3 max-h-48 overflow-y-auto custom-scroll">
+                {recentMessages.map((msg) => {
+                  const getInitials = (name) => {
+                    if (!name) return '??';
+                    return name
+                      .split(' ')
+                      .map(n => n[0])
+                      .join('')
+                      .toUpperCase()
+                      .substring(0, 2);
+                  };
+
+                  const formatLastInteraction = (dateString) => {
+                    if (!dateString) return 'Just now';
+                    try {
+                      return formatDistanceToNow(new Date(dateString), { addSuffix: true });
+                    } catch (e) {
+                      return 'Some time ago';
+                    }
+                  };
+
+                  return (
+                    <div 
+                      key={msg._id} 
+                      className="flex items-start space-x-3 p-3 bg-[#202327] rounded-lg hover:bg-[#2a2d32] transition-colors cursor-pointer"
+                      onClick={() => navigate('/mentor/messages')}
+                    >
+                      {msg.senderAvatar ? (
+                        <img 
+                          src={msg.senderAvatar}
+                          alt={msg.senderName}
+                          className="h-10 w-10 rounded-full object-cover flex-shrink-0"
+                          onError={(e) => {
+                            e.target.style.display = 'none';
+                            e.target.nextElementSibling.style.display = 'flex';
+                          }}
+                        />
+                      ) : null}
+                      <div className="h-10 w-10 rounded-full bg-gray-600 flex items-center justify-center text-white font-semibold text-sm flex-shrink-0" style={{display: msg.senderAvatar ? 'none' : 'flex'}}>
+                        {getInitials(msg.senderName)}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between">
+                          <p className="text-white font-medium text-sm truncate">{msg.senderName}</p>
+                          <span className="text-gray-400 text-xs">{formatLastInteraction(msg.timestamp)}</span>
+                        </div>
+                        <p className="text-gray-300 text-sm mt-1 line-clamp-2">
+                          {msg.content}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
-            </div>
-            
-            {/* Empty State */}
-            {/* Uncomment this if you want to show empty state when no messages
-            <div className="text-center py-8">
-              <svg className="w-12 h-12 text-gray-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-              </svg>
-              <h3 className="text-lg font-medium text-gray-300 mb-2">No recent messages</h3>
-              <p className="text-gray-500">Messages from your mentees will appear here</p>
-            </div>
-            */}
+            ) : (
+              <div className="text-center py-8">
+                <svg className="w-12 h-12 text-gray-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                </svg>
+                <h3 className="text-lg font-medium text-gray-300 mb-2">No recent messages</h3>
+                <p className="text-gray-500">Messages from your mentees will appear here</p>
+              </div>
+            )}
           </div>
           )}
 
@@ -722,72 +860,70 @@ const MentorDashboard = () => {
                 </button>
               </div>
               
-              <div className="space-y-3 max-h-48 overflow-y-auto custom-scroll">
-                {/* Mentee Item */}
-                <div className="flex items-center space-x-4 p-3 bg-[#202327] rounded-lg hover:bg-[#2a2d32] transition-colors cursor-pointer">
-                  <div className="relative">
-                    <img 
-                      src="https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face" 
-                      alt="Sarah Chen" 
-                      className="h-12 w-12 rounded-full object-cover border-2 border-gray-500"
-                    />
-                    <div className="absolute -bottom-1 -right-1 h-4 w-4 bg-gray-400 border-2 border-[#202327] rounded-full"></div>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-white font-medium text-sm truncate">Sarah Chen</h3>
-                      <span className="text-gray-400 text-xs">2 days ago</span>
-                    </div>
-                    <p className="text-gray-400 text-xs">Frontend Developer</p>
-                    <div className="flex items-center mt-1 space-x-2">
-                      <span className="text-xs bg-gray-600 text-white px-2 py-0.5 rounded-full">React</span>
-                      <span className="text-xs bg-gray-600 text-white px-2 py-0.5 rounded-full">UI/UX</span>
-                    </div>
-                  </div>
-                  <div className="flex flex-col items-end space-y-1">
-                    <span className="text-xs bg-gray-600 text-white px-2 py-0.5 rounded-full">Beginner</span>
-                    <span className="text-xs text-gray-500">12 sessions</span>
-                  </div>
+              {menteesLoading ? (
+                <div className="flex items-center justify-center py-8">
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-green-500"></div>
                 </div>
-                
-                {/* Mentee Item */}
-                <div className="flex items-center space-x-4 p-3 bg-[#202327] rounded-lg hover:bg-[#2a2d32] transition-colors cursor-pointer">
-                  <div className="relative">
-                    <img 
-                      src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face" 
-                      alt="Marcus Johnson" 
-                      className="h-12 w-12 rounded-full object-cover border-2 border-gray-500"
-                    />
-                    <div className="absolute -bottom-1 -right-1 h-4 w-4 bg-gray-400 border-2 border-[#202327] rounded-full"></div>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-white font-medium text-sm truncate">Marcus Johnson</h3>
-                      <span className="text-gray-400 text-xs">5 days ago</span>
-                    </div>
-                    <p className="text-gray-400 text-xs">Backend Engineer</p>
-                    <div className="flex items-center mt-1 space-x-2">
-                      <span className="text-xs bg-gray-600 text-white px-2 py-0.5 rounded-full">Node.js</span>
-                      <span className="text-xs bg-gray-600 text-white px-2 py-0.5 rounded-full">MongoDB</span>
-                    </div>
-                  </div>
-                  <div className="flex flex-col items-end space-y-1">
-                    <span className="text-xs bg-gray-600 text-white px-2 py-0.5 rounded-full">Intermediate</span>
-                    <span className="text-xs text-gray-500">8 sessions</span>
-                  </div>
+              ) : recentMentees.length > 0 ? (
+                <div className="space-y-3 max-h-48 overflow-y-auto custom-scroll">
+                  {recentMentees.map((mentee) => {
+                    const lastSession = new Date(mentee.lastSession);
+                    const now = new Date();
+                    const daysAgo = Math.floor((now - lastSession) / (1000 * 60 * 60 * 24));
+                    const timeAgo = daysAgo === 0 
+                      ? 'Today' 
+                      : daysAgo === 1 
+                        ? 'Yesterday' 
+                        : `${daysAgo} days ago`;
+
+                    return (
+                      <div 
+                        key={mentee._id}
+                        className="flex items-center space-x-4 p-3 bg-[#202327] rounded-lg hover:bg-[#2a2d32] transition-colors cursor-pointer"
+                        onClick={() => navigate(`/mentor/mentees/${mentee._id}`)}
+                      >
+                        <div className="relative">
+                          <img 
+                            src={mentee.profilePicture || `https://ui-avatars.com/api/?name=${encodeURIComponent(mentee.name)}&background=4a5568&color=fff`}
+                            alt={mentee.name}
+                            className="h-12 w-12 rounded-full object-cover border-2 border-gray-500"
+                            onError={(e) => {
+                              e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(mentee.name)}&background=4a5568&color=fff`;
+                            }}
+                          />
+                          <div className="absolute -bottom-1 -right-1 h-4 w-4 bg-gray-400 border-2 border-[#202327] rounded-full"></div>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between">
+                            <h3 className="text-white font-medium text-sm truncate">{mentee.name}</h3>
+                            <span className="text-gray-400 text-xs">{timeAgo}</span>
+                          </div>
+                          <p className="text-gray-400 text-xs">{mentee.headline || 'Mentee'}</p>
+                          <div className="flex items-center mt-1 space-x-2">
+                            {mentee.skills?.slice(0, 2).map((skill, index) => (
+                              <span key={index} className="text-xs bg-gray-600 text-white px-2 py-0.5 rounded-full">
+                                {skill}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                        <div className="flex flex-col items-end space-y-1">
+                          <span className="text-xs bg-gray-600 text-white px-2 py-0.5 rounded-full">{mentee.experienceLevel || 'Beginner'}</span>
+                          <span className="text-xs text-gray-500">{mentee.sessions?.length || 0} sessions</span>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
-              </div>
-              
-              {/* Empty State */}
-              {/* Uncomment this if you want to show empty state when no mentees
-              <div className="text-center py-8">
-                <svg className="w-12 h-12 text-gray-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
-                </svg>
-                <h3 className="text-lg font-medium text-gray-300 mb-2">No recent mentees</h3>
-                <p className="text-gray-500">New mentees will appear here when they follow you</p>
-              </div>
-              */}
+              ) : (
+                <div className="text-center py-8">
+                  <svg className="w-12 h-12 text-gray-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
+                  </svg>
+                  <h3 className="text-lg font-medium text-gray-300 mb-2">No recent mentees</h3>
+                  <p className="text-gray-500">New mentees will appear here when they follow you</p>
+                </div>
+              )}
             </div>
           )}
 

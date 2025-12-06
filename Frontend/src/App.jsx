@@ -20,6 +20,8 @@ import BookSession from './pages/BookSession';
 import MeetingRoomZego from './pages/MeetingRoomZego';
 import NotFoundPage from './assets/NotFoundPage';
 import ProfileCompletionPage from './pages/ProfileCompletionPage';
+import StudentTaskPage from './pages/StudentTaskPage';
+import KarmaTest from './components/KarmaTest';
 
 function App() {
   const location = useLocation();
@@ -30,7 +32,7 @@ function App() {
       <Routes location={location} key={location.key}>
         {/* Root redirect */}
         <Route path="/" element={<Login />} />
-        
+
         {/* Public Routes */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Login />} />
@@ -45,7 +47,8 @@ function App() {
         <Route path="/complete-profile" element={<ProfileCompletionPage />} />
         <Route path="/mentor-profile" element={<MentorDetailPage />} />
         <Route path="/booking" element={<BookSession />} />
-        
+        <Route path="/student/tasks" element={<StudentTaskPage />} />
+
         {/* Meeting Route */}
         <Route path="/meeting" element={<MeetingRoomZego />} />
 
@@ -57,6 +60,9 @@ function App() {
         <Route path="/mentor/get-mentees" element={<MentorGetMenteesPage />} />
         <Route path="/mentor/profile" element={<MentorProfilePage />} />
         <Route path="/mentor/profile-setup" element={<MentorProfileSetup />} />
+
+        {/* Testing Route */}
+        <Route path="/karma-test" element={<KarmaTest />} />
 
         {/* 404 */}
         <Route path="*" element={<NotFoundPage />} />

@@ -15,7 +15,10 @@ import bookingRouter from './routes/booking.routes.js';
 import messageRouter from './routes/message.routes.js';
 import karmaPointsRouter from './routes/karmaPoints.routes.js';
 import mentorKarmaRouter from './routes/mentorKarma.routes.js';
+import karmaRouter from './routes/karma.routes.js';
+import streamChatRouter from './routes/streamChat.routes.js';
 import { handleSocketConnection, getRoomCount, getTotalParticipants } from './socket/socketHandlers.js';
+import { handleChatConnection, getActiveConversationCount, getTotalChatParticipants } from './socket/chatSocketHandlers.js';
 
 import dotenv from "dotenv"
 
@@ -26,7 +29,7 @@ const server = createServer(app);
 const io = new Server(server, {
   cors: {
     origin: [
-      "http://localhost:3000", 
+      "http://localhost:3000",
       "http://localhost:5173", // Vite default port
       process.env.FRONTEND_URL
     ].filter(Boolean), // Remove any undefined values
@@ -103,10 +106,13 @@ app.use('/api/sessions', sessionsRouter);
 app.use('/api/payments', paymentsRouter);
 app.use('/api/reviews', reviewsRouter);
 app.use('/api/messages', messageRouter);
-app.use('/api/karma', karmaPointsRouter);
+app.use('/api/karma/points', karmaPointsRouter);
+app.use('/api/karma', karmaRouter); // Java microservice integration
+app.use('/api/stream', streamChatRouter); // Stream Chat endpoints
 
 // Initialize Socket.IO handlers
 handleSocketConnection(io);
+handleChatConnection(io);
 
 app.use((req, res) => {
   res.status(404).json({
@@ -170,7 +176,7 @@ app.use((err, req, res, next) => {
 const startServer = async () => {
   try {
     await connectDB();
-    
+
     server.listen(PORT, '0.0.0.0', () => {
       console.log('\n' + '='.repeat(50));
       console.log(`Server running in ${NODE_ENV} mode`);

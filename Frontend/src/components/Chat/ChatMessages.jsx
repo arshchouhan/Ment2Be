@@ -11,8 +11,8 @@ export function ChatMessages({ messages }) {
 
   return (
     <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4 bg-[#121212] chat-scrollbar">
-      {messages.map((message) => (
-        <MessageBubble key={message.id} message={message} />
+      {messages.map((message, index) => (
+        <MessageBubble key={message.id || `msg-${index}`} message={message} />
       ))}
       <div ref={messagesEndRef} />
     </div>

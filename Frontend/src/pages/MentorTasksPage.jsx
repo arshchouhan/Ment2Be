@@ -24,31 +24,7 @@ const MentorTasksPage = () => {
     <div className="min-h-screen bg-[#202327]">
       <MentorNavbar userName={user?.name || 'Mentor'} />
       
-      {/* Task Dashboard Header */}
-      <div className="bg-[#121212] border-b border-gray-700">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div>
-              <h1 className="text-xl font-semibold text-white">Task Management</h1>
-              <p className="text-sm text-gray-400">Manage and track mentee assignments</p>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <button
-                onClick={() => setIsModalOpen(true)}
-                className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                </svg>
-                Create Task
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <main className="mx-auto px-6 sm:px-8 lg:px-12 py-6">
         <StatsCards />
 
         <div className="mt-6 flex flex-col lg:flex-row gap-6">

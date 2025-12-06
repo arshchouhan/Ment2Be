@@ -16,6 +16,7 @@
     "start": "node --env-file=.env index.js"
   },
   "dependencies": {
+    "axios": "^1.13.2",
     "bcrypt": "^6.0.0",
     "bcryptjs": "^3.0.3",
     "cloudinary": "^2.8.0",
@@ -28,6 +29,7 @@
     "mongoose": "^8.19.3",
     "multer": "^2.0.2",
     "socket.io": "^4.7.5",
+    "stream-chat": "^9.26.1",
     "uuid": "^10.0.0",
     "zod": "^4.1.12"
   }

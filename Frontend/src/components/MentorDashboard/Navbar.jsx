@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { Users, CheckSquare, MessageCircle, UserPlus, Menu, X, Home, LogOut } from 'lucide-react';
 import UserProfileSidebar from '../UserProfileSidebar';
 import Logo from '../../assets/Logo.png';
 
 const MentorNavbar = ({ userName = 'Mentor' }) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const handleLogout = () => {
@@ -40,11 +41,22 @@ const MentorNavbar = ({ userName = 'Mentor' }) => {
                 <Link
                   key={item.label}
                   to={item.href}
-                  className="p-1.5 rounded-lg hover:bg-gray-700 flex items-center gap-1.5 transition-colors"
+                  className={`p-2 rounded-lg flex items-center gap-1.5 transition-colors ${
+                    location.pathname === item.href 
+                      ? 'bg-gray-700 text-white' 
+                      : 'text-gray-300 hover:bg-gray-700 hover:text-cyan-400'
+                  }`}
                   title={item.label}
                 >
-                  <Icon size={18} className="text-gray-300 hover:text-cyan-400" />
-                  <span className="text-xs font-medium text-gray-300 hover:text-cyan-400">{item.label}</span>
+                  <Icon 
+                    size={18} 
+                    className={location.pathname === item.href ? 'text-white' : 'text-gray-300 hover:text-cyan-400'} 
+                  />
+                  <span className={`text-xs font-medium ${
+                    location.pathname === item.href ? 'text-white' : 'text-gray-300 hover:text-cyan-400'
+                  }`}>
+                    {item.label}
+                  </span>
                 </Link>
               );
             })}
@@ -76,10 +88,14 @@ const MentorNavbar = ({ userName = 'Mentor' }) => {
                   key={item.label}
                   to={item.href}
                   onClick={() => setIsMenuOpen(false)}
-                  className="w-full block px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors text-xs"
+                  className={`w-full block px-3 py-2 rounded-lg transition-colors text-xs ${
+                    location.pathname === item.href
+                      ? 'bg-gray-700 text-white'
+                      : 'text-gray-300 hover:bg-gray-700 hover:text-cyan-400'
+                  }`}
                 >
                   <div className="flex items-center gap-2">
-                    <Icon size={16} />
+                    <Icon size={16} className={location.pathname === item.href ? 'text-white' : 'text-gray-300'} />
                     {item.label}
                   </div>
                 </Link>

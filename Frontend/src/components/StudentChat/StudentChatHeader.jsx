@@ -1,49 +1,75 @@
 import React from "react";
-import { Circle, MoreVertical, Phone, Video, Calendar, Star } from "lucide-react";
+import { Circle, MoreVertical, Phone, Video } from "lucide-react";
 
-export function StudentChatHeader({ mentor }) {
+export function StudentChatHeader({ 
+  mentorName = "Select a conversation", 
+  mentorRole = "", 
+  mentorAvatar = ""
+}) {
+  const getInitials = (name) => {
+    if (!name || typeof name !== 'string') return 'U';
+    return name
+      .split(' ')
+      .map(n => n[0])
+      .join('')
+      .toUpperCase()
+      .substring(0, 2);
+  };
+
   return (
-    <header className="flex items-center justify-between px-4 py-3 border-b border-gray-700 bg-[#121212]">
-      <div className="flex items-center gap-3">
+    <header className="flex items-center justify-between px-6 py-4 border-b border-[#535353]/30 bg-[#121212]">
+      <div className="flex items-center gap-4">
         <div className="relative">
-          <div className="h-10 w-10 rounded-full bg-gray-700 border-2 border-gray-600 flex items-center justify-center">
-            <span className="text-sm font-semibold text-gray-300">
-              {mentor.name
-                .split(" ")
-                .map((n) => n[0])
-                .join("")}
+          <div className="h-12 w-12 border-2 border-gray-600 rounded-full overflow-hidden bg-[#212121] flex items-center justify-center">
+            {mentorAvatar ? (
+              <img 
+                src={mentorAvatar} 
+                alt={mentorName} 
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.style.display = 'none';
+                  e.target.parentElement.querySelector('span').style.display = 'flex';
+                }}
+              />
+            ) : null}
+            <span className="text-lg font-semibold text-white flex items-center justify-center w-full h-full">
+              {getInitials(mentorName)}
             </span>
           </div>
-          {mentor.isOnline && (
-            <Circle className="absolute -bottom-0.5 -right-0.5 h-3 w-3 fill-gray-400 text-gray-400" />
-          )}
+          <Circle className="absolute -bottom-0.5 -right-0.5 h-4 w-4 fill-green-500 text-green-500" />
         </div>
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-base font-semibold text-white">{mentor.name}</h1>
-            <div className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-gray-800 border border-gray-600">
-              <Star className="w-2.5 h-2.5 text-gray-400 fill-gray-400" />
-              <span className="text-[10px] font-medium text-gray-400">Top Mentor</span>
-            </div>
+            <h1 className="text-lg font-semibold text-white">
+              {mentorName}
+            </h1>
           </div>
-          <p className="text-xs text-gray-400">
-            {mentor.role} @ {mentor.company} • {mentor.isOnline ? "Online" : "Offline"}
-          </p>
+          <div className="flex items-center gap-2 text-sm text-[#b3b3b3]">
+            {mentorRole && (
+              <span>{mentorRole}</span>
+            )}
+          </div>
         </div>
       </div>
 
       <div className="flex items-center gap-2">
-        <button className="flex items-center gap-2 px-3 py-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition-colors">
-          <Calendar className="h-4 w-4" />
-          <span className="hidden sm:inline">Schedule</span>
-        </button>
-        <button className="p-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition-colors">
+        <button 
+          className="p-2 rounded-lg text-[#b3b3b3] hover:text-white hover:bg-[#212121] transition-colors"
+          title="Start Voice Call"
+        >
           <Phone className="h-5 w-5" />
         </button>
-        <button className="p-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition-colors">
+        <button 
+          className="p-2 rounded-lg text-[#b3b3b3] hover:text-white hover:bg-[#212121] transition-colors"
+          title="Start Video Call"
+        >
           <Video className="h-5 w-5" />
         </button>
-        <button className="p-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition-colors">
+        <button 
+          className="p-2 rounded-lg text-[#b3b3b3] hover:text-white hover:bg-[#212121] transition-colors"
+          title="More options"
+        >
           <MoreVertical className="h-5 w-5" />
         </button>
       </div>

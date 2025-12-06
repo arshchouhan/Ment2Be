@@ -1,13 +1,41 @@
 import Message from '../models/message.model.js';
 import User from '../models/user.model.js';
 import MentorProfile from '../models/mentorProfile.model.js';
+import mongoose from 'mongoose';
+
+// Test endpoint to get database stats
+export const getDatabaseStats = async (req, res) => {
+  try {
+    const db = mongoose.connection.db;
+    const messageCount = await db.collection('messages').countDocuments();
+    const userCount = await db.collection('users').countDocuments();
+    
+    res.status(200).json({
+      database: 'Uploom',
+      messageCount,
+      userCount,
+      success: true
+    });
+  } catch (error) {
+    console.error('Error getting database stats:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to get database stats',
+      error: error.message
+    });
+  }
+};
 
 // Get all conversations for the authenticated user
 export const getConversations = async (req, res) => {
   try {
     const userId = req.user.id;
+    console.log("[MESSAGE CONTROLLER] getConversations called");
+    console.log("[MESSAGE CONTROLLER] User ID from token: " + userId);
+    console.log("[MESSAGE CONTROLLER] User object: " + JSON.stringify(req.user));
     
     const conversations = await Message.getConversations(userId);
+    console.log("[MESSAGE CONTROLLER] Found " + conversations.length + " conversations");
     
     res.status(200).json({
       success: true,

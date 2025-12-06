@@ -40,19 +40,34 @@ const typeConfig = {
 export function MessageBubble({ message = {} }) {
   // Safely get message properties with defaults
   const { 
-    type = MessageTypes.NORMAL, 
+    type = MessageTypes.NORMAL,
+    custom_type = MessageTypes.NORMAL, // Stream Chat stores custom type here
     sender = 'mentor', 
     content = '',
+    text = '', // Stream Chat uses 'text' field
     timestamp = new Date(),
+    created_at = new Date(), // Stream Chat uses 'created_at'
     senderName = '',
     receiverName = ''
   } = message;
+
+  // Use text from Stream Chat if content is empty
+  const messageContent = (content || text || '').trim();
+  // Use custom_type if type is empty (Stream Chat sends type as '')
+  const messageType = (type && type !== '') ? type : custom_type;
+  // Use created_at if timestamp is not a valid date
+  const messageTime = timestamp instanceof Date && !isNaN(timestamp.getTime()) ? timestamp : new Date(created_at);
+
+  // Don't render empty messages
+  if (!messageContent) {
+    return null;
+  }
 
   const user = JSON.parse(localStorage.getItem('user') || '{}');
   const isMentor = sender === 'mentor' || sender?._id === (user?._id || user?.id);
   
   // Get config with fallback to unknown type
-  const config = typeConfig[type] || typeConfig.unknown;
+  const config = typeConfig[messageType] || typeConfig.unknown;
   const Icon = config?.icon || AlertCircle;
 
   const formatTime = (date) => {
@@ -80,10 +95,10 @@ export function MessageBubble({ message = {} }) {
   }
 
   return (
-    <div className={cn("flex w-full mb-3", isMentor ? "justify-start" : "justify-end")}>
-      <div className={cn("max-w-[80%] relative", isMentor ? "pr-4" : "pl-4")}>
-        {/* Sender name for group chats */}
-        {senderName && !isMentor && (
+    <div className={cn("flex w-full mb-3", isMentor ? "justify-end" : "justify-start")}>
+      <div className={cn("max-w-[80%] relative", isMentor ? "pl-4" : "pr-4")}>
+        {/* Sender name */}
+        {senderName && (
           <div className="text-xs text-gray-500 mb-1 ml-1">
             {senderName}
           </div>
@@ -93,14 +108,14 @@ export function MessageBubble({ message = {} }) {
           className={cn(
             "rounded-2xl px-4 py-2 text-sm transition-all duration-200",
             isMentor 
-              ? "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-tl-none" 
-              : "bg-blue-500 text-white rounded-tr-none",
+              ? "bg-blue-500 text-white rounded-tr-none" 
+              : "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-tl-none",
             "hover:shadow-lg hover:shadow-gray-900/20"
           )}
         >
           {/* Message type indicator */}
-          {type !== MessageTypes.NORMAL && (
-            <div className={cn("flex items-center mb-1 text-xs font-medium", isMentor ? 'text-gray-500' : 'text-blue-100')}>
+          {messageType !== MessageTypes.NORMAL && (
+            <div className={cn("flex items-center mb-1 text-xs font-medium", isMentor ? 'text-blue-100' : 'text-gray-500')}>
               <Icon className="w-3.5 h-3.5 mr-1" />
               <span>{config.label}</span>
             </div>
@@ -108,12 +123,12 @@ export function MessageBubble({ message = {} }) {
           
           {/* Message content */}
           <div className="whitespace-pre-wrap break-words">
-            {content || 'No content'}
+            {messageContent || 'No content'}
           </div>
           
           {/* Message time */}
-          <div className={cn("text-xs mt-1 text-right", isMentor ? 'text-gray-500' : 'text-blue-100')}>
-            {formatTime(timestamp)}
+          <div className={cn("text-xs mt-1 text-right", isMentor ? 'text-blue-100' : 'text-gray-500')}>
+            {formatTime(messageTime)}
           </div>
         </div>
       </div>

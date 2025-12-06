@@ -5,7 +5,8 @@ import {
   sendMessage,
   markMessagesAsRead,
   getUnreadCount,
-  getMessageableUsers
+  getMessageableUsers,
+  getDatabaseStats
 } from '../controllers/message.controller.js';
 import { authenticateToken } from '../middleware/auth.middleware.js';
 
@@ -30,6 +31,9 @@ router.put('/conversations/:senderId/read', markMessagesAsRead);
 router.get('/unread-count', getUnreadCount);
 
 // Get users that can be messaged
-router.get('/users', getMessageableUsers);
+router.get('/messageable-users', getMessageableUsers);
+
+// Test endpoint for database stats (no auth required)
+router.get('/test-db', getDatabaseStats);
 
 export default router;

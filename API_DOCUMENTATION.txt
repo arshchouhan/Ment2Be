@@ -1,0 +1,442 @@
+================================================================================
+                    K23DX PROJECT - API DOCUMENTATION
+================================================================================
+
+BASE URLS:
+  Node.js Backend: http://localhost:4000
+  Java Backend:    http://localhost:8080
+
+================================================================================
+1. AUTHENTICATION SERVICE
+================================================================================
+
+Service: Login
+  Method:          POST
+  Node.js:         /api/auth/login
+  Java:            /api/auth/login
+  Description:     User login with email and password
+
+Service: Register
+  Method:          POST
+  Node.js:         /api/auth/register
+  Java:            /api/auth/register
+  Description:     User registration
+
+Service: Logout
+  Method:          POST
+  Node.js:         /api/auth/logout
+  Java:            /api/auth/logout
+  Description:     User logout
+
+Service: Verify Token
+  Method:          GET
+  Node.js:         /api/auth/verify
+  Java:            /api/auth/verify
+  Description:     Verify JWT token validity
+
+================================================================================
+2. USER SERVICE
+================================================================================
+
+Service: Get Current User
+  Method:          GET
+  Node.js:         /api/user/me
+  Java:            /api/user/me
+  Description:     Fetch authenticated user profile
+  Auth Required:   YES
+
+Service: Update Profile
+  Method:          PUT
+  Node.js:         /api/user/profile
+  Java:            /api/user/profile
+  Description:     Update user profile (bio, skills, interests, goals, social links, profile picture)
+  Auth Required:   YES
+
+Service: Get User by ID
+  Method:          GET
+  Node.js:         /api/user/:id
+  Java:            /api/user/:id
+  Description:     Fetch user details by ID
+  Auth Required:   YES
+
+Service: Get All Users
+  Method:          GET
+  Node.js:         /api/user/all
+  Java:            /api/user/all
+  Description:     Fetch all users (admin only)
+  Auth Required:   YES
+
+Service: Delete User
+  Method:          DELETE
+  Node.js:         /api/user/:id
+  Java:            /api/user/:id
+  Description:     Delete user account
+  Auth Required:   YES
+
+================================================================================
+3. MENTOR SERVICE
+================================================================================
+
+Service: Get All Mentors
+  Method:          GET
+  Node.js:         /api/mentors
+  Java:            /api/mentors
+  Description:     Fetch list of all mentors
+  Auth Required:   YES
+
+Service: Get Mentor by ID
+  Method:          GET
+  Node.js:         /api/mentors/:id
+  Java:            /api/mentors/:id
+  Description:     Fetch specific mentor details
+  Auth Required:   YES
+
+Service: Create Mentor Profile
+  Method:          POST
+  Node.js:         /api/mentors
+  Java:            /api/mentors
+  Description:     Create new mentor profile
+  Auth Required:   YES
+
+Service: Update Mentor Profile
+  Method:          PUT
+  Node.js:         /api/mentors/:id
+  Java:            /api/mentors/:id
+  Description:     Update mentor profile
+  Auth Required:   YES
+
+Service: Delete Mentor Profile
+  Method:          DELETE
+  Node.js:         /api/mentors/:id
+  Java:            /api/mentors/:id
+  Description:     Delete mentor profile
+  Auth Required:   YES
+
+Service: Get Mentor Sessions
+  Method:          GET
+  Node.js:         /api/mentors/:id/sessions
+  Java:            /api/mentors/:id/sessions
+  Description:     Get all sessions for a mentor
+  Auth Required:   YES
+
+================================================================================
+4. MESSAGING SERVICE (MOST IMPORTANT)
+================================================================================
+
+Service: Get Conversations (RECENT MESSAGES)
+  Method:          GET
+  Node.js Route:   /api/messages/conversations
+  Java Route:      /api/chat/conversations
+  Description:     Fetch all conversations for authenticated user
+  Auth Required:   YES
+
+Service: Get Conversation Messages
+  Method:          GET
+  Node.js Route:   /api/messages/conversations/:participantId/messages
+  Java Route:      /api/chat/messages/:conversationId
+  Description:     Get messages for specific conversation
+  Auth Required:   YES
+
+Service: Send Message
+  Method:          POST
+  Node.js Route:   /api/messages/send
+  Java Route:      /api/chat/send
+  Description:     Send new message
+  Auth Required:   YES
+
+Service: Mark Messages as Read
+  Method:          PUT
+  Node.js Route:   /api/messages/conversations/:senderId/read
+  Java Route:      /api/chat/conversations/:senderId/read
+  Description:     Mark messages as read
+  Auth Required:   YES
+
+Service: Get Unread Count
+  Method:          GET
+  Node.js Route:   /api/messages/unread-count
+  Java Route:      /api/chat/unread-count
+  Description:     Get count of unread messages
+  Auth Required:   YES
+
+Service: Get Messageable Users
+  Method:          GET
+  Node.js Route:   /api/messages/users
+  Java Route:      /api/chat/users
+  Description:     Get list of users that can be messaged
+  Auth Required:   YES
+
+Service: Delete Message
+  Method:          DELETE
+  Node.js Route:   /api/chat/messages/:messageId
+  Java Route:      /api/chat/messages/:messageId
+  Description:     Delete a message
+  Auth Required:   YES
+
+================================================================================
+5. BOOKING / SESSION SERVICE
+================================================================================
+
+Service: Get All Bookings
+  Method:          GET
+  Node.js:         /api/bookings
+  Java:            /api/bookings
+  Description:     Fetch all bookings for authenticated user
+  Auth Required:   YES
+
+Service: Get Booking by ID
+  Method:          GET
+  Node.js:         /api/bookings/:id
+  Java:            /api/bookings/:id
+  Description:     Fetch specific booking details
+  Auth Required:   YES
+
+Service: Create Booking
+  Method:          POST
+  Node.js:         /api/bookings
+  Java:            /api/bookings
+  Description:     Create new session booking
+  Auth Required:   YES
+
+Service: Update Booking
+  Method:          PUT
+  Node.js:         /api/bookings/:id
+  Java:            /api/bookings/:id
+  Description:     Update booking details
+  Auth Required:   YES
+
+Service: Cancel Booking
+  Method:          DELETE
+  Node.js:         /api/bookings/:id
+  Java:            /api/bookings/:id
+  Description:     Cancel a booking
+  Auth Required:   YES
+
+Service: Join Session
+  Method:          POST
+  Node.js:         /api/bookings/:sessionId/join
+  Java:            /api/bookings/:sessionId/join
+  Description:     Join a live session (returns roomId for WebRTC)
+  Auth Required:   YES
+
+Service: Update Meeting Status
+  Method:          PUT
+  Node.js:         /api/bookings/:sessionId/meeting-status
+  Java:            /api/bookings/:sessionId/meeting-status
+  Description:     Update session status (not_started, waiting, active, ended)
+  Auth Required:   YES
+
+================================================================================
+6. KARMA POINTS SERVICE
+================================================================================
+
+Service: Get Karma Points
+  Method:          GET
+  Node.js:         /api/karma/:userId
+  Java:            /api/karma/:userId
+  Description:     Fetch karma points for user
+  Auth Required:   YES
+
+Service: Add Karma Points
+  Method:          POST
+  Node.js:         /api/karma/:userId/add
+  Java:            /api/karma/:userId/add
+  Description:     Add karma points to user
+  Auth Required:   YES
+
+Service: Deduct Karma Points
+  Method:          POST
+  Node.js:         /api/karma/:userId/deduct
+  Java:            /api/karma/:userId/deduct
+  Description:     Deduct karma points from user
+  Auth Required:   YES
+
+Service: Get Karma History
+  Method:          GET
+  Node.js:         /api/karma/:userId/history
+  Java:            /api/karma/:userId/history
+  Description:     Get karma transaction history
+  Auth Required:   YES
+
+================================================================================
+7. LEARNING JOURNAL SERVICE
+================================================================================
+
+Service: Get All Journal Entries
+  Method:          GET
+  Node.js:         /api/journal
+  Java:            /api/journal
+  Description:     Fetch all journal entries for user
+  Auth Required:   YES
+
+Service: Get Journal Entry by ID
+  Method:          GET
+  Node.js:         /api/journal/:id
+  Java:            /api/journal/:id
+  Description:     Fetch specific journal entry
+  Auth Required:   YES
+
+Service: Create Journal Entry
+  Method:          POST
+  Node.js:         /api/journal
+  Java:            /api/journal
+  Description:     Create new journal entry
+  Auth Required:   YES
+
+Service: Update Journal Entry
+  Method:          PUT
+  Node.js:         /api/journal/:id
+  Java:            /api/journal/:id
+  Description:     Update journal entry
+  Auth Required:   YES
+
+Service: Delete Journal Entry
+  Method:          DELETE
+  Node.js:         /api/journal/:id
+  Java:            /api/journal/:id
+  Description:     Delete journal entry
+  Auth Required:   YES
+
+================================================================================
+8. TASK SERVICE
+================================================================================
+
+Service: Get All Tasks
+  Method:          GET
+  Node.js:         /api/tasks
+  Java:            /api/tasks
+  Description:     Fetch all tasks for user
+  Auth Required:   YES
+
+Service: Get Task by ID
+  Method:          GET
+  Node.js:         /api/tasks/:id
+  Java:            /api/tasks/:id
+  Description:     Fetch specific task
+  Auth Required:   YES
+
+Service: Create Task
+  Method:          POST
+  Node.js:         /api/tasks
+  Java:            /api/tasks
+  Description:     Create new task
+  Auth Required:   YES
+
+Service: Update Task
+  Method:          PUT
+  Node.js:         /api/tasks/:id
+  Java:            /api/tasks/:id
+  Description:     Update task details
+  Auth Required:   YES
+
+Service: Complete Task
+  Method:          PUT
+  Node.js:         /api/tasks/:id/complete
+  Java:            /api/tasks/:id/complete
+  Description:     Mark task as complete
+  Auth Required:   YES
+
+Service: Delete Task
+  Method:          DELETE
+  Node.js:         /api/tasks/:id
+  Java:            /api/tasks/:id
+  Description:     Delete task
+  Auth Required:   YES
+
+================================================================================
+AUTHENTICATION HEADER (Required for all endpoints except login/register)
+================================================================================
+
+Authorization: Bearer <JWT_TOKEN>
+
+Example:
+  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+
+================================================================================
+RESPONSE FORMAT
+================================================================================
+
+Success Response:
+{
+  "success": true,
+  "data": { /* response data */ },
+  "message": "Operation successful"
+}
+
+Error Response:
+{
+  "success": false,
+  "message": "Error description",
+  "error": "Error details"
+}
+
+================================================================================
+HOW TO SWITCH BETWEEN BACKENDS
+================================================================================
+
+To switch from Node.js to Java:
+
+1. Update the API base URL in your frontend code:
+
+   FROM: http://localhost:4000
+   TO:   http://localhost:8080
+
+2. For Messaging Service specifically:
+
+   FROM: /api/messages/conversations
+   TO:   /api/chat/conversations
+
+3. All other endpoints remain the same
+
+================================================================================
+IMPLEMENTATION STATUS
+================================================================================
+
+NODE.JS BACKEND:
+  ✓ Authentication Service
+  ✓ User Service
+  ✓ Mentor Service
+  ✓ Messaging Service (COMPLETE)
+  ✓ Booking/Session Service
+  ✓ Karma Points Service
+  ~ Learning Journal Service (PARTIAL)
+  ~ Task Service (PARTIAL)
+
+JAVA BACKEND:
+  ~ Authentication Service (TODO)
+  ~ User Service (TODO)
+  ~ Mentor Service (TODO)
+  ✓ Messaging Service (Conversations endpoint IMPLEMENTED - Ready to use)
+  ~ Booking/Session Service (TODO)
+  ✓ Karma Points Service (IMPLEMENTED)
+  ~ Learning Journal Service (TODO)
+  ~ Task Service (TODO)
+
+Legend:
+  ✓ = Fully Implemented
+  ~ = Partially Implemented / TODO
+  (blank) = Not Started
+
+================================================================================
+NOTES
+================================================================================
+
+1. Messaging Service: Both Node.js and Java now have the same response format
+   for conversations endpoint. Easy to switch between them.
+
+2. Authentication: Required for all endpoints except:
+   - POST /api/auth/login
+   - POST /api/auth/register
+
+3. File Upload: Profile picture upload uses multipart/form-data
+
+4. WebRTC: Session joining returns roomId for real-time video/audio
+
+5. Pagination: Some list endpoints support 'limit' and 'skip' query parameters
+
+6. Current Frontend: Uses Node.js backend at http://localhost:4000
+
+7. To Test Java Backend: Change base URL to http://localhost:8080
+
+================================================================================
+LAST UPDATED: December 6, 2025
+================================================================================
