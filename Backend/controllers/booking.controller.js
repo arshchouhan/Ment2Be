@@ -268,7 +268,7 @@ const updateBookingStatus = async (req, res) => {
     }
 
     // Validate status transitions
-    const validStatuses = ['pending', 'confirmed', 'cancelled', 'completed', 'no-show'];
+    const validStatuses = ['pending', 'confirmed', 'cancelled', 'completed', 'no-show', 'expired'];
     if (!validStatuses.includes(status)) {
       return res.status(400).json({
         success: false,

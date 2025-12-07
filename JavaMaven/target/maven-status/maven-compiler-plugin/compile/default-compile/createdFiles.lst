@@ -3,14 +3,18 @@ com\app\model\User$SocialLinks.class
 com\app\controllers\TaskController$12.class
 com\app\model\User.class
 com\app\controllers\TaskController$6.class
+com\app\controllers\TaskController$22.class
 com\app\karma\KarmaAspect.class
 com\app\App.class
 com\app\chat\ChatController$ConversationData.class
 com\app\controllers\TaskController$18.class
+com\app\controllers\TaskController$28.class
+com\app\controllers\TaskController$25.class
 com\app\service\ConversationService.class
 com\app\controllers\TaskController$15.class
 com\app\controllers\TaskController$9.class
 com\app\controllers\TaskController.class
+com\app\controllers\TaskController$26.class
 com\app\controllers\TaskController$11.class
 com\app\chat\ChatController$ChatResponse.class
 com\app\model\Conversation$Participant.class
@@ -29,8 +33,10 @@ com\app\chat\ChatController.class
 com\app\controllers\TaskController$8.class
 com\app\controllers\TaskController$1.class
 com\app\model\MentorProfile$Availability.class
+com\app\controllers\TaskController$27.class
 com\app\karma\KarmaController$KarmaRequest.class
 com\app\controllers\TaskController$4.class
+com\app\controllers\TaskController$23.class
 com\app\karma\KarmaService.class
 com\app\controllers\TaskController$13.class
 com\app\chat\ChatController$MessageRequest.class
@@ -56,3 +62,4 @@ com\app\repository\MessageRepository.class
 com\app\chat\ChatController$ConversationListResponse.class
 com\app\controllers\TaskController$3.class
 com\app\controllers\TaskController$19.class
+com\app\controllers\TaskController$24.class

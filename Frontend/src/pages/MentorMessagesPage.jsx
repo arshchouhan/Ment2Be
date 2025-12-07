@@ -15,7 +15,7 @@ const MentorMessagesPage = () => {
   }, [navigate]);
 
   return (
-    <div className="h-screen bg-[#121212] overflow-hidden">
+    <div className="h-screen bg-[#121212] overflow-hidden pt-14">
       <MentorNavbar userName={user?.name || 'Mentor'} />
       
       {/* Full-height chat interface */}

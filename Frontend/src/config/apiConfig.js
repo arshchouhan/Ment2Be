@@ -4,7 +4,7 @@
  */
 
 // Set to 'nodejs' or 'java' to switch between backends
-const ACTIVE_BACKEND = 'nodejs'; // Change this to 'java' to use Java backend
+const ACTIVE_BACKEND = 'java'; // Change this to 'nodejs' to use Node.js backend
 
 const API_URLS = {
   nodejs: 'http://localhost:4000/api/tasks',

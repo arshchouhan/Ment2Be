@@ -28,7 +28,7 @@ const MentorTasksPage = () => {
 
   if (isCreateMode) {
     return (
-      <div className="min-h-screen bg-[#202327]">
+      <div className="min-h-screen bg-[#202327] pt-14">
         <MentorNavbar userName={user?.name || 'Mentor'} />
         <CreateTaskForm />
       </div>
@@ -36,7 +36,7 @@ const MentorTasksPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#202327]">
+    <div className="min-h-screen bg-[#202327] pt-14">
       <MentorNavbar userName={user?.name || 'Mentor'} />
       
       <main className="mx-auto px-6 sm:px-8 lg:px-12 py-6">

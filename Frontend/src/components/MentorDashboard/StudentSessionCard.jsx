@@ -90,9 +90,11 @@ export function StudentSessionCard({
   onConfirmSession,
   onRejectSession,
   onCancelSession,
+  onSessionExpired,
 }) {
   const [isDetailsOpen, setIsDetailsOpen] = useState(false)
   const [timeLeft, setTimeLeft] = useState('')
+  const [sessionStatus, setSessionStatus] = useState(status)
 
   // Calculate countdown to session
   useEffect(() => {
@@ -118,7 +120,11 @@ export function StudentSessionCard({
           setTimeLeft(`${seconds}s`)
         }
       } else {
-        setTimeLeft('Session Started')
+        setTimeLeft('Expired')
+        setSessionStatus('expired')
+        if (onSessionExpired && latestSession) {
+          onSessionExpired(latestSession._id)
+        }
       }
     }
 
@@ -143,7 +149,7 @@ export function StudentSessionCard({
     missed: { icon: FiAlertCircle, className: "text-[#535353]" },
   }
 
-  const currentStatus = statusConfig[status] || { label: status || "Unknown", className: "bg-[#202327] text-[#535353] border-[#404040]" }
+  const currentStatus = statusConfig[sessionStatus] || { label: sessionStatus || "Unknown", className: "bg-[#202327] text-[#535353] border-[#404040]" }
   const completionRate = totalSessions > 0 ? Math.round((completedSessions / totalSessions) * 100) : 0
 
   return (
@@ -246,7 +252,14 @@ export function StudentSessionCard({
 
           {/* Actions */}
           <div className="px-5 py-4 border-t border-[#404040] bg-[#202327] flex gap-2">
-            {status === 'pending' ? (
+            {sessionStatus === 'expired' ? (
+              <button 
+                disabled
+                className="flex-1 py-2 bg-gray-700 text-gray-400 text-sm font-semibold rounded-lg cursor-not-allowed"
+              >
+                Session Expired
+              </button>
+            ) : sessionStatus === 'pending' ? (
               <>
                 <button 
                   onClick={() => onConfirmSession && latestSession && onConfirmSession(latestSession)}
@@ -261,7 +274,7 @@ export function StudentSessionCard({
                   Reject
                 </button>
               </>
-            ) : status === 'confirmed' ? (
+            ) : sessionStatus === 'confirmed' ? (
               <>
                 <button 
                   onClick={() => onJoinSession && latestSession && onJoinSession(latestSession)}

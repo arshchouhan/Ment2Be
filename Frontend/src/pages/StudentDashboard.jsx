@@ -5,6 +5,7 @@ import Navbar from '../components/StudentDashboard/Navbar';
 import SessionTimer from '../components/SessionTimer';
 import KarmaPointsCard from '../components/KarmaPointsCard/KarmaPointsCard';
 import { formatDistanceToNow } from 'date-fns';
+import { fetchStudentTasks } from '../services/studentTasksApi';
 
 const UserDashboard = () => {
   const navigate = useNavigate();
@@ -18,6 +19,8 @@ const UserDashboard = () => {
   const [mentorsLoading, setMentorsLoading] = useState(true);
   const [recentMessages, setRecentMessages] = useState([]);
   const [messagesLoading, setMessagesLoading] = useState(true);
+  const [recentTasks, setRecentTasks] = useState([]);
+  const [tasksLoading, setTasksLoading] = useState(true);
 
   // Profile completion form state
   const showProfileForm = searchParams.get('complete-profile') === 'true';
@@ -90,6 +93,7 @@ const UserDashboard = () => {
     fetchRecentMentors();
     fetchUpcomingSessions();
     fetchRecentMessages();
+    fetchRecentTasks();
   }, [navigate]);
 
   const fetchRecentMentors = async () => {
@@ -225,6 +229,34 @@ const UserDashboard = () => {
       console.error('Error fetching messages:', err);
     } finally {
       setMessagesLoading(false);
+    }
+  };
+
+  const fetchRecentTasks = async () => {
+    try {
+      setTasksLoading(true);
+      const user = JSON.parse(localStorage.getItem('user') || '{}');
+      
+      if (!user._id) {
+        setRecentTasks([]);
+        setTasksLoading(false);
+        return;
+      }
+
+      const data = await fetchStudentTasks(user._id);
+      
+      // Get the 3 most recent tasks sorted by creation date
+      const tasks = Array.isArray(data.tasks) ? data.tasks : [];
+      const recentTasksList = tasks
+        .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0))
+        .slice(0, 3);
+      
+      setRecentTasks(recentTasksList);
+    } catch (err) {
+      console.error('Error fetching tasks:', err);
+      setRecentTasks([]);
+    } finally {
+      setTasksLoading(false);
     }
   };
 
@@ -548,37 +580,55 @@ const UserDashboard = () => {
                       </svg>
                       Your Tasks
                     </h2>
-                    <button className="text-[#535353] hover:text-white text-xs font-medium">View All</button>
+                    <button onClick={() => navigate('/student/tasks')} className="text-[#535353] hover:text-white text-xs font-medium">View All</button>
                   </div>
 
-                  <div className="space-y-2">
-                    <div className="flex items-start space-x-3 p-3 bg-[#202327] rounded-lg hover:bg-[#2a2d32] transition-colors cursor-pointer">
-                      <input type="checkbox" className="mt-1 w-4 h-4 rounded border-gray-600 bg-[#121212] cursor-pointer" />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-white font-medium text-sm">Complete your profile</p>
-                        <p className="text-gray-400 text-xs mt-0.5">Add skills, interests, and goals</p>
-                      </div>
-                      <span className="text-[10px] bg-blue-900 text-blue-300 px-2 py-0.5 rounded-full whitespace-nowrap">High Priority</span>
+                  {tasksLoading ? (
+                    <div className="text-center py-4">
+                      <p className="text-gray-400 text-xs">Loading tasks...</p>
                     </div>
+                  ) : recentTasks.length > 0 ? (
+                    <div className="space-y-2">
+                      {recentTasks.map((task) => {
+                        const getStatusColor = (status) => {
+                          switch(status) {
+                            case 'completed': return 'bg-green-900 text-green-300';
+                            case 'in-progress': return 'bg-blue-900 text-blue-300';
+                            case 'pending-review': return 'bg-yellow-900 text-yellow-300';
+                            case 'not-started': return 'bg-gray-700 text-gray-300';
+                            default: return 'bg-gray-700 text-gray-300';
+                          }
+                        };
+                        
+                        const getPriorityColor = (priority) => {
+                          switch(priority) {
+                            case 'high': return 'bg-red-900 text-red-300';
+                            case 'medium': return 'bg-orange-900 text-orange-300';
+                            case 'low': return 'bg-blue-900 text-blue-300';
+                            default: return 'bg-gray-700 text-gray-300';
+                          }
+                        };
 
-                    <div className="flex items-start space-x-3 p-3 bg-[#202327] rounded-lg hover:bg-[#2a2d32] transition-colors cursor-pointer">
-                      <input type="checkbox" className="mt-1 w-4 h-4 rounded border-gray-600 bg-[#121212] cursor-pointer" />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-white font-medium text-sm">Book your first session</p>
-                        <p className="text-gray-400 text-xs mt-0.5">Schedule a mentoring session</p>
-                      </div>
-                      <span className="text-[10px] bg-green-900 text-green-300 px-2 py-0.5 rounded-full whitespace-nowrap">In Progress</span>
+                        return (
+                          <div key={task._id} className="flex items-start space-x-3 p-3 bg-[#202327] rounded-lg hover:bg-[#2a2d32] transition-colors cursor-pointer" onClick={() => navigate('/student/tasks')}>
+                            <input type="checkbox" className="mt-1 w-4 h-4 rounded border-gray-600 bg-[#121212] cursor-pointer" checked={task.status === 'completed'} disabled />
+                            <div className="flex-1 min-w-0">
+                              <p className={`text-white font-medium text-sm ${task.status === 'completed' ? 'line-through' : ''}`}>{task.title}</p>
+                              <p className="text-gray-400 text-xs mt-0.5">{task.description || 'No description'}</p>
+                            </div>
+                            <span className={`text-[10px] px-2 py-0.5 rounded-full whitespace-nowrap ${getPriorityColor(task.priority)}`}>
+                              {task.priority ? task.priority.charAt(0).toUpperCase() + task.priority.slice(1) : 'Medium'}
+                            </span>
+                          </div>
+                        );
+                      })}
                     </div>
-
-                    <div className="flex items-start space-x-3 p-3 bg-[#202327] rounded-lg hover:bg-[#2a2d32] transition-colors cursor-pointer opacity-60">
-                      <input type="checkbox" className="mt-1 w-4 h-4 rounded border-gray-600 bg-[#121212] cursor-pointer" checked disabled />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-white font-medium text-sm line-through">Set learning goals</p>
-                        <p className="text-gray-400 text-xs mt-0.5">Define what you want to achieve</p>
-                      </div>
-                      <span className="text-[10px] bg-gray-700 text-gray-300 px-2 py-0.5 rounded-full whitespace-nowrap">Completed</span>
+                  ) : (
+                    <div className="text-center py-6">
+                      <p className="text-gray-400 text-sm">No tasks assigned yet</p>
+                      <button onClick={() => navigate('/student/tasks')} className="mt-2 text-blue-400 hover:text-blue-300 text-xs font-medium">View all tasks</button>
                     </div>
-                  </div>
+                  )}
                 </div>
 
                 <div className="bg-[#121212] rounded-lg shadow p-4 border border-gray-700 mb-4">

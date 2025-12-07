@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { Search, Filter, Calendar, User, Target, Clock, MessageSquare, Plus, FileText, Zap, CheckCircle2, Award } from "lucide-react";
+import { Search, Filter, Calendar, User, Target, Clock, MessageSquare, Plus, FileText, Zap, CheckCircle2, Award, ChevronDown, ChevronUp, File, Download } from "lucide-react";
 import { TASK_API_URL } from "../../config/apiConfig.js";
+import { toast } from "react-toastify";
 
 const tabs = ["All", "In Progress", "Pending Review", "Completed"];
 
@@ -22,6 +23,8 @@ export function TasksSection({ selectedMentee, onCreateTask }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [expandedTaskId, setExpandedTaskId] = useState(null);
+  const [updatingTaskId, setUpdatingTaskId] = useState(null);
 
   useEffect(() => {
     fetchTasks();
@@ -88,6 +91,54 @@ export function TasksSection({ selectedMentee, onCreateTask }) {
       setTasks([]);
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Handle task review/completion
+  const handleReviewTask = async (taskId) => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      toast.error('No authentication token found');
+      return;
+    }
+
+    try {
+      setUpdatingTaskId(taskId);
+      
+      // Determine the API URL based on the configured backend
+      const baseUrl = TASK_API_URL.replace('/api/tasks', '');
+      const updateUrl = `${baseUrl}/api/tasks/${taskId}`;
+      
+      const response = await fetch(updateUrl, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          status: 'completed'
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to update task: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      
+      // Update local state
+      setTasks(tasks.map(task => 
+        (task._id || task.id) === taskId 
+          ? { ...task, status: 'completed' }
+          : task
+      ));
+      
+      toast.success('Task marked as completed!');
+    } catch (error) {
+      console.error('Error updating task:', error);
+      toast.error('Failed to update task: ' + error.message);
+    } finally {
+      setUpdatingTaskId(null);
     }
   };
 
@@ -222,87 +273,183 @@ export function TasksSection({ selectedMentee, onCreateTask }) {
             )}
           </div>
         ) : (
-          filteredTasks.map((task) => (
-            <div
-              key={task._id || task.id}
-              className={`p-4 hover:bg-gray-900 transition-colors border-l-4 ${priorityBorder[task.priority]}`}
-            >
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <h3 className="font-medium text-white">{task.title}</h3>
-                    {task.hasQuestion && (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-gray-800 text-gray-300 text-xs font-medium rounded-full border border-gray-600">
-                        <MessageSquare className="w-3 h-3" />
-                        Question
+          filteredTasks.map((task) => {
+            const isExpanded = expandedTaskId === (task._id || task.id);
+            return (
+              <div
+                key={task._id || task.id}
+                className={`border-l-4 ${priorityBorder[task.priority]} transition-colors ${
+                  isExpanded ? 'bg-gray-900' : 'hover:bg-gray-900'
+                }`}
+              >
+                <div className="p-4">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h3 className="font-medium text-white">{task.title}</h3>
+                        {task.hasQuestion && (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-gray-800 text-gray-300 text-xs font-medium rounded-full border border-gray-600">
+                            <MessageSquare className="w-3 h-3" />
+                            Question
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="flex flex-wrap items-center gap-4 mt-2 text-sm text-gray-400">
+                        <span className="inline-flex items-center gap-1.5">
+                          <User className="w-4 h-4" />
+                          {task.menteeName || task.mentee || 'Student'}
+                        </span>
+                        <span className="inline-flex items-center gap-1.5">
+                          <Target className="w-4 h-4" />
+                          {task.category}
+                        </span>
+                        <span className="inline-flex items-center gap-1.5">
+                          <Clock className="w-4 h-4" />
+                          {task.dueDate ? new Date(task.dueDate).toLocaleDateString() : task.deadline}
+                        </span>
+                      </div>
+
+                      {/* Progress Bar */}
+                      <div className="mt-3">
+                        <div className="flex items-center justify-between text-xs mb-1">
+                          <span className="text-gray-400">Progress</span>
+                          <span className="font-medium text-gray-300">{task.progress}%</span>
+                        </div>
+                        <div className="h-1.5 bg-gray-800 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-gray-500 rounded-full transition-all duration-300"
+                            style={{ width: `${task.progress}%` }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                      <span
+                        className={`px-3 py-1 text-xs font-medium rounded-full ${
+                          statusConfig[task.status].bg
+                        } ${statusConfig[task.status].color}`}
+                      >
+                        {statusConfig[task.status].label}
                       </span>
+                      <button 
+                        onClick={() => onCreateTask()}
+                        className="p-1 rounded hover:bg-blue-700 transition-colors text-blue-400 hover:text-blue-300"
+                        title="Create another task for this user"
+                      >
+                        <Plus className="w-5 h-5" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="flex items-center gap-2 mt-4">
+                    {task.status === "pending-review" && (
+                      <button className="px-3 py-1.5 bg-gray-600 hover:bg-gray-700 text-white text-xs rounded-lg transition-colors">
+                        Review Submission
+                      </button>
+                    )}
+                    <button 
+                      onClick={() => setExpandedTaskId(isExpanded ? null : (task._id || task.id))}
+                      className="px-3 py-1.5 border border-gray-600 text-gray-300 text-xs bg-transparent rounded-lg hover:bg-gray-800 transition-colors flex items-center gap-2"
+                    >
+                      View Details
+                      {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                    </button>
+                    <button className="p-1.5 text-gray-400 hover:text-gray-300 hover:bg-gray-800 rounded-lg transition-colors">
+                      <MessageSquare className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Expanded Details Section */}
+                {isExpanded && (
+                  <div className="border-t border-gray-700 bg-gray-950 p-4 space-y-4">
+                    {/* Description */}
+                    {task.description && (
+                      <div>
+                        <h4 className="text-sm font-semibold text-gray-300 mb-2">Description</h4>
+                        <p className="text-sm text-gray-400">{task.description}</p>
+                      </div>
+                    )}
+
+                    {/* Instructions */}
+                    {task.instructions && (
+                      <div>
+                        <h4 className="text-sm font-semibold text-gray-300 mb-2">Instructions</h4>
+                        <p className="text-sm text-gray-400">{task.instructions}</p>
+                      </div>
+                    )}
+
+                    {/* Resources */}
+                    {task.resources && (
+                      <div>
+                        <h4 className="text-sm font-semibold text-gray-300 mb-2">Resources</h4>
+                        <p className="text-sm text-gray-400">{task.resources}</p>
+                      </div>
+                    )}
+
+                    {/* Uploaded Files */}
+                    {task.uploadedFiles && task.uploadedFiles.length > 0 && (
+                      <div>
+                        <h4 className="text-sm font-semibold text-gray-300 mb-3">Submitted Files ({task.uploadedFiles.length})</h4>
+                        <div className="space-y-2">
+                          {task.uploadedFiles.map((file, idx) => (
+                            <div key={idx} className="flex items-center justify-between p-3 bg-gray-800 rounded-lg border border-gray-700">
+                              <div className="flex items-center gap-3 flex-1 min-w-0">
+                                <File className="w-4 h-4 text-blue-400 flex-shrink-0" />
+                                <div className="min-w-0 flex-1">
+                                  <p className="text-sm text-white truncate">{file.name || file}</p>
+                                  {file.uploadedAt && (
+                                    <p className="text-xs text-gray-500">{file.uploadedAt}</p>
+                                  )}
+                                </div>
+                              </div>
+                              <button className="p-1.5 text-gray-400 hover:text-gray-300 hover:bg-gray-700 rounded transition-colors flex-shrink-0">
+                                <Download className="w-4 h-4" />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* No Files Message */}
+                    {(!task.uploadedFiles || task.uploadedFiles.length === 0) && (
+                      <div className="text-center py-4">
+                        <File className="w-8 h-8 text-gray-600 mx-auto mb-2" />
+                        <p className="text-sm text-gray-400">No files submitted yet</p>
+                      </div>
+                    )}
+
+                    {/* Review Button - Only show for pending-review tasks with submitted files */}
+                    {task.status === 'pending-review' && task.uploadedFiles && task.uploadedFiles.length > 0 && (
+                      <div className="border-t border-gray-700 pt-4 mt-4">
+                        <button
+                          onClick={() => handleReviewTask(task._id || task.id)}
+                          disabled={updatingTaskId === (task._id || task.id)}
+                          className="w-full px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors flex items-center justify-center gap-2"
+                        >
+                          {updatingTaskId === (task._id || task.id) ? (
+                            <>
+                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                              Marking as Reviewed...
+                            </>
+                          ) : (
+                            <>
+                              <CheckCircle2 className="w-4 h-4" />
+                              Mark as Reviewed
+                            </>
+                          )}
+                        </button>
+                      </div>
                     )}
                   </div>
-
-                  <div className="flex flex-wrap items-center gap-4 mt-2 text-sm text-gray-400">
-                    <span className="inline-flex items-center gap-1.5">
-                      <User className="w-4 h-4" />
-                      {task.menteeName || task.mentee || 'Student'}
-                    </span>
-                    <span className="inline-flex items-center gap-1.5">
-                      <Target className="w-4 h-4" />
-                      {task.category}
-                    </span>
-                    <span className="inline-flex items-center gap-1.5">
-                      <Clock className="w-4 h-4" />
-                      {task.dueDate ? new Date(task.dueDate).toLocaleDateString() : task.deadline}
-                    </span>
-                  </div>
-
-                  {/* Progress Bar */}
-                  <div className="mt-3">
-                    <div className="flex items-center justify-between text-xs mb-1">
-                      <span className="text-gray-400">Progress</span>
-                      <span className="font-medium text-gray-300">{task.progress}%</span>
-                    </div>
-                    <div className="h-1.5 bg-gray-800 rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-gray-500 rounded-full transition-all duration-300"
-                        style={{ width: `${task.progress}%` }}
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <span
-                    className={`px-3 py-1 text-xs font-medium rounded-full ${
-                      statusConfig[task.status].bg
-                    } ${statusConfig[task.status].color}`}
-                  >
-                    {statusConfig[task.status].label}
-                  </span>
-                  <button 
-                    onClick={() => onCreateTask()}
-                    className="p-1 rounded hover:bg-blue-700 transition-colors text-blue-400 hover:text-blue-300"
-                    title="Create another task for this user"
-                  >
-                    <Plus className="w-5 h-5" />
-                  </button>
-                </div>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex items-center gap-2 mt-4">
-                {task.status === "pending-review" && (
-                  <button className="px-3 py-1.5 bg-gray-600 hover:bg-gray-700 text-white text-xs rounded-lg transition-colors">
-                    Review Submission
-                  </button>
                 )}
-                <button className="px-3 py-1.5 border border-gray-600 text-gray-300 text-xs bg-transparent rounded-lg hover:bg-gray-800 transition-colors">
-                  View Details
-                </button>
-                <button className="p-1.5 text-gray-400 hover:text-gray-300 hover:bg-gray-800 rounded-lg transition-colors">
-                  <MessageSquare className="w-4 h-4" />
-                </button>
               </div>
-            </div>
-          ))
+            );
+          })
         )}
       </div>
     </div>

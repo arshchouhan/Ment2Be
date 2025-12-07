@@ -7,7 +7,8 @@ import {
   updateTask,
   deleteTask,
   getTasksByStatus,
-  getTasksByMentorAndMentee
+  getTasksByMentorAndMentee,
+  submitTaskProof
 } from '../controllers/task.controller.js';
 import { authenticateToken } from '../middleware/auth.middleware.js';
 
@@ -27,6 +28,9 @@ router.get('/mentor-mentee/:menteeId', authenticateToken, getTasksByMentorAndMen
 
 // Get tasks by mentee (student) - for student dashboard
 router.get('/mentee/:menteeId', getTasksByMentee);
+
+// Submit task proof (files) - MUST come before /:id route
+router.post('/submit-proof', authenticateToken, submitTaskProof);
 
 // Get task by ID
 router.get('/:id', getTaskById);

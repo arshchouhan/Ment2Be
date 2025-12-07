@@ -29,6 +29,7 @@ public class Task {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private List<String> attachments;
+    private List<java.util.Map<String, Object>> uploadedFiles;
     
     // Constructors
     public Task() {
@@ -188,5 +189,13 @@ public class Task {
     
     public void setAttachments(List<String> attachments) {
         this.attachments = attachments;
+    }
+    
+    public List<java.util.Map<String, Object>> getUploadedFiles() {
+        return uploadedFiles;
+    }
+    
+    public void setUploadedFiles(List<java.util.Map<String, Object>> uploadedFiles) {
+        this.uploadedFiles = uploadedFiles;
     }
 }

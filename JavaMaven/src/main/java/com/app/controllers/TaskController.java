@@ -260,6 +260,97 @@ public class TaskController {
     }
     
     /**
+     * Submit task proof (files)
+     * POST /api/tasks/submit-proof
+     */
+    @PostMapping("/submit-proof")
+    public ResponseEntity<?> submitTaskProof(
+            @RequestBody Map<String, Object> request,
+            @RequestHeader("Authorization") String authHeader) {
+        try {
+            // Extract token from Authorization header
+            String token = authHeader.replace("Bearer ", "");
+            
+            // Extract user ID from token
+            String userId = jwtUtil.extractUserId(token);
+            
+            if (userId == null || userId.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(new HashMap<String, Object>() {{
+                            put("success", false);
+                            put("message", "Invalid or expired token");
+                        }});
+            }
+            
+            String taskId = (String) request.get("taskId");
+            List<Map<String, Object>> files = (List<Map<String, Object>>) request.get("files");
+            
+            if (taskId == null || taskId.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(new HashMap<String, Object>() {{
+                            put("success", false);
+                            put("message", "Task ID is required");
+                        }});
+            }
+            
+            // Submit proof
+            Task updatedTask = taskService.submitTaskProof(taskId, userId, files);
+            
+            return ResponseEntity.ok(new HashMap<String, Object>() {{
+                put("success", true);
+                put("message", "Proof submitted successfully");
+                put("task", updatedTask);
+            }});
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new HashMap<String, Object>() {{
+                        put("success", false);
+                        put("message", "Error submitting proof: " + e.getMessage());
+                    }});
+        }
+    }
+    
+    /**
+     * Mark task as reviewed (mentor only)
+     * PUT /api/tasks/:id/mark-reviewed
+     */
+    @PutMapping("/{id}/mark-reviewed")
+    public ResponseEntity<?> markTaskAsReviewed(
+            @PathVariable String id,
+            @RequestHeader("Authorization") String authHeader) {
+        try {
+            // Extract token from Authorization header
+            String token = authHeader.replace("Bearer ", "");
+            
+            // Extract user ID from token
+            String mentorId = jwtUtil.extractUserId(token);
+            
+            if (mentorId == null || mentorId.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(new HashMap<String, Object>() {{
+                            put("success", false);
+                            put("message", "Invalid or expired token");
+                        }});
+            }
+            
+            // Mark as reviewed
+            Task updatedTask = taskService.markTaskAsReviewed(id, mentorId);
+            
+            return ResponseEntity.ok(new HashMap<String, Object>() {{
+                put("success", true);
+                put("message", "Task marked as completed");
+                put("task", updatedTask);
+            }});
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new HashMap<String, Object>() {{
+                        put("success", false);
+                        put("message", "Error marking task as reviewed: " + e.getMessage());
+                    }});
+        }
+    }
+    
+    /**
      * DEBUG: Delete all tasks (for testing only)
      * DELETE /api/tasks/debug/delete-all
      */

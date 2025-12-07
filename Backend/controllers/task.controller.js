@@ -338,3 +338,92 @@ export const getTasksByMentorAndMentee = async (req, res) => {
     });
   }
 };
+
+// Submit task proof (files)
+export const submitTaskProof = async (req, res) => {
+  try {
+    // Handle both FormData and JSON body
+    let taskId = req.body?.taskId;
+    
+    // If taskId not in body, check FormData fields
+    if (!taskId && req.body) {
+      taskId = Object.keys(req.body).find(key => key === 'taskId') ? req.body.taskId : null;
+    }
+
+    const userId = req.user.id || req.user._id;
+
+    console.log('Submit proof request:', { taskId, userId, body: req.body, files: req.files });
+
+    if (!taskId) {
+      return res.status(400).json({
+        success: false,
+        message: 'Task ID is required'
+      });
+    }
+
+    // Find the task
+    const task = await Task.findById(taskId);
+    if (!task) {
+      return res.status(404).json({
+        success: false,
+        message: 'Task not found'
+      });
+    }
+
+    // Verify user is the mentee of this task
+    const menteeIdStr = task.menteeId.toString();
+    const userIdStr = userId.toString();
+    
+    console.log('Verifying mentee:', { menteeId: menteeIdStr, userId: userIdStr });
+
+    if (menteeIdStr !== userIdStr) {
+      return res.status(403).json({
+        success: false,
+        message: 'You are not authorized to submit proof for this task'
+      });
+    }
+
+    // Initialize uploadedFiles array if it doesn't exist
+    if (!task.uploadedFiles) {
+      task.uploadedFiles = [];
+    }
+
+    // Add file information from request
+    const files = req.body.files || [];
+    
+    if (files && files.length > 0) {
+      files.forEach(file => {
+        task.uploadedFiles.push({
+          name: file.name,
+          size: file.size,
+          type: file.type,
+          uploadedAt: new Date(),
+          url: file.url || null
+        });
+      });
+    } else {
+      // If no files in request, just mark as submitted
+      task.uploadedFiles.push({
+        name: 'Proof Submitted',
+        uploadedAt: new Date().toISOString()
+      });
+    }
+
+    // Save the task
+    await task.save();
+
+    console.log('Proof submitted successfully for task:', taskId);
+
+    res.status(200).json({
+      success: true,
+      message: 'Proof submitted successfully',
+      task: task
+    });
+  } catch (error) {
+    console.error('Error submitting proof:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error submitting proof: ' + error.message
+    });
+  }
+};

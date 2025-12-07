@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { Calendar, User, FileText, ChevronRight, Plus, Star, X, Upload, File, Trash2, CheckCircle2 } from 'lucide-react';
 import { updateTaskStatus } from '../../services/updateTaskApi';
+import { getApiUrl } from '../../config/backendConfig';
 import { toast } from 'react-toastify';
 
 // Add animations
@@ -169,6 +170,63 @@ export function TaskCard({ task, onTaskUpdate }) {
     return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
   };
 
+  const handleSubmitProof = async () => {
+    if (uploadedFiles.length === 0) {
+      toast.error('Please upload at least one file');
+      return;
+    }
+
+    try {
+      setIsUpdating(true);
+      const token = localStorage.getItem('token');
+      
+      // Send as JSON with file metadata
+      const filesData = uploadedFiles.map(file => ({
+        name: file.name,
+        size: file.size,
+        type: file.type
+      }));
+
+      const apiUrl = getApiUrl();
+      const response = await fetch(`${apiUrl}/tasks/submit-proof`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          taskId: task._id || task.id,
+          files: filesData
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to submit proof');
+      }
+
+      const data = await response.json();
+      toast.success('Proof submitted successfully!');
+      
+      // Update the task object with the submitted files
+      if (data.task && data.task.uploadedFiles) {
+        // Update the task prop with uploaded files
+        task.uploadedFiles = data.task.uploadedFiles;
+      }
+      
+      setUploadedFiles([]);
+      
+      // Call parent callback to refresh tasks
+      if (onTaskUpdate) {
+        onTaskUpdate(data.task);
+      }
+    } catch (error) {
+      console.error('Error submitting proof:', error);
+      toast.error('Failed to submit proof: ' + error.message);
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
 
   if (isExpanded) {
     return (
@@ -274,6 +332,34 @@ export function TaskCard({ task, onTaskUpdate }) {
                   </div>
                 </div>
               </div>
+            ) : (task.uploadedFiles?.length > 0) ? (
+              // Proof Already Submitted - Show submitted files
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 p-3 bg-blue-900/20 border border-blue-700/50 rounded-lg">
+                  <CheckCircle2 className="h-5 w-5 text-blue-400 flex-shrink-0" />
+                  <div>
+                    <p className="text-sm text-blue-400 font-medium">Proof Submitted</p>
+                    <p className="text-xs text-gray-400">Your proof has been submitted for review</p>
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <p className="text-sm text-gray-400 mb-3">Submitted Files ({task.uploadedFiles.length})</p>
+                  {task.uploadedFiles.map((file, idx) => (
+                    <div key={idx} className="flex items-center justify-between p-3 bg-gray-900 rounded-lg border border-gray-800">
+                      <div className="flex items-center gap-3 flex-1 min-w-0">
+                        <File className="h-4 w-4 text-green-400 flex-shrink-0" />
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm text-white truncate">{file.name}</p>
+                          <p className="text-xs text-gray-500">
+                            {file.size ? formatFileSize(file.size) : 'N/A'} • {file.uploadedAt ? new Date(file.uploadedAt).toLocaleDateString() : 'N/A'}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
             ) : (
               // Active Task - Show upload area
               <>
@@ -293,10 +379,10 @@ export function TaskCard({ task, onTaskUpdate }) {
                   />
                 </label>
 
-                {/* Uploaded Files List */}
+                {/* Uploaded Files List (before submission) */}
                 {uploadedFiles.length > 0 && (
                   <div className="mt-4 space-y-2">
-                    <p className="text-sm text-gray-400 mb-3">Uploaded Files ({uploadedFiles.length})</p>
+                    <p className="text-sm text-gray-400 mb-3">Files to Upload ({uploadedFiles.length})</p>
                     {uploadedFiles.map((file) => (
                       <div key={file.id} className="flex items-center justify-between p-3 bg-gray-900 rounded-lg border border-gray-800">
                         <div className="flex items-center gap-3 flex-1 min-w-0">
@@ -329,12 +415,31 @@ export function TaskCard({ task, onTaskUpdate }) {
             >
               Close
             </button>
-            <button
-              disabled={uploadedFiles.length === 0 || isUpdating}
-              className="flex-1 px-4 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-700 disabled:cursor-not-allowed text-white rounded-lg font-medium transition-colors"
-            >
-              Submit Proof
-            </button>
+            {/* Only show Submit button if proof hasn't been submitted yet */}
+            {!(task.uploadedFiles?.length > 0) ? (
+              <button
+                onClick={handleSubmitProof}
+                disabled={uploadedFiles.length === 0 || isUpdating}
+                className="flex-1 px-4 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-700 disabled:cursor-not-allowed text-white rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
+              >
+                {isUpdating ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    Submitting...
+                  </>
+                ) : (
+                  'Submit Proof'
+                )}
+              </button>
+            ) : (
+              <button
+                disabled
+                className="flex-1 px-4 py-3 bg-green-600/50 text-green-400 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
+              >
+                <CheckCircle2 className="w-4 h-4" />
+                Proof Submitted
+              </button>
+            )}
           </div>
         </div>
       </div>

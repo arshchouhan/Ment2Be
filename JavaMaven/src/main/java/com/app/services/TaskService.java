@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -198,6 +199,83 @@ public class TaskService {
             return taskRepository.countByMenteeId(menteeId);
         } catch (Exception e) {
             throw new RuntimeException("Error counting tasks: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Submit task proof (files)
+     */
+    public Task submitTaskProof(String taskId, String userId, List<Map<String, Object>> files) {
+        try {
+            Optional<Task> task = taskRepository.findById(taskId);
+            if (task.isEmpty()) {
+                throw new RuntimeException("Task not found");
+            }
+            
+            Task existingTask = task.get();
+            
+            // Verify user is the mentee of this task
+            if (!existingTask.getMenteeId().equals(userId)) {
+                throw new RuntimeException("You are not authorized to submit proof for this task");
+            }
+            
+            // Initialize uploadedFiles if null
+            if (existingTask.getUploadedFiles() == null) {
+                existingTask.setUploadedFiles(new java.util.ArrayList<>());
+            }
+            
+            // Add files to uploadedFiles
+            if (files != null && !files.isEmpty()) {
+                for (Map<String, Object> file : files) {
+                    Map<String, Object> fileData = new java.util.HashMap<>();
+                    fileData.put("name", file.get("name"));
+                    fileData.put("size", file.get("size"));
+                    fileData.put("type", file.get("type"));
+                    fileData.put("uploadedAt", LocalDateTime.now());
+                    existingTask.getUploadedFiles().add(fileData);
+                }
+            } else {
+                // If no files, just mark as submitted
+                Map<String, Object> fileData = new java.util.HashMap<>();
+                fileData.put("name", "Proof Submitted");
+                fileData.put("uploadedAt", LocalDateTime.now());
+                existingTask.getUploadedFiles().add(fileData);
+            }
+            
+            existingTask.setUpdatedAt(LocalDateTime.now());
+            
+            System.out.println("[TaskService] Proof submitted for task: " + taskId);
+            return taskRepository.save(existingTask);
+        } catch (Exception e) {
+            throw new RuntimeException("Error submitting proof: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Mark task as reviewed (mentor only)
+     */
+    public Task markTaskAsReviewed(String taskId, String mentorId) {
+        try {
+            Optional<Task> task = taskRepository.findById(taskId);
+            if (task.isEmpty()) {
+                throw new RuntimeException("Task not found");
+            }
+            
+            Task existingTask = task.get();
+            
+            // Verify user is the mentor of this task
+            if (!existingTask.getMentorId().equals(mentorId)) {
+                throw new RuntimeException("You are not authorized to review this task");
+            }
+            
+            // Mark task as completed
+            existingTask.setStatus("completed");
+            existingTask.setUpdatedAt(LocalDateTime.now());
+            
+            System.out.println("[TaskService] Task marked as completed: " + taskId);
+            return taskRepository.save(existingTask);
+        } catch (Exception e) {
+            throw new RuntimeException("Error marking task as reviewed: " + e.getMessage());
         }
     }
     

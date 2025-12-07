@@ -39,7 +39,7 @@ const taskSchema = new mongoose.Schema({
   // Task categorization
   category: {
     type: String,
-    enum: ['Technical Skills', 'Soft Skills', 'Career Development', 'Content Creation', 'coding', ''],
+    enum: ['Technical Skills', 'Soft Skills', 'Career Development', 'Content Creation', 'coding', 'practice', 'project', 'assignment', ''],
     default: 'Technical Skills'
   },
   priority: {
@@ -90,6 +90,27 @@ const taskSchema = new mongoose.Schema({
     min: 0,
     max: 100
   },
+  
+  // Uploaded files / proof submission
+  uploadedFiles: [{
+    name: {
+      type: String,
+      required: true
+    },
+    size: {
+      type: Number
+    },
+    type: {
+      type: String
+    },
+    url: {
+      type: String
+    },
+    uploadedAt: {
+      type: Date,
+      default: Date.now
+    }
+  }],
   
   // Timestamps
   createdAt: {

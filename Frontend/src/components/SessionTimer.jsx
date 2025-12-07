@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { FiClock, FiVideo, FiCalendar } from 'react-icons/fi';
 
-const SessionTimer = ({ session, onJoinSession, userRole = 'student' }) => {
+const SessionTimer = ({ session, onJoinSession, onSessionExpired, userRole = 'student' }) => {
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [sessionStatus, setSessionStatus] = useState(session?.status);
 
   // Update timer every second for real-time countdown
   useEffect(() => {
@@ -69,16 +70,20 @@ const SessionTimer = ({ session, onJoinSession, userRole = 'student' }) => {
     const minutesUntilSession = Math.floor(secondsUntilSession / 60);
 
     // Handle different statuses
-    if (session.status === 'cancelled') {
+    if (sessionStatus === 'cancelled') {
       return { canJoin: false, message: 'Session cancelled', timeLeft: null };
     }
 
-    if (session.status === 'completed') {
+    if (sessionStatus === 'completed') {
       return { canJoin: false, message: 'Session completed', timeLeft: null };
     }
 
+    if (sessionStatus === 'expired') {
+      return { canJoin: false, message: 'Expired', timeLeft: null, isExpired: true };
+    }
+
     // For pending and confirmed sessions
-    if (session.status === 'pending' || session.status === 'confirmed') {
+    if (sessionStatus === 'pending' || sessionStatus === 'confirmed') {
       // Can join only if confirmed and within 5 minutes
       const canJoin = session.status === 'confirmed' && 
                      secondsUntilSession <= 300 && // 5 minutes = 300 seconds
@@ -104,21 +109,25 @@ const SessionTimer = ({ session, onJoinSession, userRole = 'student' }) => {
         } else if (secondsUntilSession >= -(session.duration * 60)) {
           const secondsIntoSession = Math.abs(secondsUntilSession);
           const remainingSeconds = (session.duration * 60) - secondsIntoSession;
-          const remainingMinutes = Math.floor(remainingSeconds / 60);
-          const remainingSecondsDisplay = remainingSeconds % 60;
-          const timeDisplay = remainingMinutes > 0 ? `${remainingMinutes}m ${remainingSecondsDisplay}s` : `${remainingSecondsDisplay}s`;
-          return { 
-            canJoin: true, 
-            message: `In progress (${timeDisplay} left)`, 
-            timeLeft: remainingSeconds,
-            isInProgress: true,
-            clockDisplay: {
-              days: 0,
-              hours: 0,
-              minutes: remainingMinutes,
-              seconds: remainingSecondsDisplay
-            }
-          };
+          if (remainingSeconds > 0) {
+            const remainingMinutes = Math.floor(remainingSeconds / 60);
+            const remainingSecondsDisplay = remainingSeconds % 60;
+            const timeDisplay = remainingMinutes > 0 ? `${remainingMinutes}m ${remainingSecondsDisplay}s` : `${remainingSecondsDisplay}s`;
+            return { 
+              canJoin: true, 
+              message: `In progress (${timeDisplay} left)`, 
+              timeLeft: remainingSeconds,
+              isInProgress: true,
+              clockDisplay: {
+                days: 0,
+                hours: 0,
+                minutes: remainingMinutes,
+                seconds: remainingSecondsDisplay
+              }
+            };
+          } else {
+            return { canJoin: false, message: 'Expired', timeLeft: null, isExpired: true };
+          }
         }
       }
 
@@ -153,44 +162,9 @@ const SessionTimer = ({ session, onJoinSession, userRole = 'student' }) => {
             seconds: secondsRemaining
           }
         };
-      } else if (secondsUntilSession > -(session.duration * 60)) {
-        // Session is currently happening
-        const secondsIntoSession = Math.abs(secondsUntilSession);
-        const remainingSeconds = (session.duration * 60) - secondsIntoSession;
-        const remainingMinutes = Math.floor(remainingSeconds / 60);
-        const remainingSecondsDisplay = remainingSeconds % 60;
-        const timeDisplay = remainingMinutes > 0 ? `${remainingMinutes}m ${remainingSecondsDisplay}s` : `${remainingSecondsDisplay}s`;
-        return { 
-          canJoin: session.status === 'confirmed', 
-          message: `In progress (${timeDisplay} left)`, 
-          timeLeft: remainingSeconds,
-          isInProgress: true,
-          clockDisplay: {
-            days: 0,
-            hours: 0,
-            minutes: remainingMinutes,
-            seconds: remainingSecondsDisplay
-          }
-        };
       } else {
-        // Session time has completely passed
-        const secondsAgo = Math.abs(secondsUntilSession);
-        const hoursAgo = Math.floor(secondsAgo / (60 * 60));
-        const minutesAgo = Math.floor((secondsAgo % (60 * 60)) / 60);
-        
-        let timeAgoMessage;
-        if (hoursAgo > 24) {
-          const daysAgo = Math.floor(hoursAgo / 24);
-          timeAgoMessage = `${daysAgo}d ago`;
-        } else if (hoursAgo > 0) {
-          timeAgoMessage = `${hoursAgo}h ${minutesAgo}m ago`;
-        } else if (minutesAgo > 0) {
-          timeAgoMessage = `${minutesAgo}m ago`;
-        } else {
-          timeAgoMessage = `${secondsAgo}s ago`;
-        }
-        
-        return { canJoin: false, message: `Ended ${timeAgoMessage}`, timeLeft: null };
+        // Session time has completely passed - mark as expired
+        return { canJoin: false, message: 'Expired', timeLeft: null, isExpired: true };
       }
     }
 
@@ -216,6 +190,8 @@ const SessionTimer = ({ session, onJoinSession, userRole = 'student' }) => {
         return 'bg-red-900 text-red-300 border-red-700';
       case 'completed':
         return 'bg-blue-900 text-blue-300 border-blue-700';
+      case 'expired':
+        return 'bg-gray-900 text-gray-300 border-gray-700';
       default:
         return 'bg-gray-700 text-gray-300 border-gray-600';
     }
@@ -223,14 +199,47 @@ const SessionTimer = ({ session, onJoinSession, userRole = 'student' }) => {
 
   const timing = getSessionTiming(session);
 
+  // Mark session as expired in the database
+  const markSessionAsExpired = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token || !session._id) return;
+
+      await fetch(`http://localhost:4000/api/bookings/${session._id}/expire`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      // Update local state immediately
+      setSessionStatus('expired');
+      
+      // Notify parent component
+      if (onSessionExpired) {
+        onSessionExpired(session._id);
+      }
+    } catch (error) {
+      console.error('Error marking session as expired:', error);
+    }
+  };
+
+  // Call markSessionAsExpired when session expires
+  useEffect(() => {
+    if (timing.isExpired && sessionStatus !== 'expired') {
+      markSessionAsExpired();
+    }
+  }, [timing.isExpired, sessionStatus, session._id]);
+
   return (
     <div className="bg-[#1a1a1a] rounded-lg shadow-sm border border-gray-600 p-4">
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-lg font-semibold text-white truncate">
           {session.sessionTitle}
         </h3>
-        <span className={`px-2 py-1 rounded-full text-xs font-medium border ${getStatusColor(session.status)}`}>
-          {session.status.charAt(0).toUpperCase() + session.status.slice(1)}
+        <span className={`px-2 py-1 rounded-full text-xs font-medium border ${getStatusColor(sessionStatus)}`}>
+          {sessionStatus.charAt(0).toUpperCase() + sessionStatus.slice(1)}
         </span>
       </div>
 
@@ -257,7 +266,7 @@ const SessionTimer = ({ session, onJoinSession, userRole = 'student' }) => {
 
       {/* Compact Digital Timer Display */}
       {timing.clockDisplay ? (
-        <div className="bg-[#2a2a2a] rounded-lg p-3 mb-3 font-mono border border-gray-600">
+        <div className="bg-[#1a1a1a] rounded-lg p-0 mb-3 font-mono">
           <div className="flex items-center justify-center space-x-1 text-lg font-bold">
             {timing.clockDisplay.days > 0 && (
               <>
@@ -303,9 +312,10 @@ const SessionTimer = ({ session, onJoinSession, userRole = 'student' }) => {
           </div>
         </div>
       ) : (
-        <div className="bg-[#2a2a2a] rounded-lg p-2 mb-3 border border-gray-600">
+        <div className="bg-[#1a1a1a] rounded-lg p-0 mb-3">
           <div className="text-center">
             <span className={`text-sm font-medium ${
+              timing.isExpired ? 'text-red-400' :
               timing.isPending ? 'text-yellow-400' : 
               timing.isInProgress ? 'text-green-400' :
               timing.isStartingSoon ? 'text-orange-400' :
@@ -317,18 +327,32 @@ const SessionTimer = ({ session, onJoinSession, userRole = 'student' }) => {
         </div>
       )}
 
-      {/* Testing Join Button - Always Available */}
+      {/* Action Buttons */}
       <div className="space-y-2">
-        <button
-          onClick={() => onJoinSession(session)}
-          className="w-full inline-flex items-center justify-center px-4 py-2 rounded-lg font-medium transition-colors bg-[#535353] hover:bg-white hover:text-black text-white border border-gray-600"
-        >
-          <FiVideo className="w-4 h-4 mr-2" />
-          Join Session (Test Mode)
-        </button>
+        {/* Expired Button */}
+        {timing.isExpired && (
+          <button
+            disabled
+            className="w-full inline-flex items-center justify-center px-4 py-2 rounded-lg font-medium transition-colors bg-gray-700 text-gray-400 border border-gray-600 cursor-not-allowed"
+          >
+            <FiVideo className="w-4 h-4 mr-2" />
+            Session Expired
+          </button>
+        )}
+        
+        {/* Testing Join Button - Always Available */}
+        {!timing.isExpired && (
+          <button
+            onClick={() => onJoinSession(session)}
+            className="w-full inline-flex items-center justify-center px-4 py-2 rounded-lg font-medium transition-colors bg-[#535353] hover:bg-white hover:text-black text-white border border-gray-600"
+          >
+            <FiVideo className="w-4 h-4 mr-2" />
+            Join Session (Test Mode)
+          </button>
+        )}
         
         {/* Timer-based Join Button */}
-        {timing.canJoin && (
+        {timing.canJoin && !timing.isExpired && (
           <button
             onClick={() => onJoinSession(session)}
             className={`w-full inline-flex items-center justify-center px-4 py-2 rounded-lg font-medium transition-colors border border-gray-600 ${

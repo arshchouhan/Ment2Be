@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import MentorNavbar from '../components/MentorDashboard/Navbar';
 import SessionTimer from '../components/SessionTimer';
-import { FiUpload, FiX, FiCalendar, FiUsers, FiClock, FiEdit3, FiSettings, FiLogOut, FiPlus, FiFolder, FiMoreVertical, FiBookOpen, FiTrendingUp, FiUserPlus } from 'react-icons/fi';
+import { FiUpload, FiX, FiCalendar, FiUsers, FiClock, FiEdit3, FiSettings, FiLogOut, FiPlus, FiFolder, FiMoreVertical, FiBookOpen, FiTrendingUp, FiUserPlus, FiMessageSquare } from 'react-icons/fi';
 import { formatDistanceToNow } from 'date-fns';
 import KarmaPointsCard from '../components/KarmaPointsCard/KarmaPointsCard';
 
@@ -559,7 +559,7 @@ const MentorDashboard = () => {
 
   if (loading)
     return (
-      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+      <div className="min-h-screen bg-[#000000] flex items-center justify-center">
         <p className="text-gray-400 text-sm">Loading your dashboard...</p>
       </div>
     );
@@ -587,7 +587,7 @@ const MentorDashboard = () => {
     : "Experience not added";
 
   return (
-    <div className="h-screen bg-[#202327] text-white overflow-hidden">
+    <div className="h-screen bg-[#000000] text-gray-100 overflow-hidden">
       {/* Custom Scrollbar Styles */}
       <style jsx>{`
         /* Webkit Scrollbar Styling */
@@ -658,10 +658,10 @@ const MentorDashboard = () => {
       `}</style>
       <MentorNavbar userName={profile?.name || "Mentor"} />
 
-      <div className="grid grid-cols-12 gap-2 p-4 h-full">
+      <div className="grid grid-cols-12 gap-2 p-4 h-full pt-20">
         {/* LEFT COLUMN - Profile Card */}
-        <aside className="col-span-2 bg-[#121212] rounded-xl p-6 border border-gray-700 h-fit">
-          <div className="flex flex-col items-center text-center space-y-6">
+        <aside className="col-span-2 bg-[#121212] rounded-xl p-4 border border-gray-700 h-fit ml-4">
+          <div className="flex flex-col items-center text-center space-y-4">
             {/* Profile Photo */}
             <div className="relative group">
               <div className="relative h-40 w-35 rounded-lg bg-gray-700 overflow-hidden border-4 border-gray-600">
@@ -717,16 +717,16 @@ const MentorDashboard = () => {
             </div>
 
             {/* Menu Items */}
-            <div className="w-full space-y-2 mt-8">
+            <div className="w-full space-y-2 mt-4">
               <button
                 onClick={() => setEditing(true)}
-                className="w-full flex items-center space-x-3 px-4 py-3 text-left text-gray-300 hover:bg-[#212121] rounded-lg transition-colors"
+                className="w-full flex items-center space-x-2 px-3 py-1.5 text-left text-gray-300 hover:bg-[#212121] rounded-lg transition-colors text-sm"
               >
                 <FiEdit3 className="w-4 h-4" />
                 <span>Edit Profile</span>
               </button>
               
-              <button className="w-full flex items-center space-x-3 px-4 py-3 text-left text-gray-300 hover:bg-[#212121] rounded-lg transition-colors">
+              <button className="w-full flex items-center space-x-2 px-3 py-1.5 text-left text-gray-300 hover:bg-[#212121] rounded-lg transition-colors text-sm">
                 <FiUsers className="w-4 h-4" />
                 <span>Edit Membership</span>
               </button>
@@ -736,7 +736,7 @@ const MentorDashboard = () => {
                   localStorage.removeItem('token');
                   navigate('/login');
                 }}
-                className="w-full flex items-center space-x-3 px-4 py-3 text-left text-gray-300 hover:bg-[#212121] rounded-lg transition-colors"
+                className="w-full flex items-center space-x-2 px-3 py-1.5 text-left text-gray-300 hover:bg-[#212121] rounded-lg transition-colors text-sm"
               >
                 <FiLogOut className="w-4 h-4" />
                 <span>Sign out</span>
@@ -744,23 +744,29 @@ const MentorDashboard = () => {
             </div>
 
             {/* Join Date */}
-            <div className="w-full border-t border-gray-600 pt-4 text-center">
+            <div className="w-full border-t border-gray-600 pt-2 text-center">
               <p className="text-gray-500 text-xs">Joined {joinedLabel}</p>
             </div>
           </div>
         </aside>
 
         {/* MIDDLE COLUMN - Main Content */}
-        <main className="col-span-7 space-y-2 overflow-y-auto custom-scroll max-h-full">
+        <main className="col-span-7 space-y-3 overflow-y-auto custom-scroll max-h-full">
+
+          {/* Welcome Section */}
+          {!editing && (
+            <div className="bg-[#121212] rounded-xl shadow-lg p-4 border border-gray-700">
+              <h1 className="text-xl font-semibold text-white mb-1">Welcome back, {profile?.name}!</h1>
+              <p className="text-gray-400 text-sm">Your mentoring journey at a glance</p>
+            </div>
+          )}
 
           {/* Recent Messages Card - Only show when not editing */}
           {!editing && (
-            <div className="bg-[#121212] rounded-xl shadow-lg p-6 border border-gray-700">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-semibold text-white flex items-center">
-                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                </svg>
+            <div className="bg-[#121212] rounded-xl shadow-lg p-2 border border-gray-700">
+            <div className="flex items-center justify-between mb-2">
+              <h2 className="text-sm font-semibold text-white flex items-center">
+                <FiMessageSquare className="w-4 h-4 mr-1.5" />
                 Recent Messages
               </h2>
               <button
@@ -773,10 +779,10 @@ const MentorDashboard = () => {
             
             {messagesLoading ? (
               <div className="flex items-center justify-center py-8">
-                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-green-500"></div>
+                <div className="animate-spin rounded-full h-2 w-2 border-b-2 border-green-500"></div>
               </div>
             ) : recentMessages.length > 0 ? (
-              <div className="space-y-3 max-h-48 overflow-y-auto custom-scroll">
+              <div className="space-y-2 max-h-32 overflow-y-auto custom-scroll">
                 {recentMessages.map((msg) => {
                   const getInitials = (name) => {
                     if (!name) return '??';
@@ -800,7 +806,7 @@ const MentorDashboard = () => {
                   return (
                     <div 
                       key={msg._id} 
-                      className="flex items-start space-x-3 p-3 bg-[#202327] rounded-lg hover:bg-[#2a2d32] transition-colors cursor-pointer"
+                      className="flex items-start space-x-2 p-2 bg-[#202327] rounded-lg hover:bg-[#2a2d32] transition-colors cursor-pointer"
                       onClick={() => navigate('/mentor/messages')}
                     >
                       {msg.senderAvatar ? (
@@ -843,29 +849,29 @@ const MentorDashboard = () => {
           )}
 
           {/* Recent Mentees Card - Only show when not editing */}
-          {!editing && (
-            <div className="bg-[#121212] rounded-xl shadow-lg p-6 border border-gray-700">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-semibold text-white flex items-center">
-                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
-                  </svg>
-                  Recent Mentees
-                </h2>
-                <button
-                  onClick={() => navigate('/mentor/mentees')}
-                  className="text-[#535353] hover:text-white text-sm font-medium"
-                >
-                  View All
-                </button>
-              </div>
+         {!editing && (
+  <div className="bg-[#121212] rounded-lg shadow-lg p-2 border border-gray-700">
+    <div className="flex items-center justify-between mb-1">
+      <h2 className="text-xs font-semibold text-white flex items-center">
+        <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13.5-9a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
+        </svg>
+        Recent Mentees
+      </h2>
+      <button
+        onClick={() => navigate('/mentor/mentees')}
+        className="text-[#535353] hover:text-white text-xs font-medium"
+      >
+        View All
+      </button>
+    </div>
               
               {menteesLoading ? (
                 <div className="flex items-center justify-center py-8">
                   <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-green-500"></div>
                 </div>
               ) : recentMentees.length > 0 ? (
-                <div className="space-y-3 max-h-48 overflow-y-auto custom-scroll">
+                <div className="space-y-2 max-h-64 overflow-y-auto custom-scroll">
                   {recentMentees.map((mentee) => {
                     const lastSession = new Date(mentee.lastSession);
                     const now = new Date();
@@ -879,14 +885,14 @@ const MentorDashboard = () => {
                     return (
                       <div 
                         key={mentee._id}
-                        className="flex items-center space-x-4 p-3 bg-[#202327] rounded-lg hover:bg-[#2a2d32] transition-colors cursor-pointer"
+                        className="flex items-center space-x-2 p-2 bg-[#202327] rounded-lg hover:bg-[#2a2d32] transition-colors cursor-pointer"
                         onClick={() => navigate(`/mentor/mentees/${mentee._id}`)}
                       >
                         <div className="relative">
                           <img 
                             src={mentee.profilePicture || `https://ui-avatars.com/api/?name=${encodeURIComponent(mentee.name)}&background=4a5568&color=fff`}
                             alt={mentee.name}
-                            className="h-12 w-12 rounded-full object-cover border-2 border-gray-500"
+                            className="h-10 w-10 rounded-full object-cover border-2 border-gray-500"
                             onError={(e) => {
                               e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(mentee.name)}&background=4a5568&color=fff`;
                             }}
@@ -894,20 +900,10 @@ const MentorDashboard = () => {
                           <div className="absolute -bottom-1 -right-1 h-4 w-4 bg-gray-400 border-2 border-[#202327] rounded-full"></div>
                         </div>
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-center justify-between">
-                            <h3 className="text-white font-medium text-sm truncate">{mentee.name}</h3>
-                            <span className="text-gray-400 text-xs">{timeAgo}</span>
-                          </div>
+                          <h3 className="text-white font-medium text-sm truncate">{mentee.name}</h3>
                           <p className="text-gray-400 text-xs">{mentee.headline || 'Mentee'}</p>
-                          <div className="flex items-center mt-1 space-x-2">
-                            {mentee.skills?.slice(0, 2).map((skill, index) => (
-                              <span key={index} className="text-xs bg-gray-600 text-white px-2 py-0.5 rounded-full">
-                                {skill}
-                              </span>
-                            ))}
-                          </div>
                         </div>
-                        <div className="flex flex-col items-end space-y-1">
+                        <div className="flex items-center space-x-2">
                           <span className="text-xs bg-gray-600 text-white px-2 py-0.5 rounded-full">{mentee.experienceLevel || 'Beginner'}</span>
                           <span className="text-xs text-gray-500">{mentee.sessions?.length || 0} sessions</span>
                         </div>
@@ -1293,11 +1289,44 @@ const MentorDashboard = () => {
         </main>
 
         {/* RIGHT COLUMN - Next Session */}
-        <aside className="col-span-3 space-y-6">
+        <aside className="col-span-3 space-y-3">
+          {/* Your Profile Card */}
+          <div className="bg-[#121212] rounded-xl shadow-lg p-4 border border-gray-700">
+            <h2 className="text-sm font-semibold text-white mb-3">Your Profile</h2>
+            <div className="flex items-center space-x-3 mb-4">
+              <div className="h-12 w-12 rounded-full bg-gray-600 flex items-center justify-center text-white font-semibold flex-shrink-0 overflow-hidden">
+                {mentorProfile?.profilePicture ? (
+                  <img src={mentorProfile.profilePicture} alt={profile?.name} className="w-full h-full object-cover" />
+                ) : (
+                  <span>{profile?.name?.split(' ').map(n => n[0]).join('').toUpperCase()}</span>
+                )}
+              </div>
+              <div className="flex-1 min-w-0">
+                <h3 className="text-white font-medium text-sm truncate">{profile?.name}</h3>
+                <p className="text-gray-400 text-xs truncate">{profile?.email}</p>
+              </div>
+            </div>
+            <div className="mb-3">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-xs text-gray-400">Mentor</span>
+                <span className="text-xs text-gray-400">Profile Complete</span>
+              </div>
+              <div className="w-full bg-gray-700 rounded-full h-2">
+                <div className="bg-green-500 h-2 rounded-full" style={{width: '100%'}}></div>
+              </div>
+            </div>
+            <button 
+              onClick={() => setEditing(true)}
+              className="w-full flex items-center justify-center px-3 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors text-sm">
+              <FiUsers className="w-4 h-4 mr-2" />
+              Complete Your Profile
+            </button>
+          </div>
+
           {/* Upcoming Sessions */}
-          <div className="bg-[#121212] rounded-xl shadow-lg p-6 border border-gray-700">
+          <div className="bg-[#121212] rounded-xl shadow-lg p-3 border border-gray-700">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-semibold text-white flex items-center">
+              <h2 className="text-sm font-semibold text-white flex items-center">
                 <FiCalendar className="w-5 h-5 mr-2" />
                 Next Session
               </h2>
@@ -1317,13 +1346,13 @@ const MentorDashboard = () => {
             ) : upcomingSessions.length > 0 ? (
               <div className="space-y-4">
                 {upcomingSessions.map((session) => (
-                  <div key={session._id} className="bg-[#202327] rounded-lg p-4">
-                    <SessionTimer
-                      session={session}
-                      onJoinSession={handleJoinSession}
-                      userRole="mentor"
-                    />
-                  </div>
+                  <SessionTimer
+                    key={session._id}
+                    session={session}
+                    onJoinSession={handleJoinSession}
+                    onSessionExpired={() => fetchUpcomingSessions()}
+                    userRole="mentor"
+                  />
                 ))}
               </div>
             ) : (

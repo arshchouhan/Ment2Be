@@ -95,4 +95,12 @@ router.post('/:sessionId/join', joinSession);
 // @access  Private (Student or Mentor involved in the session)
 router.put('/:sessionId/meeting-status', updateMeetingStatus);
 
+// @route   PUT /api/bookings/:bookingId/expire
+// @desc    Mark a session as expired when time has passed
+// @access  Private (Student or Mentor involved in the booking)
+router.put('/:bookingId/expire', (req, res) => {
+  req.body.status = 'expired';
+  updateBookingStatus(req, res);
+});
+
 export default router;
