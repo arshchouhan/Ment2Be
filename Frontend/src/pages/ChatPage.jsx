@@ -16,10 +16,10 @@ const ChatPage = () => {
   const user = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null;
 
   return (
-    <div className="min-h-screen bg-[#202327]">
+    <div className="h-screen bg-[#202327] flex flex-col pt-14">
       <Navbar userName={user?.name || 'Student'} />
       
-      <div className="h-[calc(100vh-64px)]">
+      <div className="flex-1 overflow-hidden">
         <StudentChat />
       </div>
     </div>

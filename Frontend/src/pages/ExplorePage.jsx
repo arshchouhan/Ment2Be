@@ -94,7 +94,7 @@ const ExplorePage = () => {
   const user = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null;
 
   return (
-    <div className="h-screen overflow-hidden flex flex-col bg-[#000000] text-gray-100">
+    <div className="h-screen overflow-hidden flex flex-col bg-[#000000] text-gray-100 pt-14">
       <Navbar userName={user?.name || 'Student'} />
       
       <div className="flex-1 overflow-hidden">

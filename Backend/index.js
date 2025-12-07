@@ -17,6 +17,7 @@ import karmaPointsRouter from './routes/karmaPoints.routes.js';
 import mentorKarmaRouter from './routes/mentorKarma.routes.js';
 import karmaRouter from './routes/karma.routes.js';
 import streamChatRouter from './routes/streamChat.routes.js';
+import taskRouter from './routes/task.routes.js';
 import { handleSocketConnection, getRoomCount, getTotalParticipants } from './socket/socketHandlers.js';
 import { handleChatConnection, getActiveConversationCount, getTotalChatParticipants } from './socket/chatSocketHandlers.js';
 
@@ -109,6 +110,7 @@ app.use('/api/messages', messageRouter);
 app.use('/api/karma/points', karmaPointsRouter);
 app.use('/api/karma', karmaRouter); // Java microservice integration
 app.use('/api/stream', streamChatRouter); // Stream Chat endpoints
+app.use('/api/tasks', taskRouter); // Task management endpoints
 
 // Initialize Socket.IO handlers
 handleSocketConnection(io);

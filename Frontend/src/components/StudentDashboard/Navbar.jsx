@@ -39,7 +39,7 @@ const Navbar = ({ userName = 'Student' }) => {
   ];
 
   return (
-    <nav className={`sticky top-0 z-50 transition-all duration-300 supports-backdrop-blur:bg-black/80 border-b border-[#121212] ${isScrolled ? 'bg-black/80 backdrop-blur-lg' : 'bg-black'}`} style={{
+    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 supports-backdrop-blur:bg-black/80 border-b border-[#121212] ${isScrolled ? 'bg-black/80 backdrop-blur-lg' : 'bg-black'}`} style={{
       backdropFilter: isScrolled ? 'blur(12px)' : 'none',
       WebkitBackdropFilter: isScrolled ? 'blur(12px)' : 'none'
     }}>

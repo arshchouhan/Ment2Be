@@ -1,7 +1,9 @@
 package com.app.services;
 
 import com.app.models.Task;
+import com.app.model.User;
 import com.app.repositories.TaskRepository;
+import com.app.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
@@ -14,6 +16,9 @@ public class TaskService {
     @Autowired
     private TaskRepository taskRepository;
     
+    @Autowired
+    private UserRepository userRepository;
+    
     /**
      * Create a new task
      */
@@ -24,6 +29,14 @@ public class TaskService {
             task.setCreatedAt(LocalDateTime.now());
             task.setUpdatedAt(LocalDateTime.now());
             task.setStatus("not-started");
+            
+            // Fetch and set mentee name
+            if (task.getMenteeId() != null && !task.getMenteeId().isEmpty()) {
+                Optional<User> mentee = userRepository.findById(task.getMenteeId());
+                if (mentee.isPresent()) {
+                    task.setMenteeName(mentee.get().getName());
+                }
+            }
             
             return taskRepository.save(task);
         } catch (Exception e) {
@@ -36,7 +49,17 @@ public class TaskService {
      */
     public List<Task> getTasksByMentor(String mentorId) {
         try {
-            return taskRepository.findByMentorId(mentorId);
+            List<Task> tasks = taskRepository.findByMentorId(mentorId);
+            // Fetch mentee names for all tasks
+            for (Task task : tasks) {
+                if (task.getMenteeId() != null && !task.getMenteeId().isEmpty()) {
+                    Optional<User> mentee = userRepository.findById(task.getMenteeId());
+                    if (mentee.isPresent()) {
+                        task.setMenteeName(mentee.get().getName());
+                    }
+                }
+            }
+            return tasks;
         } catch (Exception e) {
             throw new RuntimeException("Error fetching tasks: " + e.getMessage());
         }
@@ -175,6 +198,20 @@ public class TaskService {
             return taskRepository.countByMenteeId(menteeId);
         } catch (Exception e) {
             throw new RuntimeException("Error counting tasks: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Delete all tasks (for testing/debugging only)
+     */
+    public long deleteAllTasks() {
+        try {
+            long count = taskRepository.count();
+            taskRepository.deleteAll();
+            System.out.println("[TaskService] Deleted all " + count + " tasks");
+            return count;
+        } catch (Exception e) {
+            throw new RuntimeException("Error deleting all tasks: " + e.getMessage());
         }
     }
 }

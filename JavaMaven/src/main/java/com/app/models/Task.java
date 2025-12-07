@@ -24,6 +24,7 @@ public class Task {
     
     private String mentorId;
     private String menteeId;
+    private String menteeName; // Mentee's real name
     
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
@@ -155,6 +156,14 @@ public class Task {
     
     public void setMenteeId(String menteeId) {
         this.menteeId = menteeId;
+    }
+    
+    public String getMenteeName() {
+        return menteeName;
+    }
+    
+    public void setMenteeName(String menteeName) {
+        this.menteeName = menteeName;
     }
     
     public LocalDateTime getCreatedAt() {

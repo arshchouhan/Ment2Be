@@ -38,6 +38,7 @@ com\app\models\Task.class
 com\app\chat\ChatController$Conversation.class
 com\app\HomeController.class
 com\app\controllers\TaskController$10.class
+com\app\controllers\TaskController$20.class
 com\app\repository\UserRepository.class
 com\app\controllers\TaskController$7.class
 com\app\karma\KarmaService$KarmaCalculationRequest.class
@@ -45,6 +46,7 @@ com\app\karma\KarmaController.class
 com\app\model\Message.class
 com\app\controllers\TaskController$16.class
 com\app\repository\MentorProfileRepository.class
+com\app\controllers\TaskController$21.class
 com\app\model\Conversation.class
 com\app\model\MentorProfile.class
 com\app\config\MongoConfig.class

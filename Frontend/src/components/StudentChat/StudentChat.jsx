@@ -414,7 +414,7 @@ export function StudentChat() {
   // ---------------------- RENDER UI (UNCHANGED) ------------------------
   if (isLoading && mentors.length === 0) {
     return (
-      <div className="flex items-center justify-center h-full w-full bg-[#121212]">
+      <div className="flex items-center justify-center h-full w-full bg-[#000000]">
         <div className="text-gray-400">Loading conversations...</div>
       </div>
     );
@@ -422,7 +422,7 @@ export function StudentChat() {
 
   if (error) {
     return (
-      <div className="flex items-center justify-center h-full w-full bg-[#121212]">
+      <div className="flex items-center justify-center h-full w-full bg-[#000000]">
         <div className="text-red-500">{error}</div>
       </div>
     );
@@ -430,17 +430,17 @@ export function StudentChat() {
 
   if (mentors.length === 0) {
     return (
-      <div className="flex items-center justify-center h-full w-full bg-[#121212]">
+      <div className="flex items-center justify-center h-full w-full bg-[#000000]">
         <div className="text-gray-400">No conversations found</div>
       </div>
     );
   }
 
   return (
-    <div className="flex h-full w-full bg-[#121212] overflow-hidden">
+    <div className="flex h-full w-full bg-[#000000] overflow-hidden">
       {/* Main content */}
       <div className="relative z-10 flex w-full h-full">
-        <div className="hidden md:block w-[280px] flex-shrink-0 h-full">
+        <div className="hidden md:block w-[280px] flex-shrink-0 h-full border-r border-gray-800">
           <MentorList
             mentors={mentors}
             activeMentorId={activeMentorId}
@@ -449,7 +449,7 @@ export function StudentChat() {
         </div>
 
         {/* Chat area - flexible width */}
-        <div className="flex flex-col flex-1 h-full min-w-0">
+        <div className="flex flex-col flex-1 h-full min-w-0 bg-[#000000]">
           {activeMentor ? (
             <>
               <StudentChatHeader 
@@ -458,13 +458,13 @@ export function StudentChat() {
                 mentorAvatar={activeMentor.avatar}
               />
               {isLoadingMessages ? (
-                <div className="flex-1 flex items-center justify-center bg-[#121212]">
+                <div className="flex-1 flex items-center justify-center bg-[#000000]">
                   <div className="flex flex-col items-center gap-4">
                     <div className="relative w-12 h-12">
-                      <div className="absolute inset-0 rounded-full border-4 border-[#535353]/30"></div>
-                      <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-[#b3b3b3] animate-spin"></div>
+                      <div className="absolute inset-0 rounded-full border-4 border-gray-700/30"></div>
+                      <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-gray-400 animate-spin"></div>
                     </div>
-                    <p className="text-[#b3b3b3] text-sm">Loading messages...</p>
+                    <p className="text-gray-400 text-sm">Loading messages...</p>
                   </div>
                 </div>
               ) : (
@@ -483,7 +483,7 @@ export function StudentChat() {
                 mentorRole=""
                 mentorAvatar=""
               />
-              <div className="flex-1 flex items-center justify-center">
+              <div className="flex-1 flex items-center justify-center bg-[#000000]">
                 <div className="text-gray-400 text-center px-4">
                   {mentors.length === 0 
                     ? "No conversations yet. Start messaging with your mentors!"
@@ -497,7 +497,7 @@ export function StudentChat() {
 
         {/* Context sidebar - 320px fixed width */}
         {activeMentor && (
-          <div className="hidden lg:block w-[320px] flex-shrink-0 h-full border-l border-[#535353]/30">
+          <div className="hidden lg:block w-[320px] flex-shrink-0 h-full border-l border-gray-800 bg-[#000000]">
             <StudentContextSidebar 
               messages={messages} 
               mentor={{

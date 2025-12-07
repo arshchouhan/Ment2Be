@@ -258,4 +258,29 @@ public class TaskController {
                     }});
         }
     }
+    
+    /**
+     * DEBUG: Delete all tasks (for testing only)
+     * DELETE /api/tasks/debug/delete-all
+     */
+    @DeleteMapping("/debug/delete-all")
+    public ResponseEntity<?> deleteAllTasks() {
+        try {
+            long deletedCount = taskService.deleteAllTasks();
+            
+            System.out.println("[TaskController] Deleted " + deletedCount + " tasks");
+            
+            return ResponseEntity.ok(new HashMap<String, Object>() {{
+                put("success", true);
+                put("message", "Deleted " + deletedCount + " tasks");
+                put("deletedCount", deletedCount);
+            }});
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new HashMap<String, Object>() {{
+                        put("success", false);
+                        put("message", "Error deleting tasks: " + e.getMessage());
+                    }});
+        }
+    }
 }

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Search, Filter, Calendar, MoreVertical, User, Target, Clock, MessageSquare, Plus } from "lucide-react";
+import { Search, Filter, Calendar, User, Target, Clock, MessageSquare, Plus, FileText, Zap, CheckCircle2, Award } from "lucide-react";
+import { TASK_API_URL } from "../../config/apiConfig.js";
 
 const tabs = ["All", "In Progress", "Pending Review", "Completed"];
 
@@ -17,23 +18,38 @@ const priorityBorder = {
 };
 
 export function TasksSection({ selectedMentee, onCreateTask }) {
-  const [activeTab, setActiveTab] = useState("All");
+  const [activeFilter, setActiveFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchTasks();
-  }, []);
+  }, [selectedMentee]); // Refetch when selectedMentee changes
 
   const fetchTasks = async () => {
     const token = localStorage.getItem("token");
-    if (!token) return;
+    if (!token) {
+      console.warn('No token found in localStorage');
+      setLoading(false);
+      return;
+    }
 
     try {
       setLoading(true);
-      // Use Java backend API (port 8081)
-      const response = await fetch('http://localhost:8081/api/tasks', {
+      
+      let url = TASK_API_URL;
+      
+      // If a specific mentee is selected, fetch only their tasks
+      if (selectedMentee) {
+        url = `${TASK_API_URL.replace('/api/tasks', '')}/api/tasks/mentee/${selectedMentee}`;
+        console.log('Fetching tasks for mentee:', selectedMentee, 'from:', url);
+      } else {
+        console.log('Fetching all tasks from:', TASK_API_URL);
+      }
+      
+      // Use configured API (can be Node.js or Java)
+      const response = await fetch(url, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -41,33 +57,57 @@ export function TasksSection({ selectedMentee, onCreateTask }) {
         }
       });
 
-      const data = await response.json();
+      console.log('Response status:', response.status);
       
-      if (response.ok && data.success && data.tasks) {
+      if (!response.ok) {
+        console.error('HTTP Error:', response.status, response.statusText);
+        setTasks([]);
+        setLoading(false);
+        return;
+      }
+
+      const data = await response.json();
+      console.log('Response data:', data);
+      
+      if (data.success && data.tasks) {
+        console.log('Tasks loaded successfully:', data.tasks.length);
         setTasks(data.tasks);
-      } else if (response.ok && Array.isArray(data)) {
+      } else if (Array.isArray(data)) {
+        console.log('Tasks loaded as array:', data.length);
         setTasks(data);
       } else {
-        console.error('Error fetching tasks:', data.message);
+        console.error('Unexpected response format:', data);
         setTasks([]);
       }
     } catch (err) {
       console.error('Error fetching tasks:', err);
+      console.error('Error details:', {
+        message: err.message,
+        stack: err.stack
+      });
       setTasks([]);
     } finally {
       setLoading(false);
     }
   };
 
+  // Get task count by status
+  const getTaskCount = (status) => {
+    if (status === 'all') {
+      return tasks.length;
+    }
+    return tasks.filter(task => task.status === status).length;
+  };
+
   const filteredTasks = tasks.filter((task) => {
     const matchesMentee = !selectedMentee || task.menteeId === selectedMentee;
-    const matchesTab =
-      activeTab === "All" ||
-      (activeTab === "In Progress" && task.status === "in-progress") ||
-      (activeTab === "Pending Review" && task.status === "pending-review") ||
-      (activeTab === "Completed" && task.status === "completed");
+    const matchesFilter =
+      activeFilter === "all" ||
+      (activeFilter === "in-progress" && task.status === "in-progress") ||
+      (activeFilter === "pending-review" && task.status === "pending-review") ||
+      (activeFilter === "completed" && task.status === "completed");
     const matchesSearch = task.title.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesMentee && matchesTab && matchesSearch;
+    return matchesMentee && matchesFilter && matchesSearch;
   });
 
   return (
@@ -97,20 +137,36 @@ export function TasksSection({ selectedMentee, onCreateTask }) {
           </div>
         </div>
 
-        {/* Tabs */}
-        <div className="flex gap-1 mt-4 border-b border-gray-700 -mx-4 px-4">
-          {tabs.map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`px-4 py-2.5 text-sm font-medium transition-colors relative ${
-                activeTab === tab ? "text-white" : "text-gray-400 hover:text-gray-300"
-              }`}
-            >
-              {tab}
-              {activeTab === tab && <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-gray-400" />}
-            </button>
-          ))}
+        {/* Filter Tabs */}
+        <div className="flex gap-8 mt-4 border-b border-gray-700 -mx-4 px-4">
+          {[
+            { key: 'all', label: 'All', Icon: FileText },
+            { key: 'in-progress', label: 'In Progress', Icon: Zap },
+            { key: 'pending-review', label: 'Pending Review', Icon: Award },
+            { key: 'completed', label: 'Completed', Icon: CheckCircle2 }
+          ].map(filter => {
+            const Icon = filter.Icon;
+            return (
+              <button
+                key={filter.key}
+                onClick={() => setActiveFilter(filter.key)}
+                className={`pb-4 px-2 font-medium transition-colors relative flex items-center gap-2 ${
+                  activeFilter === filter.key
+                    ? 'text-blue-400'
+                    : 'text-gray-400 hover:text-gray-300'
+                }`}
+              >
+                <Icon className="w-4 h-4" />
+                {filter.label}
+                <span className="text-sm ml-2 text-gray-500">
+                  ({getTaskCount(filter.key)})
+                </span>
+                {activeFilter === filter.key && (
+                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-blue-400"></div>
+                )}
+              </button>
+            );
+          })}
         </div>
       </div>
 
@@ -126,30 +182,49 @@ export function TasksSection({ selectedMentee, onCreateTask }) {
         ) : filteredTasks.length === 0 ? (
           <div className="p-12 text-center">
             <div className="flex justify-center mb-6">
-              <svg className="w-24 h-24 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
-              </svg>
+              {activeFilter === 'all' && (
+                <FileText className="w-24 h-24 text-gray-600" />
+              )}
+              {activeFilter === 'in-progress' && (
+                <Zap className="w-24 h-24 text-gray-600" />
+              )}
+              {activeFilter === 'pending-review' && (
+                <Award className="w-24 h-24 text-gray-600" />
+              )}
+              {activeFilter === 'completed' && (
+                <CheckCircle2 className="w-24 h-24 text-gray-600" />
+              )}
             </div>
-            <h3 className="text-xl font-semibold text-gray-300 mb-2">No tasks yet</h3>
+            <h3 className="text-xl font-semibold text-gray-300 mb-2">
+              {activeFilter === 'all' && 'No tasks yet'}
+              {activeFilter === 'in-progress' && 'No tasks in progress'}
+              {activeFilter === 'pending-review' && 'No tasks pending review'}
+              {activeFilter === 'completed' && 'No completed tasks'}
+            </h3>
             <p className="text-gray-400 mb-6 max-w-md mx-auto">
-              {selectedMentee 
+              {activeFilter === 'all' && (selectedMentee 
                 ? "No tasks assigned to this mentee yet. Create one to get started!" 
-                : "No tasks created yet. Start by creating a task for your mentees."}
+                : "No tasks created yet. Start by creating a task for your mentees.")}
+              {activeFilter === 'in-progress' && "No tasks are currently in progress. Start one to see it here!"}
+              {activeFilter === 'pending-review' && "No tasks are waiting for review. Complete a task to submit it for review!"}
+              {activeFilter === 'completed' && "No tasks have been completed yet. Keep working to complete your tasks!"}
             </p>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <button onClick={onCreateTask} className="inline-flex items-center justify-center px-6 py-2.5 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors font-medium">
-                <Plus className="w-4 h-4 mr-2" />
-                Create Task
-              </button>
-              <button className="inline-flex items-center justify-center px-6 py-2.5 border border-gray-600 text-gray-300 hover:bg-gray-800 rounded-lg transition-colors font-medium">
-                View Guidelines
-              </button>
-            </div>
+            {activeFilter === 'all' && (
+              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                <button onClick={onCreateTask} className="inline-flex items-center justify-center px-6 py-2.5 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors font-medium">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Create Task
+                </button>
+                <button className="inline-flex items-center justify-center px-6 py-2.5 border border-gray-600 text-gray-300 hover:bg-gray-800 rounded-lg transition-colors font-medium">
+                  View Guidelines
+                </button>
+              </div>
+            )}
           </div>
         ) : (
           filteredTasks.map((task) => (
             <div
-              key={task.id}
+              key={task._id || task.id}
               className={`p-4 hover:bg-gray-900 transition-colors border-l-4 ${priorityBorder[task.priority]}`}
             >
               <div className="flex items-start justify-between gap-4">
@@ -167,7 +242,7 @@ export function TasksSection({ selectedMentee, onCreateTask }) {
                   <div className="flex flex-wrap items-center gap-4 mt-2 text-sm text-gray-400">
                     <span className="inline-flex items-center gap-1.5">
                       <User className="w-4 h-4" />
-                      {task.mentee}
+                      {task.menteeName || task.mentee || 'Student'}
                     </span>
                     <span className="inline-flex items-center gap-1.5">
                       <Target className="w-4 h-4" />
@@ -175,7 +250,7 @@ export function TasksSection({ selectedMentee, onCreateTask }) {
                     </span>
                     <span className="inline-flex items-center gap-1.5">
                       <Clock className="w-4 h-4" />
-                      {task.deadline}
+                      {task.dueDate ? new Date(task.dueDate).toLocaleDateString() : task.deadline}
                     </span>
                   </div>
 
@@ -202,8 +277,12 @@ export function TasksSection({ selectedMentee, onCreateTask }) {
                   >
                     {statusConfig[task.status].label}
                   </span>
-                  <button className="p-1 rounded hover:bg-gray-800 transition-colors">
-                    <MoreVertical className="w-5 h-5 text-gray-400" />
+                  <button 
+                    onClick={() => onCreateTask()}
+                    className="p-1 rounded hover:bg-blue-700 transition-colors text-blue-400 hover:text-blue-300"
+                    title="Create another task for this user"
+                  >
+                    <Plus className="w-5 h-5" />
                   </button>
                 </div>
               </div>

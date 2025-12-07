@@ -297,50 +297,152 @@ Service: Delete Journal Entry
   Auth Required:   YES
 
 ================================================================================
-8. TASK SERVICE
+8. TASK SERVICE (FULLY IMPLEMENTED - BOTH BACKENDS)
 ================================================================================
-
-Service: Get All Tasks
-  Method:          GET
-  Node.js:         /api/tasks
-  Java:            /api/tasks
-  Description:     Fetch all tasks for user
-  Auth Required:   YES
-
-Service: Get Task by ID
-  Method:          GET
-  Node.js:         /api/tasks/:id
-  Java:            /api/tasks/:id
-  Description:     Fetch specific task
-  Auth Required:   YES
 
 Service: Create Task
   Method:          POST
   Node.js:         /api/tasks
   Java:            /api/tasks
-  Description:     Create new task
+  Description:     Create new task for mentee
   Auth Required:   YES
+  Request Body:    { title, description, menteeId, category, priority, dueDate, 
+                     instructions, estimatedTime, resources, notifyMentee, 
+                     requireSubmission, attachments }
+
+Service: Get All Tasks for Mentor
+  Method:          GET
+  Node.js:         /api/tasks
+  Java:            /api/tasks
+  Description:     Fetch all tasks created by authenticated mentor
+  Auth Required:   YES
+  Response:        { success, tasks[], total }
+
+Service: Get Task by ID
+  Method:          GET
+  Node.js:         /api/tasks/:id
+  Java:            /api/tasks/:id
+  Description:     Fetch specific task details
+  Auth Required:   NO
+  Response:        { success, task }
+
+Service: Get Tasks by Mentee
+  Method:          GET
+  Node.js:         /api/tasks/mentee/:menteeId
+  Java:            /api/tasks/mentee/:menteeId
+  Description:     Fetch all tasks assigned to specific mentee
+  Auth Required:   NO
+  Response:        { success, tasks[], total }
+
+Service: Get Tasks by Status
+  Method:          GET
+  Node.js:         /api/tasks/status/:status
+  Java:            /api/tasks/status/:status
+  Description:     Fetch tasks filtered by status (not-started, in-progress, 
+                   pending-review, completed)
+  Auth Required:   YES
+  Response:        { success, tasks[], total }
+
+Service: Get Tasks for Mentor-Mentee Pair
+  Method:          GET
+  Node.js:         /api/tasks/mentor-mentee/:menteeId
+  Java:            /api/tasks/mentor-mentee/:menteeId
+  Description:     Fetch tasks between specific mentor and mentee
+  Auth Required:   YES
+  Response:        { success, tasks[], total }
 
 Service: Update Task
   Method:          PUT
   Node.js:         /api/tasks/:id
   Java:            /api/tasks/:id
-  Description:     Update task details
+  Description:     Update task details (title, description, status, priority, 
+                   progress, dueDate, etc.)
   Auth Required:   YES
-
-Service: Complete Task
-  Method:          PUT
-  Node.js:         /api/tasks/:id/complete
-  Java:            /api/tasks/:id/complete
-  Description:     Mark task as complete
-  Auth Required:   YES
+  Request Body:    { title, description, category, priority, status, dueDate, 
+                     progress, instructions, estimatedTime, resources, 
+                     notifyMentee, requireSubmission }
 
 Service: Delete Task
   Method:          DELETE
   Node.js:         /api/tasks/:id
   Java:            /api/tasks/:id
-  Description:     Delete task
+  Description:     Delete task permanently
   Auth Required:   YES
+  Response:        { success, message }
+
+================================================================================
+TASK STATUS VALUES
+================================================================================
+
+  not-started    - Task has been created but not started
+  in-progress    - Task is currently being worked on
+  pending-review - Task is submitted and waiting for mentor review
+  completed      - Task has been completed and reviewed
+
+================================================================================
+TASK PRIORITY VALUES
+================================================================================
+
+  high           - High priority task
+  medium         - Medium priority task
+  low            - Low priority task
+
+================================================================================
+TASK CATEGORIES
+================================================================================
+
+  Technical Skills      - Technical skill development
+  Soft Skills          - Soft skill development
+  Career Development   - Career-related tasks
+  Content Creation     - Content creation tasks
+
+================================================================================
+TASK RESPONSE FORMAT
+================================================================================
+
+Task Object:
+{
+  _id: ObjectId,
+  title: String,
+  description: String,
+  instructions: String,
+  mentorId: ObjectId,
+  menteeId: ObjectId,
+  category: String,
+  priority: String,
+  status: String,
+  dueDate: Date,
+  estimatedTime: String,
+  resources: String,
+  attachments: [String],
+  notifyMentee: Boolean,
+  requireSubmission: Boolean,
+  progress: Number (0-100),
+  createdAt: Date,
+  updatedAt: Date
+}
+
+Success Response Example:
+{
+  "success": true,
+  "tasks": [
+    {
+      "_id": "507f1f77bcf86cd799439011",
+      "title": "Learn React Hooks",
+      "description": "Master React Hooks for state management",
+      "mentorId": "507f1f77bcf86cd799439012",
+      "menteeId": "507f1f77bcf86cd799439013",
+      "category": "Technical Skills",
+      "priority": "high",
+      "status": "in-progress",
+      "progress": 45,
+      "dueDate": "2025-12-15T00:00:00.000Z",
+      "createdAt": "2025-12-07T00:00:00.000Z",
+      "updatedAt": "2025-12-07T12:00:00.000Z"
+    }
+  ],
+  "total": 1
+}
 
 ================================================================================
 AUTHENTICATION HEADER (Required for all endpoints except login/register)
@@ -399,7 +501,7 @@ NODE.JS BACKEND:
   ✓ Booking/Session Service
   ✓ Karma Points Service
   ~ Learning Journal Service (PARTIAL)
-  ~ Task Service (PARTIAL)
+  ✓ Task Service (FULLY IMPLEMENTED)
 
 JAVA BACKEND:
   ~ Authentication Service (TODO)
@@ -409,7 +511,7 @@ JAVA BACKEND:
   ~ Booking/Session Service (TODO)
   ✓ Karma Points Service (IMPLEMENTED)
   ~ Learning Journal Service (TODO)
-  ~ Task Service (TODO)
+  ✓ Task Service (FULLY IMPLEMENTED)
 
 Legend:
   ✓ = Fully Implemented
@@ -420,23 +522,60 @@ Legend:
 NOTES
 ================================================================================
 
-1. Messaging Service: Both Node.js and Java now have the same response format
+1. Task Service: Both Node.js and Java now have IDENTICAL endpoints and response
+   formats. Easy to switch between them using the frontend configuration.
+
+2. Messaging Service: Both Node.js and Java now have the same response format
    for conversations endpoint. Easy to switch between them.
 
-2. Authentication: Required for all endpoints except:
+3. Authentication: Required for all endpoints except:
    - POST /api/auth/login
    - POST /api/auth/register
 
-3. File Upload: Profile picture upload uses multipart/form-data
+4. File Upload: Profile picture upload uses multipart/form-data
 
-4. WebRTC: Session joining returns roomId for real-time video/audio
+5. WebRTC: Session joining returns roomId for real-time video/audio
 
-5. Pagination: Some list endpoints support 'limit' and 'skip' query parameters
+6. Pagination: Some list endpoints support 'limit' and 'skip' query parameters
 
-6. Current Frontend: Uses Node.js backend at http://localhost:4000
+7. Current Frontend: Uses Node.js backend at http://localhost:4000
 
-7. To Test Java Backend: Change base URL to http://localhost:8080
+8. To Test Java Backend: Change base URL to http://localhost:8081
 
 ================================================================================
-LAST UPDATED: December 6, 2025
+HOW TO SWITCH BETWEEN TASK SERVICE BACKENDS
+================================================================================
+
+The Task Service now supports easy switching between Node.js and Java backends.
+
+FRONTEND CONFIGURATION:
+  File: /Frontend/src/config/apiConfig.js
+  
+  Change this line:
+    const ACTIVE_BACKEND = 'nodejs';  // or 'java'
+  
+  Then restart your frontend dev server.
+
+BACKEND URLS:
+  Node.js:  http://localhost:4000/api/tasks
+  Java:     http://localhost:8081/api/tasks
+
+BOTH BACKENDS:
+  ✓ Use identical API endpoints
+  ✓ Return same response format
+  ✓ Support all CRUD operations
+  ✓ Use same MongoDB database
+  ✓ Require JWT authentication
+
+TESTING:
+  1. Start Node.js backend: npm start (port 4000)
+  2. Create a task via frontend
+  3. Switch to Java backend in config
+  4. Verify same task appears
+  5. Create task via Java backend
+  6. Switch back to Node.js
+  7. Verify both tasks appear
+
+================================================================================
+LAST UPDATED: December 7, 2025
 ================================================================================

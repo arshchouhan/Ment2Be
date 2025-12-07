@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Calendar, Clock, FileText, Link2, Tag, User, AlertCircle, Upload, CheckCircle2, BookOpen, Code, FolderKanban, SearchIcon, FileCheck, PenTool, FileQuestion } from "lucide-react";
 import { toast } from "react-toastify";
+import { createTask } from "../../services/createTaskApi";
 
 const categories = [
   { value: "coding", label: "Coding Assignment", icon: Code },
@@ -87,9 +88,7 @@ export function CreateTaskForm() {
     setIsSubmitting(true);
 
     try {
-      const token = localStorage.getItem("token");
-      
-      // Format the data for Java backend
+      // Format the data for backend
       const taskData = {
         title: formData.title,
         description: formData.description,
@@ -104,19 +103,10 @@ export function CreateTaskForm() {
         menteeId: formData.menteeId,
       };
 
-      // Use Java backend API (port 8081)
-      const response = await fetch("http://localhost:8081/api/tasks", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(taskData),
-      });
+      // Use centralized API service (automatically switches between Java and Node.js)
+      const data = await createTask(taskData);
 
-      const data = await response.json();
-
-      if (response.ok && data.success) {
+      if (data.success) {
         toast.success("Task created successfully!");
         navigate("/mentor/tasks");
       } else {

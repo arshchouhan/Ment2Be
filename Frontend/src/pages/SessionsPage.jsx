@@ -240,10 +240,10 @@ const SessionsPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-black text-white overflow-x-hidden pt-14">
       <Navbar userName={user?.name || 'Student'} />
       
-      <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
+      <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 overflow-x-hidden">
         <div className="mb-6">
           <h1 className="text-2xl font-bold">My Sessions</h1>
           <p className="text-sm text-gray-400 mt-1">Manage your mentoring sessions</p>
@@ -260,7 +260,7 @@ const SessionsPage = () => {
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 overflow-x-hidden">
             {/* Upcoming Sessions */}
             <div>
               <div className="flex items-center justify-between mb-4">

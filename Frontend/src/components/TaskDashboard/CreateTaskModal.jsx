@@ -1,41 +1,129 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { X, Upload } from "lucide-react";
-
-const mentees = [
-  { id: "1", name: "Sarah Chen" },
-  { id: "2", name: "Michael Park" },
-  { id: "3", name: "Emma Wilson" },
-  { id: "4", name: "James Rodriguez" },
-  { id: "5", name: "Priya Sharma" },
-];
+import { TASK_API_URL } from "../../config/apiConfig.js";
 
 const categories = ["Technical Skills", "Soft Skills", "Career Development", "Content Creation"];
-const priorities = ["High", "Medium", "Low"];
+const priorities = ["high", "medium", "low"];
 
 export function CreateTaskModal({ isOpen, onClose }) {
   const [formData, setFormData] = useState({
     title: "",
     description: "",
-    assignee: "",
+    menteeId: "",
     category: "",
     priority: "",
-    deadline: "",
+    dueDate: "",
   });
+  const [mentees, setMentees] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (isOpen) {
+      fetchMentees();
+    }
+  }, [isOpen]);
+
+  const fetchMentees = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    try {
+      const response = await fetch('http://localhost:4000/api/bookings/mentor', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      const data = await response.json();
+      if (response.ok && data.success && data.bookings) {
+        // Extract unique mentees from bookings
+        const menteesMap = new Map();
+        data.bookings.forEach(booking => {
+          if (booking.student && !menteesMap.has(booking.student._id)) {
+            menteesMap.set(booking.student._id, {
+              id: booking.student._id,
+              name: booking.student.name
+            });
+          }
+        });
+        setMentees(Array.from(menteesMap.values()));
+      }
+    } catch (err) {
+      console.error('Error fetching mentees:', err);
+    }
+  };
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Creating task:", formData);
-    onClose();
-    setFormData({
-      title: "",
-      description: "",
-      assignee: "",
-      category: "",
-      priority: "",
-      deadline: "",
-    });
+    setError("");
+    setLoading(true);
+
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setError("No authentication token found");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      // Convert date string to ISO format
+      const dueDate = formData.dueDate ? new Date(formData.dueDate).toISOString() : null;
+
+      const taskData = {
+        title: formData.title,
+        description: formData.description,
+        menteeId: formData.menteeId,
+        category: formData.category,
+        priority: formData.priority,
+        dueDate: dueDate,
+        status: "not-started", // Set default status to not-started
+        instructions: "",
+        estimatedTime: "",
+        resources: "",
+        notifyMentee: true,
+        requireSubmission: false,
+        attachments: []
+      };
+
+      const response = await fetch(TASK_API_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(taskData)
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        console.log("Task created successfully:", data.task);
+        // Reset form and close
+        setFormData({
+          title: "",
+          description: "",
+          menteeId: "",
+          category: "",
+          priority: "",
+          dueDate: "",
+        });
+        onClose();
+        // Trigger a refresh of tasks in parent component
+        window.location.reload(); // Simple refresh - you can optimize this later
+      } else {
+        setError(data.message || "Failed to create task");
+      }
+    } catch (err) {
+      console.error('Error creating task:', err);
+      setError("Error creating task: " + err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -55,6 +143,13 @@ export function CreateTaskModal({ isOpen, onClose }) {
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="p-6 space-y-5">
+          {/* Error Message */}
+          {error && (
+            <div className="p-3 bg-red-900/20 border border-red-700 rounded-lg text-red-400 text-sm">
+              {error}
+            </div>
+          )}
+
           {/* Task Title */}
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-1.5">Task Title</label>
@@ -84,8 +179,8 @@ export function CreateTaskModal({ isOpen, onClose }) {
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-1.5">Assign to</label>
             <select
-              value={formData.assignee}
-              onChange={(e) => setFormData({ ...formData, assignee: e.target.value })}
+              value={formData.menteeId}
+              onChange={(e) => setFormData({ ...formData, menteeId: e.target.value })}
               className="w-full px-4 py-2.5 border border-gray-600 bg-gray-800 text-white rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent transition-shadow appearance-none cursor-pointer"
               required
             >
@@ -127,7 +222,7 @@ export function CreateTaskModal({ isOpen, onClose }) {
                 <option value="">Select priority</option>
                 {priorities.map((p) => (
                   <option key={p} value={p}>
-                    {p}
+                    {p.charAt(0).toUpperCase() + p.slice(1)}
                   </option>
                 ))}
               </select>
@@ -139,23 +234,11 @@ export function CreateTaskModal({ isOpen, onClose }) {
             <label className="block text-sm font-medium text-gray-300 mb-1.5">Deadline</label>
             <input
               type="date"
-              value={formData.deadline}
-              onChange={(e) => setFormData({ ...formData, deadline: e.target.value })}
+              value={formData.dueDate}
+              onChange={(e) => setFormData({ ...formData, dueDate: e.target.value })}
               className="w-full px-4 py-2.5 border border-gray-600 bg-gray-800 text-white rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent transition-shadow"
               required
             />
-          </div>
-
-          {/* Attach Resources */}
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1.5">Attach Resources</label>
-            <div className="border-2 border-dashed border-gray-600 rounded-lg p-6 text-center hover:border-gray-500 hover:bg-gray-800 transition-colors cursor-pointer">
-              <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-              <p className="text-sm text-gray-400">
-                Drag and drop files here, or <span className="text-gray-300 font-medium">browse</span>
-              </p>
-              <p className="text-xs text-gray-500 mt-1">PDF, DOC, or images up to 10MB</p>
-            </div>
           </div>
         </form>
 
@@ -164,15 +247,25 @@ export function CreateTaskModal({ isOpen, onClose }) {
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 border border-gray-600 text-gray-300 bg-transparent rounded-lg hover:bg-gray-800 transition-colors"
+            disabled={loading}
+            className="px-4 py-2 border border-gray-600 text-gray-300 bg-transparent rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Cancel
           </button>
           <button 
-            onClick={handleSubmit} 
-            className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors"
+            type="submit"
+            onClick={handleSubmit}
+            disabled={loading}
+            className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
           >
-            Create Task
+            {loading ? (
+              <>
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                Creating...
+              </>
+            ) : (
+              'Create Task'
+            )}
           </button>
         </div>
       </div>

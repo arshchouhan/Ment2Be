@@ -32,7 +32,11 @@ export const authenticateToken = (req, res, next) => {
         });
       }
 
-      console.log('Token verified, user:', user);
+      console.log('[Auth Middleware] Token verified');
+      console.log('[Auth Middleware] User ID (user.id):', user.id);
+      console.log('[Auth Middleware] User ID (user._id):', user._id);
+      console.log('[Auth Middleware] Full user object:', JSON.stringify(user, null, 2));
+      
       req.user = user;
       next();
     });

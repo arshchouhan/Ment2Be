@@ -1,21 +1,24 @@
 import React, { useEffect, useState } from "react";
 import { Award, BarChart3, Users } from "lucide-react";
+import { TASK_API_URL } from "../../config/apiConfig.js";
 
 export function MenteesSidebar({ selectedMentee, onSelectMentee }) {
   const [mentees, setMentees] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchMentees();
+    fetchMenteesAndTasks();
   }, []);
 
-  const fetchMentees = async () => {
+  const fetchMenteesAndTasks = async () => {
     const token = localStorage.getItem("token");
     if (!token) return;
 
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:4000/api/bookings/mentor', {
+      
+      // Fetch mentees from bookings
+      const bookingsResponse = await fetch('http://localhost:4000/api/bookings/mentor', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -23,42 +26,79 @@ export function MenteesSidebar({ selectedMentee, onSelectMentee }) {
         }
       });
 
-      const data = await response.json();
+      const bookingsData = await bookingsResponse.json();
       
-      if (response.ok && data.success && data.bookings) {
-        // Process mentees from bookings
-        const menteesMap = new Map();
-        
-        data.bookings.forEach(booking => {
-          if (!booking.student) return;
-          
-          const studentId = booking.student._id;
-          if (!menteesMap.has(studentId)) {
-            const initials = booking.student.name
-              .split(' ')
-              .map(n => n[0])
-              .join('')
-              .toUpperCase()
-              .substring(0, 2);
-
-            menteesMap.set(studentId, {
-              id: studentId,
-              name: booking.student.name,
-              initials: initials,
-              activeTasks: 0,
-              completed: 0,
-              total: 0,
-              streak: 0,
-              profilePicture: booking.student.profilePicture
-            });
-          }
-        });
-
-        const menteesArray = Array.from(menteesMap.values());
-        setMentees(menteesArray);
+      if (!bookingsResponse.ok || !bookingsData.success || !bookingsData.bookings) {
+        setLoading(false);
+        return;
       }
+
+      // Fetch tasks from configured backend
+      const tasksResponse = await fetch(TASK_API_URL, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      let allTasks = [];
+      if (tasksResponse.ok) {
+        const tasksData = await tasksResponse.json();
+        allTasks = tasksData.tasks || (Array.isArray(tasksData) ? tasksData : []);
+      }
+
+      // Process mentees from bookings with task stats
+      const menteesMap = new Map();
+      
+      bookingsData.bookings.forEach(booking => {
+        if (!booking.student) return;
+        
+        const studentId = booking.student._id;
+        if (!menteesMap.has(studentId)) {
+          const initials = booking.student.name
+            .split(' ')
+            .map(n => n[0])
+            .join('')
+            .toUpperCase()
+            .substring(0, 2);
+
+          menteesMap.set(studentId, {
+            id: studentId,
+            name: booking.student.name,
+            initials: initials,
+            activeTasks: 0,
+            completed: 0,
+            total: 0,
+            streak: 0,
+            profilePicture: booking.student.profilePicture
+          });
+        }
+      });
+
+      // Calculate task stats for each mentee
+      allTasks.forEach(task => {
+        if (task.menteeId) {
+          // Convert menteeId to string for comparison (handles both ObjectId and String)
+          const menteeIdStr = typeof task.menteeId === 'object' ? task.menteeId._id || task.menteeId.toString() : task.menteeId.toString();
+          
+          if (menteesMap.has(menteeIdStr)) {
+            const mentee = menteesMap.get(menteeIdStr);
+            mentee.total += 1;
+            
+            if (task.status === 'completed') {
+              mentee.completed += 1;
+            } else if (task.status === 'in-progress') {
+              mentee.activeTasks += 1;
+            }
+          }
+        }
+      });
+
+      const menteesArray = Array.from(menteesMap.values());
+      setMentees(menteesArray);
     } catch (err) {
-      console.error('Error fetching mentees:', err);
+      console.error('Error fetching mentees and tasks:', err);
     } finally {
       setLoading(false);
     }
