@@ -52,13 +52,15 @@ export function ContextSidebar({ messages, mentee }) {
                 alt={name}
                 className="w-full h-full object-cover"
                 onError={(e) => {
-                  e.target.onerror = null;
                   e.target.style.display = 'none';
-                  e.target.parentElement.querySelector('span').style.display = 'flex';
+                  e.target.nextElementSibling.style.display = 'flex';
                 }}
               />
             ) : null}
-            <span className="text-lg font-semibold text-white flex items-center justify-center w-full h-full">
+            <span 
+              className="text-lg font-semibold text-white flex items-center justify-center w-full h-full"
+              style={{ display: avatar ? 'none' : 'flex' }}
+            >
               {getInitials(name)}
             </span>
           </div>

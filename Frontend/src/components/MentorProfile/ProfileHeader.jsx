@@ -10,7 +10,7 @@ const ProfileHeader = ({ mentorData, isOwnProfile = false }) => {
           <div className="flex-shrink-0 relative">
             {mentorData.profileImage ? (
               <img
-                className="h-32 w-32 rounded-full border-4 border-[#333] object-cover hover:border-blue-500 transition-all duration-300"
+                className="h-32 w-32 rounded-full border-4 border-[#333] object-cover hover:border-gray-500 transition-all duration-300"
                 src={mentorData.profileImage}
                 alt={mentorData.name}
                 onError={(e) => {
@@ -29,24 +29,24 @@ const ProfileHeader = ({ mentorData, isOwnProfile = false }) => {
             </div>
             
             {/* Experience Badge */}
-            <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-blue-600 to-blue-800 text-white text-xs font-semibold px-3 py-1 rounded-full whitespace-nowrap shadow-md">
+            <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-gray-600 to-gray-800 text-white text-xs font-semibold px-3 py-1 rounded-full whitespace-nowrap shadow-md">
               {mentorData.experience || '5+'} years experience
             </div>
           </div>
           
           {/* Profile Info */}
           <div className="flex-1 min-w-0 w-full">
-            <div className="flex flex-col md:flex-row md:items-start md:justify-between space-y-4 md:space-y-0">
+            <div className="flex flex-col md:flex-row md:items-start md:justify-between space-y-4 md:space-y-0 w-full">
               <div className="flex-1">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex flex-col space-y-2">
                   <div>
                     <h1 className="text-2xl md:text-3xl font-bold text-white">{mentorData.name || 'Mentor Name'}</h1>
-                    <p className="text-lg text-blue-400 mt-1">{mentorData.title || 'Mentor'}</p>
+                    <p className="text-lg text-gray-400 mt-1">{mentorData.title || 'Mentor'}</p>
                     <p className="text-sm text-gray-400 mt-1">{mentorData.company || 'Company Name'}</p>
                   </div>
                   
                   {/* Rating */}
-                  <div className="flex items-center mt-2 sm:mt-0">
+                  <div className="flex items-center">
                     <div className="flex items-center bg-[#2d2d2d] px-3 py-1 rounded-full">
                       <FiStar className="h-4 w-4 text-yellow-400 mr-1" />
                       <span className="text-white font-medium">{mentorData.rating?.toFixed(1) || '5.0'}</span>
@@ -65,7 +65,7 @@ const ProfileHeader = ({ mentorData, isOwnProfile = false }) => {
                 {/* Stats */}
                 <div className="flex flex-wrap items-center gap-4 mt-4 text-sm">
                   <div className="flex items-center text-gray-300">
-                    <FiUsers className="h-4 w-4 mr-1.5 text-blue-400" />
+                    <FiUsers className="h-4 w-4 mr-1.5 text-gray-400" />
                     <span>Mentored {mentorData.stats?.mentoredStudents || '100+'}+ students</span>
                   </div>
                   <div className="flex items-center text-gray-300">
@@ -113,7 +113,7 @@ const ProfileHeader = ({ mentorData, isOwnProfile = false }) => {
                       href={mentorData.socialLinks.linkedin} 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="flex items-center text-gray-400 hover:text-blue-400 text-sm transition-colors"
+                      className="flex items-center text-gray-400 hover:text-gray-300 text-sm transition-colors"
                       aria-label="LinkedIn profile"
                     >
                       <FiLinkedin className="h-4 w-4 mr-1" />
@@ -137,21 +137,16 @@ const ProfileHeader = ({ mentorData, isOwnProfile = false }) => {
               </div>
               
               {/* Action Buttons */}
-              <div className="flex flex-col sm:flex-row md:flex-col space-y-2 sm:space-y-0 sm:space-x-2 md:space-y-2 md:space-x-0">
+              <div className="flex flex-col justify-start md:justify-end">
                 {isOwnProfile ? (
                   <button className="inline-flex justify-center items-center px-4 py-2 border border-[#444] rounded-md text-sm font-medium text-white bg-[#2d2d2d] hover:bg-[#333] transition-colors">
                     <FiEdit className="h-4 w-4 mr-2" />
                     Edit profile
                   </button>
                 ) : (
-                  <>
-                    <button className="inline-flex justify-center items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 transition-colors">
-                      Book Session
-                    </button>
-                    <button className="inline-flex justify-center items-center px-4 py-2 border border-[#444] rounded-md text-sm font-medium text-white bg-[#2d2d2d] hover:bg-[#3d3d3d] transition-colors">
-                      Follow
-                    </button>
-                  </>
+                  <button className="inline-flex justify-center items-center px-4 py-2 border border-[#444] rounded-md text-sm font-medium text-white bg-[#2d2d2d] hover:bg-[#3d3d3d] transition-colors">
+                    Follow
+                  </button>
                 )}
               </div>
             </div>

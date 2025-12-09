@@ -1,5 +1,5 @@
 import React from "react";
-import { Circle, MoreVertical, Phone, Video, Clock } from "lucide-react";
+import { Circle, MoreVertical, Clock } from "lucide-react";
 
 export function ChatHeader({ 
   participantName = "Select a conversation", 
@@ -41,31 +41,33 @@ export function ChatHeader({
   const sessionTime = formatSessionTime();
 
   return (
-    <header className="flex items-center justify-between px-6 py-4 border-b border-[#535353]/30 bg-[#121212]">
-      <div className="flex items-center gap-4">
+    <header className="flex items-center justify-between px-6 py-2 border-b border-[#535353]/30 bg-[#121212]">
+      <div className="flex items-center gap-3">
         <div className="relative">
-          <div className="h-12 w-12 border-2 border-gray-600 rounded-full overflow-hidden bg-[#212121] flex items-center justify-center">
+          <div className="h-10 w-10 border-2 border-gray-600 rounded-full overflow-hidden bg-[#212121] flex items-center justify-center">
             {participantAvatar ? (
               <img 
                 src={participantAvatar} 
                 alt={participantName} 
                 className="w-full h-full object-cover"
                 onError={(e) => {
-                  e.target.onerror = null;
                   e.target.style.display = 'none';
-                  e.target.parentElement.querySelector('span').style.display = 'flex';
+                  e.target.nextElementSibling.style.display = 'flex';
                 }}
               />
             ) : null}
-            <span className="text-lg font-semibold text-white flex items-center justify-center w-full h-full">
+            <span 
+              className="text-sm font-semibold text-white flex items-center justify-center w-full h-full"
+              style={{ display: participantAvatar ? 'none' : 'flex' }}
+            >
               {getInitials(participantName)}
             </span>
           </div>
-          <Circle className="absolute -bottom-0.5 -right-0.5 h-4 w-4 fill-green-500 text-green-500" />
+          <Circle className="absolute -bottom-0.5 -right-0.5 h-3 w-3 fill-green-500 text-green-500" />
         </div>
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-lg font-semibold text-white">
+            <h1 className="text-base font-semibold text-white">
               {participantName}
             </h1>
             {sessionData?.isMentor === false && (
@@ -74,7 +76,7 @@ export function ChatHeader({
               </span>
             )}
           </div>
-          <div className="flex items-center gap-2 text-sm text-[#b3b3b3]">
+          <div className="flex items-center gap-2 text-xs text-[#b3b3b3]">
             {participantRole && (
               <span>{participantRole}</span>
             )}
@@ -89,17 +91,6 @@ export function ChatHeader({
       </div>
 
       <div className="flex items-center gap-2">
-        {sessionData?.roomId && (
-          <button 
-            className="p-2 rounded-lg text-[#b3b3b3] hover:text-white hover:bg-[#212121] transition-colors"
-            title="Start Video Call"
-            onClick={() => {
-              // Handle video call with sessionData.roomId
-            }}
-          >
-            <Video className="h-5 w-5" />
-          </button>
-        )}
         <button 
           className="p-2 rounded-lg text-[#b3b3b3] hover:text-white hover:bg-[#212121] transition-colors"
           title="More options"

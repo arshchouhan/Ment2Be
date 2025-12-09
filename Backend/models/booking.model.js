@@ -51,7 +51,7 @@ const bookingSchema = new mongoose.Schema({
   // Booking status
   status: {
     type: String,
-    enum: ['pending', 'confirmed', 'cancelled', 'completed', 'no-show'],
+    enum: ['pending', 'confirmed', 'cancelled', 'completed', 'no-show', 'expired'],
     default: 'pending'
   },
   
@@ -273,7 +273,8 @@ bookingSchema.virtual('statusDisplay').get(function() {
     'confirmed': 'Confirmed',
     'cancelled': 'Cancelled',
     'completed': 'Completed',
-    'no-show': 'No Show'
+    'no-show': 'No Show',
+    'expired': 'Expired'
   };
   return statusMap[this.status] || this.status;
 });

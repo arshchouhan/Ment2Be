@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import MentorNavbar from '../components/MentorDashboard/Navbar';
 import SessionTimer from '../components/SessionTimer';
-import { FiUpload, FiX, FiCalendar, FiUsers, FiClock, FiEdit3, FiSettings, FiLogOut, FiPlus, FiFolder, FiMoreVertical, FiBookOpen, FiTrendingUp, FiUserPlus, FiMessageSquare } from 'react-icons/fi';
+import { FiUpload, FiX, FiCalendar, FiUsers, FiClock, FiEdit3, FiSettings, FiLogOut, FiPlus, FiFolder, FiMoreVertical, FiBookOpen, FiTrendingUp, FiUserPlus, FiMessageSquare, FiAward, FiStar } from 'react-icons/fi';
 import { formatDistanceToNow } from 'date-fns';
 import KarmaPointsCard from '../components/KarmaPointsCard/KarmaPointsCard';
 
@@ -727,18 +727,25 @@ const MentorDashboard = () => {
 
             {/* Menu Items */}
             <div className="w-full space-y-2 mt-4">
-              <button
-                onClick={() => setEditing(true)}
-                className="w-full flex items-center space-x-2 px-3 py-1.5 text-left text-gray-300 hover:bg-[#212121] rounded-lg transition-colors text-sm"
-              >
-                <FiEdit3 className="w-4 h-4 text-blue-400" />
-                <span>Edit Profile</span>
-              </button>
+              <div className="flex items-center space-x-2 px-3 py-1.5 text-gray-300 text-sm">
+                <FiUsers className="w-4 h-4 text-blue-400" />
+                <span>Students: {profile?.mentorProfile?.studentCount || 0}</span>
+              </div>
               
-              <button className="w-full flex items-center space-x-2 px-3 py-1.5 text-left text-gray-300 hover:bg-[#212121] rounded-lg transition-colors text-sm">
-                <FiUsers className="w-4 h-4 text-purple-400" />
-                <span>Edit Membership</span>
-              </button>
+              <div className="flex items-center space-x-2 px-3 py-1.5 text-gray-300 text-sm">
+                <FiAward className="w-4 h-4 text-purple-400" />
+                <span>Karma Points: {profile?.karmaPoints || 0}</span>
+              </div>
+
+              <div className="flex items-center space-x-2 px-3 py-1.5 text-gray-300 text-sm">
+                <FiStar className="w-4 h-4 text-yellow-400" />
+                <span>Ratings: {profile?.mentorProfile?.rating || 0}/5</span>
+              </div>
+
+              <div className="flex items-center space-x-2 px-3 py-1.5 text-gray-300 text-sm">
+                <FiCalendar className="w-4 h-4 text-green-400" />
+                <span>Sessions: {profile?.mentorProfile?.totalSessions || 0}</span>
+              </div>
               
               <button 
                 onClick={() => {

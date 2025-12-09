@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { FiCalendar, FiClock, FiUser, FiDollarSign, FiEye, FiMapPin, FiRefreshCw, FiMessageSquare, FiVideo, FiTrendingUp, FiAlertCircle, FiCheckCircle, FiChevronLeft, FiChevronRight, FiCheck } from 'react-icons/fi';
 import MentorNavbar from '../components/MentorDashboard/Navbar';
 import { StudentSessionCard } from '../components/MentorDashboard/StudentSessionCard';
+import { EnhancedStudentCard } from '../components/MentorDashboard/EnhancedStudentCard';
 import { AvailableSlotsCard } from '../components/MentorDashboard/AvailableSlotsCard';
 import { saveAvailability, getAllAvailability } from '../services/availabilityService';
 
@@ -161,11 +162,13 @@ const MentorMenteesPage = () => {
 
   // Timer effect to update current time every minute
   useEffect(() => {
-    const timer = setInterval(() => {
+    const timeTimer = setInterval(() => {
       setCurrentTime(new Date());
     }, 60000); // Update every minute
 
-    return () => clearInterval(timer);
+    return () => {
+      clearInterval(timeTimer);
+    };
   }, []);
 
   const formatDate = (dateString) => {
@@ -402,7 +405,7 @@ const MentorMenteesPage = () => {
     try {
       const token = localStorage.getItem('token');
       if (!token) {
-        alert('Please log in to confirm the session.');
+        console.error('Please log in to confirm the session.');
         return;
       }
 
@@ -415,16 +418,15 @@ const MentorMenteesPage = () => {
       });
 
       if (response.ok) {
-        alert('Session confirmed successfully! Student has been notified.');
+        console.log('Session confirmed successfully! Student has been notified.');
         // Refresh the bookings to update the UI
         fetchMentorBookings();
       } else {
         const errorData = await response.json();
-        alert(errorData.message || 'Failed to confirm session. Please try again.');
+        console.error(errorData.message || 'Failed to confirm session. Please try again.');
       }
     } catch (error) {
       console.error('Error confirming session:', error);
-      alert('Error confirming session. Please check your connection and try again.');
     }
   };
 
@@ -494,8 +496,7 @@ const MentorMenteesPage = () => {
 
   // Navigation functions for session carousel
   const nextSession = () => {
-    const sessions = getActiveSessions();
-    if (currentSessionIndex < sessions.length - 1) {
+    if (currentSessionIndex < activeSessions.length - 1) {
       setCurrentSessionIndex(currentSessionIndex + 1);
     }
   };
@@ -526,32 +527,50 @@ const MentorMenteesPage = () => {
     // Get all sessions and sort by date (upcoming first, then recent)
     const now = new Date();
     
-    return bookings
-      .filter(booking => ['pending', 'confirmed', 'completed'].includes(booking.status))
-      .map(booking => {
-        // Calculate session stats for this student across all their bookings
-        const studentBookings = bookings.filter(b => b.student._id === booking.student._id);
-        const totalSessions = studentBookings.length;
-        const completedSessions = studentBookings.filter(b => b.status === 'completed').length;
-        const totalHours = studentBookings
-          .filter(b => b.status === 'completed')
-          .reduce((sum, b) => sum + b.duration, 0);
-        const firstSession = studentBookings
-          .sort((a, b) => new Date(a.sessionDate) - new Date(b.sessionDate))[0];
+    // Group by unique students to avoid duplicates
+    const studentSessionsMap = new Map();
+    
+    const filteredBookings = bookings.filter(booking => booking.status !== 'cancelled');
+    
+    filteredBookings.forEach(booking => {
+        const studentId = booking.student._id;
+        
+        if (!studentSessionsMap.has(studentId)) {
+          // Calculate session stats for this student across all their bookings
+          const studentBookings = bookings.filter(b => b.student._id === studentId);
+          const totalSessions = studentBookings.length;
+          const completedSessions = studentBookings.filter(b => b.status === 'completed').length;
+          const totalHours = studentBookings
+            .filter(b => b.status === 'completed')
+            .reduce((sum, b) => sum + b.duration, 0);
+          const firstSession = studentBookings
+            .sort((a, b) => new Date(a.sessionDate) - new Date(b.sessionDate))[0];
+          
+          // Find the most relevant session (upcoming confirmed > recent)
+          const upcomingConfirmed = studentBookings
+            .filter(b => new Date(b.sessionDate) >= now && b.status === 'confirmed')
+            .sort((a, b) => new Date(a.sessionDate) - new Date(b.sessionDate))[0];
+          
+          const latestSession = upcomingConfirmed || studentBookings
+            .sort((a, b) => new Date(b.sessionDate) - new Date(a.sessionDate))[0];
 
-        return {
-          student: booking.student,
-          sessions: studentBookings,
-          totalSessions,
-          completedSessions,
-          upcomingSessions: studentBookings.filter(b => 
-            new Date(b.sessionDate) >= now && ['pending', 'confirmed'].includes(b.status)
-          ).length,
-          totalHours,
-          latestSession: booking, // This session itself
-          firstSession
-        };
-      })
+          studentSessionsMap.set(studentId, {
+            student: booking.student,
+            sessions: studentBookings,
+            totalSessions,
+            completedSessions,
+            upcomingSessions: studentBookings.filter(b => 
+              new Date(b.sessionDate) >= now && ['pending', 'confirmed'].includes(b.status)
+            ).length,
+            totalHours,
+            latestSession,
+            firstSession
+          });
+        }
+      });
+    
+    // Convert map to array and sort
+    return Array.from(studentSessionsMap.values())
       .sort((a, b) => {
         const dateA = new Date(a.latestSession.sessionDate);
         const dateB = new Date(b.latestSession.sessionDate);
@@ -644,7 +663,7 @@ const MentorMenteesPage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-black pt-14">
+      <div className="min-h-screen bg-[#0a0a0a] pt-14">
         <MentorNavbar userName={user?.name || 'Mentor'} />
         <div className="flex items-center justify-center h-64">
           <div className="text-gray-500">Loading mentee sessions...</div>
@@ -654,7 +673,7 @@ const MentorMenteesPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-black pt-14">
+    <div className="min-h-screen bg-[#0a0a0a] pt-14">
       <MentorNavbar userName={user?.name || 'Mentor'} />
       
       <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
@@ -746,10 +765,10 @@ const MentorMenteesPage = () => {
                   <div className="mb-6 flex items-center justify-between">
                     <div>
                       <h2 className="text-2xl font-bold text-white mb-2">Active Sessions</h2>
-                      <p className="text-[#b3b3b3]">Manage your ongoing mentoring relationships</p>
+                      <p className="text-[#b3b3b3]">Click on arrows to see other mentees</p>
                     </div>
-                    {/* Navigation arrows - only show if more than 2 sessions */}
-                    {activeSessions.length > 2 && (
+                    {/* Navigation arrows - only show if more than 1 session */}
+                    {activeSessions.length > 1 && (
                       <div className="flex items-center gap-2">
                         <button
                           onClick={prevSession}
@@ -763,13 +782,13 @@ const MentorMenteesPage = () => {
                           <FiChevronLeft className="w-5 h-5" />
                         </button>
                         <span className="text-sm text-[#b3b3b3] px-2">
-                          {currentSessionIndex + 1} - {Math.min(currentSessionIndex + 2, activeSessions.length)} of {activeSessions.length}
+                          {currentSessionIndex + 1} of {activeSessions.length}
                         </span>
                         <button
                           onClick={nextSession}
-                          disabled={currentSessionIndex >= activeSessions.length - 2}
+                          disabled={currentSessionIndex >= activeSessions.length - 1}
                           className={`p-2 rounded-lg border transition-colors ${
-                            currentSessionIndex >= activeSessions.length - 2
+                            currentSessionIndex >= activeSessions.length - 1
                               ? 'border-[#404040] text-[#535353] cursor-not-allowed'
                               : 'border-[#404040] text-white hover:bg-[#2a2d32] hover:border-white'
                           }`}
@@ -781,34 +800,17 @@ const MentorMenteesPage = () => {
                   </div>
                   
                   {/* Sessions Display */}
-                  <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-                    {activeSessions.slice(currentSessionIndex, currentSessionIndex + 2).map((session, index) => (
-                      <StudentSessionCard
-                        key={`${session.student._id}-${session.latestSession._id}-${index}`}
-                        studentName={session.student.name}
-                        studentEmail={session.student.email}
-                        studentAvatar={session.student.profilePicture}
-                        courseName={session.latestSession?.sessionTitle || 'N/A'}
-                        courseCode={session.latestSession?.course?.courseCode || 'N/A'}
-                        sessionDate={session.latestSession ? formatDate(session.latestSession.sessionDate) : 'N/A'}
-                        sessionTime={session.latestSession?.sessionTime || 'N/A'}
-                        duration={`${session.latestSession?.duration || 0} min`}
-                        location={session.latestSession?.location || 'Online'}
-                        status={session.latestSession?.status || 'completed'}
-                        sessionType={session.latestSession?.sessionType || 'online'}
-                        totalSessions={session.totalSessions}
-                        completedSessions={session.completedSessions}
-                        cancelledSessions={session.sessions.filter(s => s.status === 'cancelled').length}
-                        missedSessions={session.sessions.filter(s => s.status === 'missed').length}
-                        totalHoursStudied={Math.round(session.totalHours / 60)}
-                        sessionHistory={session.sessions}
-                        enrollmentDate={session.firstSession ? formatDate(session.firstSession.sessionDate) : 'N/A'}
-                        latestSession={session.latestSession}
+                  <div className="grid grid-cols-1 gap-6">
+                    {activeSessions.slice(currentSessionIndex, currentSessionIndex + 1).map((sessionData, index) => (
+                      <EnhancedStudentCard
+                        key={`${sessionData.student._id}-${index}`}
+                        student={sessionData.student}
+                        sessions={sessionData.sessions}
                         onJoinSession={handleJoinSession}
                         onConfirmSession={handleConfirmSession}
                         onRejectSession={handleRejectSession}
                         onCancelSession={handleCancelSession}
-                        onSessionExpired={handleSessionExpired}
+                        formatDate={formatDate}
                       />
                     ))}
                   </div>

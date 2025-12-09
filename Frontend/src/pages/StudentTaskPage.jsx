@@ -191,11 +191,11 @@ const StudentTaskPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#000000] text-gray-100 overflow-x-hidden pt-14">
+    <div className="min-h-screen bg-[#0a0a0a] text-gray-100 overflow-x-hidden pt-14">
       <Navbar userName={user?.name || 'Student'} />
       
       {/* Header */}
-      <header className="border-b border-gray-800 bg-[#000000]">
+      <header className="border-b border-gray-800 bg-[#0a0a0a]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div>
             <h1 className="text-2xl font-bold text-white">My Tasks</h1>

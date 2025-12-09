@@ -44,12 +44,12 @@ const MentorNavbar = ({ userName = 'Mentor' }) => {
       backdropFilter: isScrolled ? 'blur(12px)' : 'none',
       WebkitBackdropFilter: isScrolled ? 'blur(12px)' : 'none'
     }}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="px-0">
         <div className="flex items-center justify-between h-14">
           
-          {/* Logo */}
-          <Link to="/mentor/dashboard" className="flex items-center hover:opacity-80 transition-opacity">
-            <img src={Logo} alt="MentorLink Logo" className="h-8 w-auto brightness-0 invert" />
+          {/* Logo - Placeholder for new logo */}
+          <Link to="/mentor/dashboard" className="flex items-center hover:opacity-80 transition-opacity pl-4">
+            {/* New logo will be added here */}
           </Link>
 
           {/* Desktop Navigation Items */}

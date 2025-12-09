@@ -15,7 +15,7 @@ const JournalPage = () => {
   const user = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null;
 
   return (
-    <div className="min-h-screen bg-[#000000] text-gray-100 overflow-x-hidden pt-14">
+    <div className="min-h-screen bg-[#0a0a0a] text-gray-100 overflow-x-hidden pt-14">
       <Navbar userName={user?.name || 'Student'} />
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

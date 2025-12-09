@@ -306,7 +306,7 @@ const BookSession = () => {
                     value={formData.sessionTitle}
                     onChange={handleInputChange}
                     required
-                    className="w-full px-3 py-2 text-sm bg-[#202327] border border-gray-700 rounded text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none"
+                    className="w-full px-3 py-2 text-sm bg-[#202327] border border-gray-700 rounded text-white placeholder-gray-500 focus:border-gray-600 focus:outline-none"
                     placeholder="Enter session title"
                   />
                 </div>
@@ -317,11 +317,12 @@ const BookSession = () => {
                     name="sessionType"
                     value={formData.sessionType}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 text-sm bg-[#202327] border border-gray-700 rounded text-white focus:border-blue-500 focus:outline-none"
+                    className="w-full px-3 py-2 text-sm bg-[#202327] border border-gray-700 rounded text-white focus:border-gray-600 focus:outline-none"
                   >
                     <option value="one-on-one">One-on-One</option>
                     <option value="group">Group Session</option>
                     <option value="workshop">Workshop</option>
+                    <option value="webinar">Webinar</option>
                   </select>
                 </div>
 
@@ -331,9 +332,11 @@ const BookSession = () => {
                     name="duration"
                     value={formData.duration}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 text-sm bg-[#202327] border border-gray-700 rounded text-white focus:border-blue-500 focus:outline-none"
+                    className="w-full px-3 py-2 text-sm bg-[#202327] border border-gray-700 rounded text-white focus:border-gray-600 focus:outline-none"
                   >
+                    <option value={15}>15 minutes</option>
                     <option value={30}>30 minutes</option>
+                    <option value={45}>45 minutes</option>
                     <option value={60}>60 minutes</option>
                     <option value={90}>90 minutes</option>
                     <option value={120}>120 minutes</option>
@@ -346,8 +349,8 @@ const BookSession = () => {
                     name="sessionDescription"
                     value={formData.sessionDescription}
                     onChange={handleInputChange}
-                    rows={2}
-                    className="w-full px-3 py-2 text-sm bg-[#202327] border border-gray-700 rounded text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none"
+                    rows={4}
+                    className="w-full px-3 py-2 text-sm bg-[#202327] border border-gray-700 rounded text-white placeholder-gray-500 focus:border-gray-600 focus:outline-none"
                     placeholder="Describe what you'd like to learn or discuss..."
                   />
                 </div>
@@ -374,8 +377,8 @@ const BookSession = () => {
                     name="studentNotes"
                     value={formData.studentNotes}
                     onChange={handleInputChange}
-                    rows={2}
-                    className="w-full px-3 py-2 text-sm bg-[#202327] border border-gray-700 rounded text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none"
+                    rows={4}
+                    className="w-full px-3 py-2 text-sm bg-[#202327] border border-gray-700 rounded text-white placeholder-gray-500 focus:border-gray-600 focus:outline-none"
                     placeholder="Any specific topics or questions you'd like to discuss..."
                   />
                 </div>
@@ -394,27 +397,7 @@ const BookSession = () => {
                     Select Date
                   </label>
                   
-                  {/* Manual Date Input */}
-                  <div className="mb-3">
-                    <label className="text-[10px] text-gray-500 block mb-1">Enter Custom Date</label>
-                    <input
-                      type="date"
-                      min="2020-01-01"
-                      max="2050-12-31"
-                      onChange={(e) => {
-                        if (e.target.value) {
-                          setSelectedDate(e.target.value);
-                          const selectedDateObj = new Date(e.target.value);
-                          setCurrentMonth(selectedDateObj.getMonth());
-                          setCurrentYear(selectedDateObj.getFullYear());
-                        }
-                      }}
-                      className="w-full px-2 py-1.5 border border-gray-600 bg-[#202327] text-white rounded text-xs focus:outline-none focus:border-blue-500"
-                      placeholder="Select any date"
-                    />
-                  </div>
-                  
-                  <div className="text-center text-[10px] text-gray-500 mb-2">OR use calendar below</div>
+                  <p className="text-gray-400 text-xs mb-3">Choose a date for the mentorship session</p>
                   <div className="bg-[#202327] rounded-lg p-3 border border-gray-700">
                     {/* Calendar Header with Month/Year Navigation */}
                     <div className="flex items-center justify-between mb-3">
@@ -430,7 +413,7 @@ const BookSession = () => {
                         <select
                           value={currentMonth}
                           onChange={handleMonthChange}
-                          className="px-1.5 py-0.5 border border-gray-600 bg-[#121212] text-white rounded text-[11px] focus:outline-none focus:border-blue-500"
+                          className="px-1.5 py-0.5 border border-gray-600 bg-[#121212] text-white rounded text-[11px] focus:outline-none focus:border-gray-500"
                         >
                           {[
                             'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
@@ -446,7 +429,7 @@ const BookSession = () => {
                           onChange={(e) => setCurrentYear(parseInt(e.target.value) || new Date().getFullYear())}
                           min="2020"
                           max="2050"
-                          className="px-1.5 py-0.5 border border-gray-600 bg-[#121212] text-white rounded text-[11px] focus:outline-none focus:border-blue-500 w-14"
+                          className="px-1.5 py-0.5 border border-gray-600 bg-[#121212] text-white rounded text-[11px] focus:outline-none focus:border-gray-500 w-14"
                           placeholder="Year"
                         />
                       </div>
@@ -475,11 +458,11 @@ const BookSession = () => {
                               disabled={dayObj.isPast}
                               className={`w-7 h-7 rounded transition-colors text-[11px] ${
                                 dayObj.isSelected
-                                  ? 'bg-blue-600 text-white'
+                                  ? 'bg-gray-600 text-white'
                                   : dayObj.isPast
                                   ? 'text-gray-600 cursor-not-allowed'
                                   : dayObj.isToday
-                                  ? 'bg-blue-500/20 text-blue-400 hover:bg-blue-500/30'
+                                  ? 'bg-gray-700/50 text-gray-300 hover:bg-gray-700'
                                   : 'text-gray-300 hover:bg-gray-700'
                               }`}
                             >
@@ -499,27 +482,7 @@ const BookSession = () => {
                     Select Time
                   </label>
                   
-                  {/* Manual Time Input */}
-                  <div className="mb-3">
-                    <label className="text-[10px] text-gray-500 block mb-1">Enter Custom Time (24-hour format)</label>
-                    <input
-                      type="time"
-                      onChange={(e) => {
-                        if (e.target.value) {
-                          const [hours, minutes] = e.target.value.split(':');
-                          const hour24 = parseInt(hours);
-                          const hour12 = hour24 === 0 ? 12 : hour24 > 12 ? hour24 - 12 : hour24;
-                          const ampm = hour24 >= 12 ? 'PM' : 'AM';
-                          const timeFormatted = `${hour12}:${minutes} ${ampm}`;
-                          setSelectedTimeSlot(timeFormatted);
-                        }
-                      }}
-                      className="w-full px-2 py-1.5 border border-gray-600 bg-[#202327] text-white rounded text-xs focus:outline-none focus:border-blue-500"
-                      placeholder="Select any time"
-                    />
-                  </div>
-                  
-                  <div className="text-center text-[10px] text-gray-500 mb-2">OR choose from preset times</div>
+                  <p className="text-gray-400 text-xs mb-3">Choose a time slot for the mentorship session</p>
                   
                   {/* Preset Time Slots */}
                   <div className="grid grid-cols-3 gap-1.5">
@@ -534,9 +497,9 @@ const BookSession = () => {
                           disabled={!isAvailable}
                           className={`p-2 text-center border rounded transition-all text-xs ${
                             selectedTimeSlot === time && isAvailable
-                              ? 'bg-blue-600 text-white border-blue-600'
+                              ? 'bg-gray-600 text-white border-gray-600'
                               : isAvailable
-                              ? 'bg-[#202327] text-gray-300 border-gray-700 hover:border-blue-500 hover:bg-blue-500/10 cursor-pointer'
+                              ? 'bg-[#202327] text-gray-300 border-gray-700 hover:border-gray-600 hover:bg-gray-700/30 cursor-pointer'
                               : 'bg-[#202327] text-gray-500 border-gray-700 opacity-50 cursor-not-allowed'
                           }`}
                           title={!isAvailable && selectedDate ? 'Not available' : ''}
@@ -550,24 +513,24 @@ const BookSession = () => {
                     <p className="text-gray-500 text-xs text-center mt-2">Select a date to see available times</p>
                   )}
                   {selectedDate && availableTimeSlots.length === 0 && (
-                    <div className="mt-3 p-2 bg-yellow-900/30 border border-yellow-700/50 rounded-lg">
+                    <div className="mt-3 p-2 bg-gray-700/30 border border-gray-600/50 rounded-lg">
                       <p className="text-yellow-400 text-xs text-center">⚠️ No available time slots for this date</p>
                       <p className="text-yellow-300 text-[11px] text-center mt-1">Please select a different date</p>
                     </div>
                   )}
                   {selectedDate && availableTimeSlots.length > 0 && (
-                    <div className="mt-3 p-2 bg-green-900/30 border border-green-700/50 rounded-lg">
-                      <p className="text-green-400 text-xs text-center">✓ {availableTimeSlots.length} available slot(s) for this date</p>
+                    <div className="mt-3 p-2 bg-gray-700/30 border border-gray-600/50 rounded-lg">
+                      <p className="text-gray-300 text-xs text-center">✓ {availableTimeSlots.length} available slot(s) for this date</p>
                     </div>
                   )}
                 </div>
 
                 {/* Selected Date & Time Display */}
                 {(selectedDate || selectedTimeSlot) && (
-                  <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-3">
-                    <h4 className="text-blue-400 font-medium mb-1.5 text-xs">Selected Session</h4>
+                  <div className="bg-gray-700/30 border border-gray-600 rounded-lg p-3">
+                    <h4 className="text-gray-300 font-medium mb-1.5 text-xs">Selected Session</h4>
                     {selectedDate && (
-                      <p className="text-blue-300 text-[11px]">
+                      <p className="text-gray-400 text-[11px]">
                         Date: {(() => {
                           const [year, month, day] = selectedDate.split('-').map(Number);
                           const date = new Date(year, month - 1, day);
@@ -581,7 +544,7 @@ const BookSession = () => {
                       </p>
                     )}
                     {selectedTimeSlot && (
-                      <p className="text-blue-300 text-[11px]">Time: {selectedTimeSlot}</p>
+                      <p className="text-gray-400 text-[11px]">Time: {selectedTimeSlot}</p>
                     )}
                   </div>
                 )}
@@ -597,7 +560,7 @@ const BookSession = () => {
               className={`w-full py-2.5 px-4 rounded-lg font-medium transition-colors text-sm ${
                 loading || !selectedDate || !selectedTimeSlot
                   ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
-                  : 'bg-blue-600 text-white hover:bg-blue-700'
+                  : 'bg-gray-600 text-white hover:bg-gray-700'
               }`}
             >
               {loading ? 'Creating Booking...' : 'Book Session'}

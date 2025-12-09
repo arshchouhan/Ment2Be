@@ -141,6 +141,19 @@ export function MentorshipChat() {
     return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
 
+  // Handle escape key to close chat
+  useEffect(() => {
+    const handleEscapeKey = (event) => {
+      if (event.key === 'Escape' && activeConversationId) {
+        setActiveConversationId(null);
+        setActiveParticipant(null);
+      }
+    };
+
+    window.addEventListener('keydown', handleEscapeKey);
+    return () => window.removeEventListener('keydown', handleEscapeKey);
+  }, [activeConversationId]);
+
   // Join Stream Chat channel when active conversation changes
   useEffect(() => {
     const joinChannel = async () => {
@@ -297,27 +310,40 @@ export function MentorshipChat() {
         isSession: false
       }));
 
-      // Combine and sort by last message time (newest first)
-      const allConversations = [
-        ...transformedConversations,
-        ...confirmedSessions
-      ].sort((a, b) => b.lastMessageTime - a.lastMessageTime);
+      // Deduplicate conversations by participantId to prevent multiple chats with same user
+      const conversationMap = new Map();
+      
+      // Add regular conversations first (they have message history)
+      transformedConversations.forEach(conv => {
+        conversationMap.set(conv.participantId, conv);
+      });
+      
+      // Add confirmed sessions only if not already in map
+      confirmedSessions.forEach(session => {
+        if (!conversationMap.has(session.participantId)) {
+          conversationMap.set(session.participantId, session);
+        }
+      });
+      
+      // Convert map to array and sort by last message time (newest first)
+      const allConversations = Array.from(conversationMap.values())
+        .sort((a, b) => b.lastMessageTime - a.lastMessageTime);
 
       setConversations(allConversations);
       
-      // Set first conversation as active if none selected
-      if (allConversations.length > 0 && !activeConversationId) {
-        const firstConv = allConversations[0];
-        setActiveConversationId(firstConv.id);
-        setActiveParticipant({
-          participantId: firstConv.participantId,
-          name: firstConv.mentorName,
-          role: firstConv.mentorRole,
-          avatar: firstConv.mentorAvatar,
-          isSession: firstConv.isSession,
-          sessionData: firstConv.sessionData
-        });
-      }
+      // Don't auto-select any conversation - let user click to start chatting
+      // if (allConversations.length > 0 && !activeConversationId) {
+      //   const firstConv = allConversations[0];
+      //   setActiveConversationId(firstConv.id);
+      //   setActiveParticipant({
+      //     participantId: firstConv.participantId,
+      //     name: firstConv.mentorName,
+      //     role: firstConv.mentorRole,
+      //     avatar: firstConv.mentorAvatar,
+      //     isSession: firstConv.isSession,
+      //     sessionData: firstConv.sessionData
+      //   });
+      // }
     } catch (err) {
       console.error('Error fetching conversations:', err);
       if (err.message.includes('Authentication required') || err.message.includes('Access denied')) {
@@ -554,12 +580,23 @@ export function MentorshipChat() {
                 participantRole=""
                 participantAvatar=""
               />
-              <div className="flex-1 flex items-center justify-center">
-                <div className="text-gray-400 text-center px-4">
-                  {conversations.length === 0 
-                    ? "No conversations yet. Start messaging with your mentees!"
-                    : "Select a conversation to start messaging"
-                  }
+              <div className="flex-1 flex items-center justify-center bg-[#000000]">
+                <div className="text-center px-4 py-8 max-w-md">
+                  {/* Illustration */}
+                  <div className="mb-6 flex justify-center">
+                    <svg className="w-24 h-24 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                    </svg>
+                  </div>
+                  
+                  {/* Message */}
+                  <h3 className="text-xl font-semibold text-white mb-2">Start Chatting</h3>
+                  <p className="text-gray-400 text-sm">
+                    {conversations.length === 0 
+                      ? "No conversations yet. Start messaging with your mentees!"
+                      : "Select a conversation from the list to start chatting"
+                    }
+                  </p>
                 </div>
               </div>
             </>

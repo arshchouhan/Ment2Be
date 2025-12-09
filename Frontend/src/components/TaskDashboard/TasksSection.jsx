@@ -6,9 +6,9 @@ import { toast } from "react-toastify";
 const tabs = ["All", "In Progress", "Pending Review", "Completed"];
 
 const statusConfig = {
-  "in-progress": { label: "In Progress", color: "text-gray-300", bg: "bg-gray-800" },
-  "pending-review": { label: "Pending Review", color: "text-gray-300", bg: "bg-gray-800" },
-  completed: { label: "Completed", color: "text-gray-300", bg: "bg-gray-800" },
+  "in-progress": { label: "In Progress", color: "text-gray-300", bg: "bg-[#2a3038]" },
+  "pending-review": { label: "Pending Review", color: "text-gray-300", bg: "bg-[#2a3038]" },
+  completed: { label: "Completed", color: "text-gray-300", bg: "bg-[#2a3038]" },
   "not-started": { label: "Not Started", color: "text-gray-400", bg: "bg-gray-900" },
 };
 
@@ -173,15 +173,15 @@ export function TasksSection({ selectedMentee, onCreateTask }) {
               placeholder="Search tasks..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-600 bg-gray-800 text-white rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent transition-shadow placeholder-gray-400"
+              className="w-full pl-10 pr-4 py-2 border border-gray-600 bg-[#2a3038] text-white rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent transition-shadow placeholder-gray-400"
             />
           </div>
           <div className="flex gap-2">
-            <button className="flex items-center gap-2 px-4 py-2 border border-gray-600 text-gray-300 bg-transparent rounded-lg hover:bg-gray-800 transition-colors">
+            <button className="flex items-center gap-2 px-4 py-2 border border-gray-600 text-gray-300 bg-transparent rounded-lg hover:bg-[#2a3038]/40 transition-colors">
               <Filter className="w-4 h-4" />
               Filter
             </button>
-            <button className="flex items-center gap-2 px-4 py-2 border border-gray-600 text-gray-300 bg-transparent rounded-lg hover:bg-gray-800 transition-colors">
+            <button className="flex items-center gap-2 px-4 py-2 border border-gray-600 text-gray-300 bg-transparent rounded-lg hover:bg-[#2a3038]/40 transition-colors">
               <Calendar className="w-4 h-4" />
               Date Range
             </button>
@@ -266,7 +266,7 @@ export function TasksSection({ selectedMentee, onCreateTask }) {
                   <Plus className="w-4 h-4 mr-2" />
                   Create Task
                 </button>
-                <button className="inline-flex items-center justify-center px-6 py-2.5 border border-gray-600 text-gray-300 hover:bg-gray-800 rounded-lg transition-colors font-medium">
+                <button className="inline-flex items-center justify-center px-6 py-2.5 border border-gray-600 text-gray-300 hover:bg-[#2a3038]/40 rounded-lg transition-colors font-medium">
                   View Guidelines
                 </button>
               </div>
@@ -279,7 +279,7 @@ export function TasksSection({ selectedMentee, onCreateTask }) {
               <div
                 key={task._id || task.id}
                 className={`border-l-4 ${priorityBorder[task.priority]} transition-colors ${
-                  isExpanded ? 'bg-gray-900' : 'hover:bg-gray-900'
+                  isExpanded ? 'bg-[#2a3038]' : 'hover:bg-[#2a3038]/60'
                 }`}
               >
                 <div className="p-4">
@@ -288,7 +288,7 @@ export function TasksSection({ selectedMentee, onCreateTask }) {
                       <div className="flex items-center gap-2 flex-wrap">
                         <h3 className="font-medium text-white">{task.title}</h3>
                         {task.hasQuestion && (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-gray-800 text-gray-300 text-xs font-medium rounded-full border border-gray-600">
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-[#2a3038] text-gray-300 text-xs font-medium rounded-full border border-gray-600">
                             <MessageSquare className="w-3 h-3" />
                             Question
                           </span>
@@ -316,9 +316,9 @@ export function TasksSection({ selectedMentee, onCreateTask }) {
                           <span className="text-gray-400">Progress</span>
                           <span className="font-medium text-gray-300">{task.progress}%</span>
                         </div>
-                        <div className="h-1.5 bg-gray-800 rounded-full overflow-hidden">
+                        <div className="h-1.5 bg-[#2a3038] rounded-full overflow-hidden">
                           <div
-                            className="h-full bg-gray-500 rounded-full transition-all duration-300"
+                            className="h-full bg-[#da8c18] rounded-full transition-all duration-300"
                             style={{ width: `${task.progress}%` }}
                           />
                         </div>
@@ -352,12 +352,12 @@ export function TasksSection({ selectedMentee, onCreateTask }) {
                     )}
                     <button 
                       onClick={() => setExpandedTaskId(isExpanded ? null : (task._id || task.id))}
-                      className="px-3 py-1.5 border border-gray-600 text-gray-300 text-xs bg-transparent rounded-lg hover:bg-gray-800 transition-colors flex items-center gap-2"
+                      className="px-3 py-1.5 border border-gray-600 text-gray-300 text-xs bg-transparent rounded-lg hover:bg-[#2a3038]/40 transition-colors flex items-center gap-2"
                     >
                       View Details
                       {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                     </button>
-                    <button className="p-1.5 text-gray-400 hover:text-gray-300 hover:bg-gray-800 rounded-lg transition-colors">
+                    <button className="p-1.5 text-gray-400 hover:text-gray-300 hover:bg-[#2a3038]/40 rounded-lg transition-colors">
                       <MessageSquare className="w-4 h-4" />
                     </button>
                   </div>
@@ -396,7 +396,7 @@ export function TasksSection({ selectedMentee, onCreateTask }) {
                         <h4 className="text-sm font-semibold text-gray-300 mb-3">Submitted Files ({task.uploadedFiles.length})</h4>
                         <div className="space-y-2">
                           {task.uploadedFiles.map((file, idx) => (
-                            <div key={idx} className="flex items-center justify-between p-3 bg-gray-800 rounded-lg border border-gray-700">
+                            <div key={idx} className="flex items-center justify-between p-3 bg-[#2a3038] rounded-lg border border-gray-700">
                               <div className="flex items-center gap-3 flex-1 min-w-0">
                                 <File className="w-4 h-4 text-blue-400 flex-shrink-0" />
                                 <div className="min-w-0 flex-1">
@@ -406,7 +406,7 @@ export function TasksSection({ selectedMentee, onCreateTask }) {
                                   )}
                                 </div>
                               </div>
-                              <button className="p-1.5 text-gray-400 hover:text-gray-300 hover:bg-gray-700 rounded transition-colors flex-shrink-0">
+                              <button className="p-1.5 text-gray-400 hover:text-gray-300 hover:bg-[#2a3038]/40 rounded transition-colors flex-shrink-0">
                                 <Download className="w-4 h-4" />
                               </button>
                             </div>

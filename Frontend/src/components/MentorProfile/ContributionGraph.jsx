@@ -23,15 +23,15 @@ const ContributionGraph = ({ mentorData }) => {
   };
 
   const contributionData = generateContributionData();
-  const totalContributions = contributionData.flat().reduce((sum, day) => sum + day.count, 0);
+  const totalSessions = mentorData?.stats?.sessionsCompleted || 0;
 
   const getColorClass = (level) => {
     const colors = [
       'bg-[#2d333b]', // 0 contributions
-      'bg-[#0e4429]', // 1-2 contributions
-      'bg-[#006d32]', // 3-4 contributions
-      'bg-[#26a641]', // 5-6 contributions
-      'bg-[#39d353]'  // 7+ contributions
+      'bg-[#3d3d3d]', // 1-2 contributions
+      'bg-[#4a4a4a]', // 3-4 contributions
+      'bg-[#5a5a5a]', // 5-6 contributions
+      'bg-[#6a6a6a]'  // 7+ contributions
     ];
     return colors[level] || colors[0];
   };
@@ -39,15 +39,12 @@ const ContributionGraph = ({ mentorData }) => {
   const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
   return (
-    <div className="bg-[#1f1f1f] border border-[#333] rounded-lg p-6 overflow-x-auto">
-      <div className="min-w-max">
+    <div className="bg-[#1f1f1f] border border-[#333] rounded-lg p-4 overflow-x-auto">
+      <div className="min-w-max w-full">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-base font-semibold text-white">
-            {totalContributions} contributions in the last year
+          <h3 className="text-sm font-semibold text-white">
+            {totalSessions} total mentorship sessions
           </h3>
-          <div className="text-sm text-gray-400">
-            Contribution settings
-          </div>
         </div>
 
         <div className="overflow-x-auto overflow-y-hidden">
@@ -63,16 +60,16 @@ const ContributionGraph = ({ mentorData }) => {
           {/* Contribution grid */}
           <div className="flex">
             {/* Day labels */}
-            <div className="flex flex-col justify-between text-xs text-gray-400 mr-2 h-20">
+            <div className="flex flex-col justify-between text-xs text-gray-400 mr-1 h-14">
               <span>Mon</span>
               <span>Wed</span>
               <span>Fri</span>
             </div>
 
             {/* Grid */}
-            <div className="flex space-x-1">
+            <div className="flex space-x-1 flex-1">
               {contributionData.map((week, weekIndex) => (
-                <div key={weekIndex} className="flex flex-col space-y-1">
+                <div key={weekIndex} className="flex flex-col space-y-1 flex-1">
                   {week.map((day, dayIndex) => (
                     <div
                       key={`${weekIndex}-${dayIndex}`}
@@ -86,10 +83,7 @@ const ContributionGraph = ({ mentorData }) => {
           </div>
 
           {/* Legend */}
-          <div className="flex items-center justify-between mt-3">
-            <span className="text-xs text-gray-400 hover:text-gray-300 cursor-pointer transition-colors">
-              Learn how we count contributions
-            </span>
+          <div className="flex items-center justify-end mt-3">
             <div className="flex items-center space-x-2">
               <span className="text-xs text-gray-400">Less</span>
               {[0, 1, 2, 3, 4].map((level) => (

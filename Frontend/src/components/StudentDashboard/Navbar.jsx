@@ -40,66 +40,52 @@ const Navbar = ({ userName = 'Student' }) => {
   ];
 
   return (
-    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 supports-backdrop-blur:bg-black/80 border-b border-[#121212] ${isScrolled ? 'bg-black/80 backdrop-blur-lg' : 'bg-black'}`} style={{
+    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 supports-backdrop-blur:bg-black/80 border-b border-[#121212] shadow-lg ${isScrolled ? 'bg-black/80 backdrop-blur-lg shadow-white/30' : 'bg-black shadow-white/15'}`} style={{
       backdropFilter: isScrolled ? 'blur(12px)' : 'none',
       WebkitBackdropFilter: isScrolled ? 'blur(12px)' : 'none'
     }}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="px-0">
         <div className="flex items-center justify-between h-14">
 
-          {/* Logo */}
-          <Link to="/student/dashboard" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-            <div className="w-8 h-8 bg-gradient-to-br from-gray-700 to-gray-800 rounded-lg flex items-center justify-center border border-gray-600">
-              <span className="text-gray-200 font-bold text-xs">U</span>
-            </div>
-            <span className="text-lg font-bold text-white">UpLoom</span>
+          {/* Logo - Placeholder for new logo */}
+          <Link to="/student/dashboard" className="flex items-center gap-2 hover:opacity-80 transition-opacity pl-4">
+            {/* New logo will be added here */}
           </Link>
 
           {/* Desktop Navigation Items */}
-          <div className="hidden md:flex items-center gap-6 flex-1 justify-center">
+          <div className="hidden md:flex items-center gap-3 flex-1 justify-center">
             {menuItems.map((item) => {
               const Icon = item.icon;
+              const isActive = location.pathname === item.href;
               return (
-                <div key={item.label} className="relative group">
-                  {item.href === '#' ? (
-                    <button
-                      className="p-1.5 rounded-lg hover:bg-gray-800 flex items-center gap-1.5 transition-colors relative"
-                      title={item.label}
-                    >
-                      <Icon size={18} className="text-gray-400 group-hover:text-white" />
-                      <span className="text-xs font-medium text-gray-300 group-hover:text-white">{item.label}</span>
-
-                      {/* Badge for New */}
-                      {item.badge && (
-                        <span className="absolute -top-1 -right-1 bg-gray-700 border border-gray-600 text-gray-200 text-xs px-1 py-0.5 rounded-full font-semibold text-xxs">
-                          {item.badge}
-                        </span>
-                      )}
-                    </button>
-                  ) : (
-                    <Link
-                      to={item.href}
-                      className={`p-2 rounded-lg flex items-center gap-1.5 transition-colors relative ${
-                        location.pathname === item.href 
-                          ? 'bg-gray-800 text-white' 
-                          : 'text-gray-400 hover:bg-gray-800 hover:text-white'
-                      }`}
-                      title={item.label}
-                    >
-                      <Icon size={18} className={location.pathname === item.href ? 'text-white' : 'text-gray-400 group-hover:text-white'} />
-                      <span className={`text-xs font-medium ${location.pathname === item.href ? 'text-white' : 'text-gray-300 group-hover:text-white'}`}>
-                        {item.label}
-                      </span>
-
-                      {/* Badge for New */}
-                      {item.badge && (
-                        <span className="absolute -top-1 -right-1 bg-gray-700 border border-gray-600 text-gray-200 text-xs px-1 py-0.5 rounded-full font-semibold text-xxs">
-                          {item.badge}
-                        </span>
-                      )}
-                    </Link>
+                <Link
+                  key={item.label}
+                  to={item.href}
+                  className={`px-4 py-2 rounded-lg flex items-center gap-2 transition-all duration-200 ${
+                    isActive 
+                      ? 'text-white' 
+                      : 'bg-gray-800/40 text-gray-300 hover:bg-gray-700/60 hover:text-white'
+                  }`}
+                  style={isActive ? { backgroundColor: '#2a2d32' } : {}}
+                  title={item.label}
+                >
+                  <Icon 
+                    size={18} 
+                    className="text-blue-400"
+                  />
+                  <span className={`text-xs font-medium ${
+                    isActive ? 'text-white' : 'text-gray-300'
+                  }`}>
+                    {item.label}
+                  </span>
+                  
+                  {/* Badge for New */}
+                  {item.badge && (
+                    <span className="ml-1 px-2 py-0.5 bg-gray-700 text-gray-200 text-xs rounded-full font-semibold">
+                      {item.badge}
+                    </span>
                   )}
-                </div>
+                </Link>
               );
             })}
           </div>

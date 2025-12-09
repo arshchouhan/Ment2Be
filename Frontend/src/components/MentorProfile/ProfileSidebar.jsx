@@ -11,9 +11,7 @@ const ProfileSidebar = ({ mentorData, onBookSession }) => {
         <div className="space-y-4">
           {/* Rating */}
           <div className="flex items-center">
-            <div className="p-2 bg-yellow-100/10 rounded-lg mr-3">
-              <FiStar className="h-5 w-5 text-yellow-400" />
-            </div>
+            <FiStar className="h-5 w-5 text-yellow-400 mr-3" />
             <div>
               <div className="font-semibold text-white">{mentorData.rating}/5.0</div>
               <div className="text-sm text-gray-400">Rating ({mentorData.reviews} reviews)</div>
@@ -22,9 +20,7 @@ const ProfileSidebar = ({ mentorData, onBookSession }) => {
 
           {/* Sessions completed */}
           <div className="flex items-center">
-            <div className="p-2 bg-blue-100/10 rounded-lg mr-3">
-              <FiUsers className="h-5 w-5 text-blue-400" />
-            </div>
+            <FiUsers className="h-5 w-5 text-blue-400 mr-3" />
             <div>
               <div className="font-semibold text-white">{mentorData.stats.sessionsCompleted}</div>
               <div className="text-sm text-gray-400">Sessions completed</div>
@@ -33,9 +29,7 @@ const ProfileSidebar = ({ mentorData, onBookSession }) => {
 
           {/* Total mentoring time */}
           <div className="flex items-center">
-            <div className="p-2 bg-green-100/10 rounded-lg mr-3">
-              <FiClock className="h-5 w-5 text-green-400" />
-            </div>
+            <FiClock className="h-5 w-5 text-green-400 mr-3" />
             <div>
               <div className="font-semibold text-white">{mentorData.stats.totalMentoringTime}</div>
               <div className="text-sm text-gray-400">Total mentoring time</div>
@@ -44,9 +38,7 @@ const ProfileSidebar = ({ mentorData, onBookSession }) => {
 
           {/* Karma Points */}
           <div className="flex items-center">
-            <div className="p-2 bg-purple-100/10 rounded-lg mr-3">
-              <FiTrendingUp className="h-5 w-5 text-purple-400" />
-            </div>
+            <FiTrendingUp className="h-5 w-5 text-purple-400 mr-3" />
             <div>
               <div className="font-semibold text-white">{mentorData.stats.karmaPoints}</div>
               <div className="text-sm text-gray-400">Karma Points</div>

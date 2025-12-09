@@ -102,31 +102,27 @@ export function StudentChat() {
           confirmedSessions.map(s => s.mentor?._id || s.mentor)
         );
 
+        // Include ALL conversations, not just those with sessions
         const mentorsFromConversations = conversations
-          .filter(conv => {
-            const p = conv.participant || conv.otherParticipant;
-            return p && mentorIdsWithSessions.has(p._id);
-          })
           .map(conv => {
             const p = conv.participant || conv.otherParticipant;
+            const mentorId = p?._id || p || conv.participantId;
             const nextSession = confirmedSessions.find(
-              s => (s.mentor?._id || s.mentor) === p._id
+              s => (s.mentor?._id || s.mentor) === mentorId
             );
 
             return {
-              id: p._id,
-              name: p.name,
-              avatar: p.profilePicture || "",
-              role: p.role || "Mentor",
-              company: p.company || "",
-              expertise: p.skills || [],
-              lastMessage: conv.lastMessage?.content || "",
-              lastMessageTime: conv.lastMessage
-                ? new Date(conv.lastMessage.createdAt)
-                : new Date(),
+              id: mentorId,
+              name: p?.name || conv.participantName || "Unknown Mentor",
+              avatar: conv.profilePicture || p?.profilePicture || "",
+              role: p?.role || conv.participantRole || "Mentor",
+              company: p?.company || "",
+              expertise: p?.skills || [],
+              lastMessage: conv.lastMessage || "",
+              lastMessageTime: new Date(conv.lastMessageTime || new Date()),
               unreadCount: conv.unreadCount || 0,
               isOnline: false,
-              email: p.email,
+              email: p?.email || conv.participantEmail,
               nextSession,
               hasConversation: true
             };
@@ -152,12 +148,28 @@ export function StudentChat() {
             hasConversation: false
           }));
 
-        const result = [...mentorsFromConversations, ...mentorsFromSessions];
+        // Deduplicate mentors by ID to prevent multiple chats with same mentor
+        const mentorMap = new Map();
+        
+        // Add mentors from conversations first (they have conversation history)
+        mentorsFromConversations.forEach(mentor => {
+          mentorMap.set(mentor.id, mentor);
+        });
+        
+        // Add mentors from sessions only if not already in map
+        mentorsFromSessions.forEach(mentor => {
+          if (!mentorMap.has(mentor.id)) {
+            mentorMap.set(mentor.id, mentor);
+          }
+        });
+        
+        const result = Array.from(mentorMap.values());
         setMentors(result);
 
-        if (result.length && !activeMentorId) {
-          setActiveMentorId(result[0].id);
-        }
+        // Don't auto-select any mentor - let user click to start chatting
+        // if (result.length && !activeMentorId) {
+        //   setActiveMentorId(result[0].id);
+        // }
 
       } catch (err) {
         console.error(err);
@@ -170,6 +182,18 @@ export function StudentChat() {
 
     fetchData();
   }, []);
+
+  // -------------------- HANDLE ESCAPE KEY TO CLOSE CHAT ----
+  useEffect(() => {
+    const handleEscapeKey = (event) => {
+      if (event.key === 'Escape' && activeMentorId) {
+        setActiveMentorId(null);
+      }
+    };
+
+    window.addEventListener('keydown', handleEscapeKey);
+    return () => window.removeEventListener('keydown', handleEscapeKey);
+  }, [activeMentorId]);
 
   // -------------------- JOIN STREAM CHAT CHANNEL WHEN ACTIVE MENTOR CHANGES ----
   useEffect(() => {
@@ -484,11 +508,22 @@ export function StudentChat() {
                 mentorAvatar=""
               />
               <div className="flex-1 flex items-center justify-center bg-[#000000]">
-                <div className="text-gray-400 text-center px-4">
-                  {mentors.length === 0 
-                    ? "No conversations yet. Start messaging with your mentors!"
-                    : "Select a conversation to start messaging"
-                  }
+                <div className="text-center px-4 py-8 max-w-md">
+                  {/* Illustration */}
+                  <div className="mb-6 flex justify-center">
+                    <svg className="w-24 h-24 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                    </svg>
+                  </div>
+                  
+                  {/* Message */}
+                  <h3 className="text-xl font-semibold text-white mb-2">Start Chatting</h3>
+                  <p className="text-gray-400 text-sm">
+                    {mentors.length === 0 
+                      ? "No conversations yet. Start messaging with your mentors!"
+                      : "Select a mentor from the list to start chatting"
+                    }
+                  </p>
                 </div>
               </div>
             </>

@@ -8,28 +8,28 @@ export function StatsCards() {
       label: "Active Tasks",
       value: 0,
       icon: Clock,
-      color: "bg-gray-800",
+      color: "bg-[#2a3038]",
       iconColor: "text-gray-400",
     },
     {
       label: "Pending Review",
       value: 0,
       icon: AlertCircle,
-      color: "bg-gray-800",
+      color: "bg-[#2a3038]",
       iconColor: "text-gray-400",
     },
     {
       label: "Completed",
       value: 0,
       icon: CheckCircle,
-      color: "bg-gray-800",
+      color: "bg-[#2a3038]",
       iconColor: "text-gray-400",
     },
     {
       label: "Avg Completion",
       value: "0%",
       icon: TrendingUp,
-      color: "bg-gray-800",
+      color: "bg-[#2a3038]",
       iconColor: "text-gray-400",
     },
   ]);
@@ -68,28 +68,28 @@ export function StatsCards() {
           label: "Active Tasks",
           value: activeTasks,
           icon: Clock,
-          color: "bg-gray-800",
+          color: "bg-[#2a3038]",
           iconColor: "text-gray-400",
         },
         {
           label: "Pending Review",
           value: pendingReview,
           icon: AlertCircle,
-          color: "bg-gray-800",
+          color: "bg-[#2a3038]",
           iconColor: "text-gray-400",
         },
         {
           label: "Completed",
           value: completed,
           icon: CheckCircle,
-          color: "bg-gray-800",
+          color: "bg-[#2a3038]",
           iconColor: "text-gray-400",
         },
         {
           label: "Avg Completion",
           value: `${avgCompletion}%`,
           icon: TrendingUp,
-          color: "bg-gray-800",
+          color: "bg-[#2a3038]",
           iconColor: "text-gray-400",
         },
       ]);
@@ -99,19 +99,19 @@ export function StatsCards() {
   };
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
       {stats.map((stat) => (
         <div
           key={stat.label}
-          className="bg-[#121212] rounded-lg p-5 shadow-sm border border-gray-700 transition-shadow hover:shadow-md"
+          className="bg-[#121212] rounded-lg px-4 py-3 shadow-sm border border-gray-700 transition-shadow hover:shadow-md"
         >
-          <div className="flex items-center gap-4">
-            <div className={`p-3 rounded-lg ${stat.color}`}>
-              <stat.icon className={`w-5 h-5 ${stat.iconColor}`} />
+          <div className="flex items-center gap-3">
+            <div className={`p-2 rounded-lg ${stat.color}`}>
+              <stat.icon className={`w-4 h-4 ${stat.iconColor}`} />
             </div>
             <div>
-              <p className="text-2xl font-semibold text-white">{stat.value}</p>
-              <p className="text-sm text-gray-400">{stat.label}</p>
+              <p className="text-lg font-semibold text-white">{stat.value}</p>
+              <p className="text-xs text-gray-400">{stat.label}</p>
             </div>
           </div>
         </div>

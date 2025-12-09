@@ -494,14 +494,32 @@ const getMentorBookings = async (req, res) => {
     const mentorId = req.user.id;
 
     // Find all bookings where current user is the mentor
-    const bookings = await Booking.find({ mentor: mentorId })
+    let bookings = await Booking.find({ mentor: mentorId })
+      .populate('student', 'name email profilePicture')
+      .populate('mentor', 'name email profilePicture')
+      .sort({ createdAt: -1 });
+
+    // Update expired sessions to 'expired' status
+    const now = new Date();
+    for (let booking of bookings) {
+      const sessionDate = new Date(booking.sessionDate);
+      // If session date has passed and status is still pending/confirmed, mark as expired
+      if (sessionDate < now && (booking.status === 'pending' || booking.status === 'confirmed')) {
+        booking.status = 'expired';
+        await booking.save();
+        console.log(`⏰ Session ${booking._id} marked as expired`);
+      }
+    }
+
+    // Fetch updated bookings after marking expired ones
+    bookings = await Booking.find({ mentor: mentorId })
       .populate('student', 'name email profilePicture')
       .populate('mentor', 'name email profilePicture')
       .sort({ createdAt: -1 });
 
     console.log(`👨‍🏫 getMentorBookings - MentorID: ${mentorId}, Found ${bookings.length} bookings`);
     bookings.forEach(booking => {
-      console.log(`  📖 Booking ID: ${booking._id}, Student: ${booking.student?._id}, Mentor: ${booking.mentor?._id}, RoomID: ${booking.roomId || 'No room ID'}`);
+      console.log(`  📖 Booking ID: ${booking._id}, Student: ${booking.student?._id}, Mentor: ${booking.mentor?._id}, Status: ${booking.status}, RoomID: ${booking.roomId || 'No room ID'}`);
     });
 
     res.status(200).json({

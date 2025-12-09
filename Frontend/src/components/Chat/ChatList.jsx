@@ -74,10 +74,18 @@ export function ChatList({ conversations, activeConversationId, onSelectConversa
                     src={conversation.mentorAvatar} 
                     alt={conversation.mentorName} 
                     className="w-full h-full object-cover"
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                      e.target.nextElementSibling.style.display = 'flex';
+                    }}
                   />
-                ) : (
-                  <span className="text-lg font-semibold text-white">{conversation.mentorName.charAt(0)}</span>
-                )}
+                ) : null}
+                <span 
+                  className="text-lg font-semibold text-white flex items-center justify-center"
+                  style={{ display: conversation.mentorAvatar ? 'none' : 'flex' }}
+                >
+                  {conversation.mentorName.charAt(0)}
+                </span>
               </div>
               {conversation.isOnline && (
                 <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-gray-400 rounded-full border-2 border-[#121212]" />

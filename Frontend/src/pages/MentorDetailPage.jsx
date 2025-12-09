@@ -84,9 +84,9 @@ const MentorDetailPage = () => {
                 github: mentor.mentorProfile?.socialLinks?.github || ''
               },
               stats: {
-                totalMentoringTime: "0 mins", // This would need to be calculated from sessions
+                totalMentoringTime: "0 mins",
                 sessionsCompleted: mentor.totalSessions || 0,
-                averageAttendance: "N/A", // This would need to be calculated
+                averageAttendance: "N/A",
                 karmaPoints: mentor.karmaPoints || 0
               }
             };
@@ -121,7 +121,6 @@ const MentorDetailPage = () => {
 
   // Function to handle booking button click
   const handleBookSession = () => {
-    // Navigate to booking page with mentor info in URL
     navigate(`/booking?mentor=${encodeURIComponent(mentorName)}&mentorId=${mentorData.id}`);
   };
 
@@ -138,9 +137,13 @@ const MentorDetailPage = () => {
 
   return (
     <div className="min-h-screen bg-[#000000]">
-      <Navbar userName={user?.name || 'Student'} />
+      {/* Navbar with fixed positioning */}
+      <div className="fixed top-0 left-0 right-0 z-50 bg-[#000000]">
+        <Navbar userName={user?.name || 'Student'} />
+      </div>
       
-      <div className="max-w-7xl mx-auto px-1 sm:px-2 lg:px-4 py-4 sm:py-6">
+      {/* Main content with top padding to account for fixed navbar */}
+      <div className="pt-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {loading ? (
           <div className="flex justify-center items-center h-64">
             <div className="text-white">Loading mentor profile...</div>
@@ -162,7 +165,7 @@ const MentorDetailPage = () => {
             <ProfileHeader mentorData={mentorData} />
 
             {/* Main Content Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
               {/* Left Column - Main Content */}
               <div className="lg:col-span-9 space-y-6">
                 {/* Navigation Tabs */}
@@ -171,8 +174,10 @@ const MentorDetailPage = () => {
                   onTabChange={setActiveTab} 
                 />
 
-                {/* Contribution Graph */}
-                <ContributionGraph mentorData={mentorData} />
+                {/* Contribution Graph - Only show on Overview tab */}
+                {activeTab === 'overview' && (
+                  <ContributionGraph mentorData={mentorData} />
+                )}
 
                 {/* Tab Content */}
                 <ProfileContent 
@@ -200,8 +205,8 @@ const MentorDetailPage = () => {
             {/* Modal Header */}
             <div className="flex justify-between items-center p-6 border-b">
               <div>
-                <h2 className="text-xl font-bold text-white">{mentorData?.name}</h2>
-                <p className="text-white">{mentorData?.title}</p>
+                <h2 className="text-xl font-bold text-gray-900">{mentorData?.name}</h2>
+                <p className="text-gray-600">{mentorData?.title}</p>
               </div>
               <button 
                 onClick={() => setShowBookingModal(false)}
@@ -271,7 +276,7 @@ const MentorDetailPage = () => {
                       {Array.from({ length: 35 }, (_, i) => {
                         const day = i < 5 ? 26 + i : i > 30 ? i - 30 : i - 4;
                         const isCurrentMonth = i >= 5 && i <= 30;
-                        const isSelected = i === 15; // Highlight day 10 as example
+                        const isSelected = i === 15;
                         
                         return (
                           <div

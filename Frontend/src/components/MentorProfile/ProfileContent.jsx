@@ -227,103 +227,33 @@ const ProfileContent = ({ mentorData, activeTab }) => {
     </div>
   );
 
+  const renderEmptyState = (title) => (
+    <div className="flex flex-col items-center justify-center py-16">
+      <div className="text-center">
+        <svg className="w-16 h-16 mx-auto text-gray-500 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v12a2 2 0 01-2 2h-3l-4 4z" />
+        </svg>
+        <h3 className="text-lg font-semibold text-gray-300 mb-2">No {title} Available</h3>
+        <p className="text-sm text-gray-400">There's nothing to show right now</p>
+      </div>
+    </div>
+  );
+
   const renderReviews = () => (
     <div className="space-y-4">
-      <h3 className="text-lg font-semibold text-white">Student Reviews</h3>
-      <div className="space-y-4">
-        {/* Review 1 */}
-        <div className="border border-[#333] rounded-lg p-4 bg-[#1f1f1f] hover:bg-[#202327]">
-          <div className="flex items-start space-x-3">
-            <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
-              <span className="text-white text-sm font-medium">JS</span>
-            </div>
-            <div className="flex-1">
-              <div className="flex items-center space-x-2">
-                <span className="font-medium text-white">John Smith</span>
-                <div className="flex items-center">
-                  {[...Array(5)].map((_, i) => (
-                    <FiStar key={i} className="h-4 w-4 text-yellow-400 fill-current" />
-                  ))}
-                </div>
-                <span className="text-sm text-gray-400">2 weeks ago</span>
-              </div>
-              <p className="text-gray-300 mt-2">
-                Excellent mentor! Really helped me understand React concepts and provided great career advice.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Review 2 */}
-        <div className="border border-[#333] rounded-lg p-4 bg-[#1f1f1f] hover:bg-[#202327]">
-          <div className="flex items-start space-x-3">
-            <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
-              <span className="text-white text-sm font-medium">AD</span>
-            </div>
-            <div className="flex-1">
-              <div className="flex items-center space-x-2">
-                <span className="font-medium text-white">Alice Davis</span>
-                <div className="flex items-center">
-                  {[...Array(5)].map((_, i) => (
-                    <FiStar key={i} className="h-4 w-4 text-yellow-400 fill-current" />
-                  ))}
-                </div>
-                <span className="text-sm text-gray-400">1 month ago</span>
-              </div>
-              <p className="text-gray-300 mt-2">
-                Very knowledgeable and patient. The system design session was incredibly valuable.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
+      {renderEmptyState('Reviews')}
     </div>
   );
 
   const renderAchievements = () => (
     <div className="space-y-4">
-      <h3 className="text-lg font-semibold text-white">Achievements & Certifications</h3>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Achievement 1 */}
-        <div className="border border-[#333] rounded-lg p-4 flex items-center space-x-3 bg-[#1f1f1f] hover:bg-[#202327]">
-          <div className="p-2 bg-yellow-100/10 rounded-lg">
-            <FiAward className="h-6 w-6 text-yellow-400" />
-          </div>
-          <div>
-            <h4 className="font-medium text-white">Top Mentor 2024</h4>
-            <p className="text-sm text-gray-400">Awarded for exceptional mentoring</p>
-          </div>
-        </div>
-
-        {/* Achievement 2 */}
-        <div className="border border-[#333] rounded-lg p-4 flex items-center space-x-3 bg-[#1f1f1f] hover:bg-[#202327]">
-          <div className="p-2 bg-blue-100/10 rounded-lg">
-            <FiUsers className="h-6 w-6 text-blue-400" />
-          </div>
-          <div>
-            <h4 className="font-medium text-white">100+ Sessions</h4>
-            <p className="text-sm text-gray-400">Completed mentoring sessions</p>
-          </div>
-        </div>
-      </div>
+      {renderEmptyState('Achievements')}
     </div>
   );
 
   const renderSessions = () => (
     <div className="space-y-4">
-      <h3 className="text-lg font-semibold text-white">Group Sessions</h3>
-      <div className="border border-[#333] rounded-lg p-4 bg-[#1f1f1f] hover:bg-[#202327]">
-        <div className="flex items-center justify-between">
-          <div>
-            <h4 className="font-medium text-white">Weekly React Workshop</h4>
-            <p className="text-sm text-gray-400">Every Saturday at 10:00 AM</p>
-          </div>
-          <div className="flex items-center space-x-2">
-            <FiCalendar className="h-4 w-4 text-gray-400" />
-            <span className="text-sm text-gray-400">Next: Dec 7</span>
-          </div>
-        </div>
-      </div>
+      {renderEmptyState('Group Sessions')}
     </div>
   );
 

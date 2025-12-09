@@ -18,10 +18,18 @@ export function StudentContextSidebar({ mentor, messages }) {
                 src={mentor.avatar} 
                 alt={mentor.name} 
                 className="w-full h-full object-cover"
+                onError={(e) => {
+                  e.target.style.display = 'none';
+                  e.target.nextElementSibling.style.display = 'flex';
+                }}
               />
-            ) : (
-              <span className="text-xl font-semibold text-white">{mentor.name.charAt(0)}</span>
-            )}
+            ) : null}
+            <span 
+              className="text-xl font-semibold text-white flex items-center justify-center"
+              style={{ display: mentor.avatar ? 'none' : 'flex' }}
+            >
+              {mentor.name.charAt(0)}
+            </span>
           </div>
           <div>
             <h3 className="font-medium text-white">{mentor.name}</h3>

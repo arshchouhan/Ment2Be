@@ -145,6 +145,12 @@ messageSchema.statics.getConversations = async function(userId) {
         as: 'mentorProfile'
       }
     },
+    // Add user profile picture as fallback
+    {
+      $addFields: {
+        userProfilePicture: { $arrayElemAt: ['$participantDetails.profilePicture', 0] }
+      }
+    },
     // Format the output
     {
       $project: {
@@ -161,7 +167,13 @@ messageSchema.statics.getConversations = async function(userId) {
         participantEmail: { $arrayElemAt: ['$participantDetails.email', 0] },
         participantRole: { $arrayElemAt: ['$participantDetails.role', 0] },
         participantBio: { $arrayElemAt: ['$participantDetails.bio', 0] },
-        profilePicture: { $arrayElemAt: ['$mentorProfile.profilePicture', 0] },
+        profilePicture: {
+          $cond: {
+            if: { $arrayElemAt: ['$mentorProfile.profilePicture', 0] },
+            then: { $arrayElemAt: ['$mentorProfile.profilePicture', 0] },
+            else: '$userProfilePicture'
+          }
+        },
         lastMessage: '$lastMessage',
         lastMessageTime: '$lastMessageTime',
         lastMessageType: '$lastMessageType',

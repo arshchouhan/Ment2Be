@@ -128,7 +128,7 @@ export function MenteesSidebar({ selectedMentee, onSelectMentee }) {
               <button
                 onClick={() => onSelectMentee(null)}
                 className={`w-full text-left px-3 py-2.5 rounded-lg transition-colors ${
-                  selectedMentee === null ? "bg-gray-800 text-white font-medium" : "hover:bg-gray-800 text-gray-300"
+                  selectedMentee === null ? "bg-[#2a3038] text-white font-medium" : "hover:bg-[#2a3038]/40 text-gray-300"
                 }`}
               >
                 All Mentees
@@ -141,8 +141,8 @@ export function MenteesSidebar({ selectedMentee, onSelectMentee }) {
                     onClick={() => onSelectMentee(mentee.id)}
                     className={`w-full p-3 rounded-lg transition-all ${
                       selectedMentee === mentee.id
-                        ? "bg-gray-800 border-2 border-gray-600"
-                        : "hover:bg-gray-800 border-2 border-transparent"
+                        ? "bg-[#2a3038] border-2 border-gray-600"
+                        : "hover:bg-[#2a3038]/40 border-2 border-transparent"
                     }`}
                   >
                     <div className="flex items-start gap-3">
@@ -186,17 +186,6 @@ export function MenteesSidebar({ selectedMentee, onSelectMentee }) {
             </div>
           )}
         </div>
-      </div>
-
-      <div className="bg-gray-800 rounded-lg p-4 text-white shadow-sm border border-gray-700">
-        <div className="flex items-center gap-2 mb-2">
-          <BarChart3 className="w-5 h-5" />
-          <h3 className="font-semibold">Analytics</h3>
-        </div>
-        <p className="text-sm text-gray-300 mb-3">Track mentee progress and identify areas for improvement.</p>
-        <button className="w-full bg-gray-700 hover:bg-gray-600 text-white text-sm font-medium py-2 px-4 rounded-lg transition-colors">
-          View Analytics
-        </button>
       </div>
     </div>
   );
