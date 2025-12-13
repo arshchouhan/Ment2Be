@@ -13,7 +13,8 @@
   "main": "index.js",
   "scripts": {
     "dev": "node --env-file=.env --watch index.js",
-    "start": "node index.js"
+    "start": "node index.js",
+    "build": "npm install"
   },
   "engines": {
     "node": ">=18.0.0"
