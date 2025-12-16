@@ -42,6 +42,7 @@ const io = new Server(server, {
       "http://localhost:3000",
       "http://localhost:5173", // Vite default port
       "https://k23-dx.vercel.app",
+      "https://ment2be.arshchouhan.me",
       process.env.FRONTEND_URL
     ].filter(Boolean), // Remove any undefined values
     methods: ["GET", "POST"]
@@ -61,7 +62,9 @@ app.use(cors({
     "http://localhost:3000",
     "http://localhost:5173",
     "https://k23-dx.vercel.app",
-    process.env.FRONTEND_URL
+    "https://ment2be.arshchouhan.me",
+    process.env.FRONTEND_URL,
+    process.env.HOSTED_FRONTEND_DOMAIN
   ].filter(Boolean),
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
