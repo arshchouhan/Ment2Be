@@ -1,23 +1,22 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
-  <!-- Background circle -->
-  <circle cx="100" cy="100" r="95" fill="#000000" stroke="#FFFFFF" stroke-width="2"/>
+  <!-- Dark background -->
+  <rect width="200" height="200" fill="#1a1a2e"/>
   
-  <!-- White hat (graduation cap style) -->
-  <g transform="translate(100, 80)">
-    <!-- Hat brim -->
-    <ellipse cx="0" cy="0" rx="45" ry="12" fill="#FFFFFF"/>
+  <!-- White graduation cap -->
+  <g transform="translate(100, 100)">
+    <!-- Cap brim (flat base) -->
+    <ellipse cx="0" cy="15" rx="50" ry="8" fill="#FFFFFF"/>
     
-    <!-- Hat crown -->
-    <path d="M -35 0 Q -35 -30 0 -40 Q 35 -30 35 0" fill="#FFFFFF" stroke="#FFFFFF" stroke-width="1"/>
+    <!-- Cap crown (square mortarboard shape) -->
+    <rect x="-45" y="-5" width="90" height="20" fill="#FFFFFF" rx="2"/>
     
-    <!-- Hat top point -->
-    <circle cx="0" cy="-42" r="6" fill="#FFFFFF"/>
+    <!-- Cap top (rounded) -->
+    <circle cx="0" cy="-5" r="8" fill="#FFFFFF"/>
     
-    <!-- Tassel -->
-    <line x1="0" y1="-42" x2="0" y2="5" stroke="#FFFFFF" stroke-width="2"/>
-    <circle cx="0" cy="8" r="4" fill="#FFFFFF"/>
+    <!-- Tassel string -->
+    <line x1="0" y1="3" x2="0" y2="35" stroke="#FFFFFF" stroke-width="2"/>
+    
+    <!-- Tassel ball -->
+    <circle cx="0" cy="40" r="5" fill="#FFFFFF"/>
   </g>
-  
-  <!-- Text: Ment2Be -->
-  <text x="100" y="155" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#FFFFFF" text-anchor="middle">Ment2Be</text>
 </svg>
