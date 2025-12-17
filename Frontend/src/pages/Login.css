@@ -1,0 +1,154 @@
+@keyframes twinkle {
+  0%, 100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes shimmer {
+  0%, 100% {
+    opacity: 0.2;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+@keyframes moonGlow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.3), 0 0 40px rgba(200, 200, 255, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(255, 255, 255, 0.5), 0 0 60px rgba(200, 200, 255, 0.3);
+  }
+}
+
+@keyframes moonFloat {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.moon {
+  position: absolute;
+  top: 40px;
+  right: 60px;
+  width: 80px;
+  height: 80px;
+  background: radial-gradient(circle at 30% 30%, #ffffff, #f0f0f0, #e0e0e0);
+  border-radius: 50%;
+  animation: moonGlow 4s ease-in-out infinite, moonFloat 6s ease-in-out infinite;
+  z-index: 5;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.3), 0 0 40px rgba(200, 200, 255, 0.2);
+}
+
+.moon::before {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: radial-gradient(circle at 70% 70%, transparent 30%, rgba(0, 0, 0, 0.1) 100%);
+}
+
+.moon::after {
+  content: '';
+  position: absolute;
+  width: 15px;
+  height: 15px;
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 50%;
+  top: 20px;
+  left: 25px;
+  box-shadow: 35px 15px 0 -5px rgba(0, 0, 0, 0.1), 20px 40px 0 -8px rgba(0, 0, 0, 0.08);
+}
+
+@keyframes progressLoad {
+  0% {
+    width: 0%;
+  }
+  50% {
+    width: 70%;
+  }
+  100% {
+    width: 100%;
+  }
+}
+
+.progress-bar-container {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: transparent;
+  z-index: 50;
+}
+
+.progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #ffffff, #e0e0ff, #ffffff);
+  animation: progressLoad 2s ease-in-out forwards;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.6);
+}
+
+.login-bg {
+  position: relative;
+  overflow: hidden;
+}
+
+.stars {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  z-index: 1;
+}
+
+.star {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  background: white;
+  border-radius: 50%;
+  animation: twinkle 3s infinite;
+}
+
+.star:nth-child(1) { top: 10%; left: 5%; animation-delay: 0s; }
+.star:nth-child(2) { top: 15%; left: 15%; animation-delay: 0.5s; }
+.star:nth-child(3) { top: 20%; left: 25%; animation-delay: 1s; }
+.star:nth-child(4) { top: 12%; left: 35%; animation-delay: 1.5s; }
+.star:nth-child(5) { top: 25%; left: 45%; animation-delay: 2s; }
+.star:nth-child(6) { top: 8%; left: 55%; animation-delay: 0.3s; }
+.star:nth-child(7) { top: 18%; left: 65%; animation-delay: 0.8s; }
+.star:nth-child(8) { top: 30%; left: 75%; animation-delay: 1.3s; }
+.star:nth-child(9) { top: 5%; left: 85%; animation-delay: 1.8s; }
+.star:nth-child(10) { top: 22%; left: 95%; animation-delay: 0.2s; }
+
+.star:nth-child(11) { top: 40%; left: 8%; animation-delay: 0.7s; }
+.star:nth-child(12) { top: 45%; left: 18%; animation-delay: 1.2s; }
+.star:nth-child(13) { top: 50%; left: 28%; animation-delay: 1.7s; }
+.star:nth-child(14) { top: 42%; left: 38%; animation-delay: 0.4s; }
+.star:nth-child(15) { top: 55%; left: 48%; animation-delay: 0.9s; }
+.star:nth-child(16) { top: 38%; left: 58%; animation-delay: 1.4s; }
+.star:nth-child(17) { top: 48%; left: 68%; animation-delay: 1.9s; }
+.star:nth-child(18) { top: 52%; left: 78%; animation-delay: 0.6s; }
+.star:nth-child(19) { top: 35%; left: 88%; animation-delay: 1.1s; }
+.star:nth-child(20) { top: 45%; left: 98%; animation-delay: 1.6s; }
+
+.star:nth-child(21) { top: 70%; left: 10%; animation-delay: 0.5s; }
+.star:nth-child(22) { top: 75%; left: 20%; animation-delay: 1s; }
+.star:nth-child(23) { top: 80%; left: 30%; animation-delay: 1.5s; }
+.star:nth-child(24) { top: 72%; left: 40%; animation-delay: 0.2s; }
+.star:nth-child(25) { top: 85%; left: 50%; animation-delay: 0.7s; }
+.star:nth-child(26) { top: 68%; left: 60%; animation-delay: 1.2s; }
+.star:nth-child(27) { top: 78%; left: 70%; animation-delay: 1.7s; }
+.star:nth-child(28) { top: 82%; left: 80%; animation-delay: 0.4s; }
+.star:nth-child(29) { top: 65%; left: 90%; animation-delay: 0.9s; }
+.star:nth-child(30) { top: 75%; left: 100%; animation-delay: 1.4s; }

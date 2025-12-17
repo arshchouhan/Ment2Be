@@ -27,11 +27,14 @@ const validateMongoId = (req, res, next) => {
   next();
 };
 
-mentorRouter.get('/', GetAllMentors);
+// IMPORTANT: Specific routes MUST come before generic :id route
 mentorRouter.get('/carousel', GetCarouselMentors);
 mentorRouter.get('/top-experts', GetTopExperts);
-mentorRouter.get('/:id', validateMongoId, GetMentorById);
 mentorRouter.get('/skill/:skillId', GetMentorsBySkill);
+
+// Generic routes LAST (after specific ones)
+mentorRouter.get('/:id', validateMongoId, GetMentorById);
+mentorRouter.get('/', GetAllMentors);
 
 // Create or update mentor profile
 mentorRouter.post('/profile', authenticateToken, CreateOrUpdateMentorProfile);

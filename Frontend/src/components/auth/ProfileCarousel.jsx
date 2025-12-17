@@ -1,42 +1,55 @@
 import React, { useState, useEffect } from 'react';
+import studentImg1 from '../../assets/handsome-young-indian-student-man-holding-notebooks-while-standing-street.jpg';
+import studentImg2 from '../../assets/smiling-happy-indian-student-with-backpack-pointing-his-finger-wall.jpg';
+import studentImg3 from '../../assets/smiling-student-with-laptop.jpg';
+import studentImg4 from '../../assets/young-smiling-pretty-caucasian-schoolgirl-wearing-back-bag-holds-books-looking-camera-green-with-copy-space.jpg';
+import studentImg5 from '../../assets/young-smiling-pretty-caucasian-schoolgirl-wearing-glasses-back-bag-with-headphones-neck-points-camera-holding-books-pink-with-copy-space.jpg';
 
 const ProfileCarousel = () => {
   const [currentProfile, setCurrentProfile] = useState(0);
 
+  const studentImages = [
+    studentImg1,
+    studentImg2,
+    studentImg3,
+    studentImg4,
+    studentImg5,
+  ];
+
   const profiles = [
     {
-      name: "Sarah Johnson",
-      role: "Software Engineer",
-      photo: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=400&h=400&fit=crop&crop=face",
-      review: "Ment2Be has been transformative for my career. My mentor helped me land my dream job at Google!",
+      name: "Rajesh Kumar",
+      role: "Learning Digital Marketing",
+      photo: studentImages[0],
+      review: "My mentor helped me master SEO and social media marketing. I'm now running successful campaigns!",
       rating: 5
     },
     {
-      name: "Michael Chen",
-      role: "Product Manager",
-      photo: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face",
-      review: "The guidance I received was invaluable. I learned skills that took my career to the next level.",
+      name: "Arjun Patel",
+      role: "Preparing for Business School",
+      photo: studentImages[1],
+      review: "The guidance I received was invaluable. My mentor helped me ace my entrance exams!",
       rating: 5
     },
     {
-      name: "Emily Rodriguez",
-      role: "UX Designer",
-      photo: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop&crop=face",
-      review: "Amazing platform! My mentor was incredibly supportive and helped me build a strong portfolio.",
+      name: "Rohan Desai",
+      role: "Building Design Portfolio",
+      photo: studentImages[2],
+      review: "Amazing platform! My mentor helped me create an impressive design portfolio. Got my first design job!",
       rating: 5
     },
     {
-      name: "David Kim",
-      role: "Data Scientist",
-      photo: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&h=400&fit=crop&crop=face",
-      review: "The mentorship I received helped me transition from academia to industry seamlessly.",
+      name: "Sanjana Reddy",
+      role: "Learning Content Writing",
+      photo: studentImages[3],
+      review: "The mentorship helped me improve my writing skills. Now I'm freelancing as a content writer!",
       rating: 5
     },
     {
-      name: "Lisa Thompson",
-      role: "Marketing Manager",
-      photo: "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=400&h=400&fit=crop&crop=face",
-      review: "I cannot recommend Ment2Be enough! The connections I made here changed my professional life.",
+      name: "Divya Nair",
+      role: "Mastering Communication Skills",
+      photo: studentImages[4],
+      review: "I cannot recommend Ment2Be enough! My mentor's guidance transformed my confidence and presentation skills.",
       rating: 5
     }
   ];
@@ -55,11 +68,13 @@ const ProfileCarousel = () => {
         {/* Profile Photo */}
         <div className="mb-8">
           <div className="relative inline-block">
-            <img
-              src={profiles[currentProfile].photo}
-              alt={profiles[currentProfile].name}
-              className="w-32 h-32 rounded-full mx-auto border-4 border-white/20 shadow-2xl"
-            />
+            <div className="w-32 h-32 rounded-full mx-auto border-4 border-white/20 shadow-2xl overflow-hidden bg-gray-700">
+              <img
+                src={profiles[currentProfile].photo}
+                alt={profiles[currentProfile].name}
+                className="w-full h-full object-cover"
+              />
+            </div>
             <div className="absolute -bottom-2 -right-2 bg-green-500 w-8 h-8 rounded-full border-4 border-gray-900"></div>
           </div>
         </div>

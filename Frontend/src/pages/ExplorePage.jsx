@@ -9,6 +9,9 @@ import TopOfferings from '../components/Explore/TopOfferings';
 import CategoryList from '../components/Explore/CategoryList';
 import UserProfileCard from '../components/Explore/UserProfileCard';
 
+// Mock data
+import INDIAN_MENTORS_MOCK_DATA from '../mockData/indianMentorsApi';
+
 const ExplorePage = () => {
   const navigate = useNavigate();
   const [activeCategory, setActiveCategory] = useState('All Mentors');
@@ -47,8 +50,8 @@ const ExplorePage = () => {
 
         const data = await response.json();
         
-        if (data.success) {
-          // Transform data to match your component's expected format
+        if (data.success && data.mentors && data.mentors.length > 0) {
+          // Transform API data to match your component's expected format
           const transformedMentors = data.mentors.map(mentor => {
             const profilePic = mentor.profilePicture || mentor.mentorProfile?.profilePicture || '';
             console.log(`📸 Mentor: ${mentor.name}, ProfilePicture: ${profilePic ? 'YES' : 'NO'}`);
@@ -73,10 +76,17 @@ const ExplorePage = () => {
             };
           });
           
-          console.log('✅ Transformed mentors:', transformedMentors);
-          setMentors(transformedMentors);
+          // Merge with mock data - API data first, then mock data
+          const apiIds = new Set(transformedMentors.map(m => m.id));
+          const mockDataToAdd = INDIAN_MENTORS_MOCK_DATA.filter(mock => !apiIds.has(mock.id));
+          const mergedMentors = [...transformedMentors, ...mockDataToAdd];
+          
+          console.log('✅ Transformed mentors:', mergedMentors);
+          setMentors(mergedMentors);
         } else {
-          setError('Failed to load mentors');
+          // If API fails or returns no data, use mock data
+          console.log('📊 Using mock data as fallback');
+          setMentors(INDIAN_MENTORS_MOCK_DATA);
         }
       } catch (err) {
         console.error('Error fetching mentors:', err);

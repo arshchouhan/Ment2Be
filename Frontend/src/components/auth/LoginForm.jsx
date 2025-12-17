@@ -55,11 +55,11 @@ const LoginForm = ({ onSubmit, onNavigateToRegister, onGoogleAuth, isLoading }) 
       {!showEmailForm && !showPhoneForm ? (
         <>
           {/* Main Heading */}
-          <h1 className="text-3xl font-bold text-white mb-2">Log into Uploom</h1>
+          <h1 className="text-3xl font-bold text-white mb-2">Log into Ment2Be</h1>
           
           {/* Subtitle */}
           <p className="text-gray-400 mb-8">
-            New to Uploom? Sign up as a{" "}
+            New to Ment2Be? Sign up as a{" "}
             <button 
               onClick={() => onNavigateToRegister('student')}
               className="text-blue-400 hover:text-blue-300 font-medium"
@@ -152,11 +152,11 @@ const LoginForm = ({ onSubmit, onNavigateToRegister, onGoogleAuth, isLoading }) 
             </button>
 
             {/* Main Heading */}
-            <h1 className="text-3xl font-bold text-white mb-2">Log into Uploom</h1>
+            <h1 className="text-3xl font-bold text-white mb-2">Log into Ment2Be</h1>
             
             {/* Subtitle */}
             <p className="text-gray-400 mb-8">
-              New to Uploom? Sign up as a{" "}
+              New to Ment2Be? Sign up as a{" "}
               <button 
                 onClick={() => onNavigateToRegister('student')}
                 className="text-blue-400 hover:text-blue-300 font-medium"

@@ -6,8 +6,9 @@ import RegisterForm from '../components/auth/RegisterForm';
 import ProfileCarousel from '../components/auth/ProfileCarousel';
 import LoadingScreen from '../components/LoadingScreen';
 import { useGoogleOneTapLogin } from '@react-oauth/google';
+import './Login.css';
 
-const API_URL = import.meta.env.VITE_API_URL || "https://k23dx.onrender.com/api" || "http://localhost:4000/api";
+const API_URL = "https://k23dx.onrender.com/api" || "http://localhost:4000/api";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -225,7 +226,24 @@ const Login = () => {
   const showTwoColumnLayout = isRegistering;
 
   return (
-    <div className="h-screen bg-gradient-to-br from-[#000000] via-[#0a1929] to-[#001e3c] relative overflow-hidden flex flex-col lg:flex-row">
+    <div className="login-bg h-screen bg-gradient-to-br from-[#000000] via-[#0a1929] to-[#001e3c] relative overflow-hidden flex flex-col lg:flex-row">
+      {/* Animated Moon */}
+      <div className="moon"></div>
+
+      {/* Animated Stars Background */}
+      <div className="stars">
+        {[...Array(30)].map((_, i) => (
+          <div key={i} className="star"></div>
+        ))}
+      </div>
+
+      {/* Progress Bar - Shows during Google login redirect */}
+      {isProcessingLogin && (
+        <div className="progress-bar-container">
+          <div className="progress-bar"></div>
+        </div>
+      )}
+
       {/* Back to Landing Page Button */}
       <button
         onClick={() => navigate('/')}

@@ -930,6 +930,19 @@ const getMentorStats = async (req, res) => {
 
     console.log('📊 [getMentorStats] Fetching stats for mentor:', targetMentorId, 'Query mentorId:', mentorId, 'Auth user:', req.user.id);
 
+    // Validate that targetMentorId is a valid MongoDB ObjectId
+    if (!mongoose.Types.ObjectId.isValid(targetMentorId)) {
+      console.log('⚠️ [getMentorStats] Invalid mentor ID format:', targetMentorId);
+      return res.status(200).json({
+        success: true,
+        data: {
+          sessionsCompleted: 0,
+          totalMentoringTime: '0 mins',
+          karmaPoints: 0
+        }
+      });
+    }
+
     // Get mentor user data including karma points
     const mentorUser = await User.findById(targetMentorId).select('karmaPoints');
     const karmaPoints = mentorUser?.karmaPoints || 0;
