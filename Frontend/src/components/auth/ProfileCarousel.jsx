@@ -39,7 +39,7 @@ const ProfileCarousel = () => {
       rating: 5
     },
     {
-      name: "Sanjana Reddy",
+      name: "Karan Mehta",
       role: "Learning Content Writing",
       photo: studentImages[3],
       review: "The mentorship helped me improve my writing skills. Now I'm freelancing as a content writer!",
@@ -75,7 +75,6 @@ const ProfileCarousel = () => {
                 className="w-full h-full object-cover"
               />
             </div>
-            <div className="absolute -bottom-2 -right-2 bg-green-500 w-8 h-8 rounded-full border-4 border-gray-900"></div>
           </div>
         </div>
 
