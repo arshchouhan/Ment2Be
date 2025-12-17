@@ -183,17 +183,17 @@ const SessionTimer = ({ session, onJoinSession, onSessionExpired, userRole = 'st
   const getStatusColor = (status) => {
     switch (status) {
       case 'confirmed':
-        return 'bg-green-900 text-green-300 border-green-700';
+        return 'bg-[#202327] text-white border-white';
       case 'pending':
-        return 'bg-yellow-900 text-yellow-300 border-yellow-700';
+        return 'bg-[#202327] text-white border-white';
       case 'cancelled':
-        return 'bg-red-900 text-red-300 border-red-700';
+        return 'bg-[#202327] text-white border-white';
       case 'completed':
-        return 'bg-blue-900 text-blue-300 border-blue-700';
+        return 'bg-[#202327] text-white border-white';
       case 'expired':
-        return 'bg-gray-900 text-gray-300 border-gray-700';
+        return 'bg-[#202327] text-white border-white';
       default:
-        return 'bg-gray-700 text-gray-300 border-gray-600';
+        return 'bg-[#202327] text-white border-white';
     }
   };
 
@@ -303,7 +303,7 @@ const SessionTimer = ({ session, onJoinSession, onSessionExpired, userRole = 'st
             
             <div className="text-center">
               <div className={`rounded px-1.5 py-0.5 min-w-[2rem] text-sm ${
-                timing.isStartingSoon || timing.isInProgress ? 'bg-red-600 text-white animate-pulse' : 'bg-[#404040] text-white'
+                timing.isStartingSoon || timing.isInProgress ? 'bg-gray-500 text-white animate-pulse' : 'bg-[#404040] text-white'
               }`}>
                 {String(timing.clockDisplay.seconds).padStart(2, '0')}
               </div>
@@ -315,10 +315,10 @@ const SessionTimer = ({ session, onJoinSession, onSessionExpired, userRole = 'st
         <div className="bg-[#1a1a1a] rounded-lg p-0 mb-3">
           <div className="text-center">
             <span className={`text-sm font-medium ${
-              timing.isExpired ? 'text-red-400' :
-              timing.isPending ? 'text-yellow-400' : 
-              timing.isInProgress ? 'text-green-400' :
-              timing.isStartingSoon ? 'text-orange-400' :
+              timing.isExpired ? 'text-gray-400' :
+              timing.isPending ? 'text-gray-300' : 
+              timing.isInProgress ? 'text-gray-200' :
+              timing.isStartingSoon ? 'text-gray-200' :
               timing.timeLeft ? 'text-[#535353]' : 'text-gray-400'
             }`}>
               {timing.message}

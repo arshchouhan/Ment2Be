@@ -12,53 +12,58 @@ const getCompletedSessions = async (req, res) => {
     console.log('Request user object:', req.user);
     console.log('User id:', req.user?.id);
     console.log('User _id:', req.user?._id);
+
+    const userId = req.user.id || req.user._id;
+    const userRole = req.user?.role;
     
-    const studentId = req.user.id || req.user._id;
-    
-    if (!studentId) {
-      console.log('No studentId found in request');
+    if (!userId) {
+      console.log('No userId found in request');
       return res.status(401).json({
         success: false,
         message: 'User not authenticated properly'
       });
     }
-    
-    console.log('Fetching completed sessions for student:', studentId);
-    
-    // Get all bookings for this student using the correct field name 'student'
-    const allBookings = await Booking.find({
-      student: studentId
-    })
-    .populate('mentor', 'name email') // Use 'mentor' not 'mentorId'
-    .sort({ sessionDate: -1, sessionTime: -1 });
+
+    const isMentor = userRole === 'mentor';
+    console.log('Fetching completed sessions for user:', { userId, userRole });
+
+    // Get all bookings for this user based on role
+    const allBookings = isMentor
+      ? await Booking.find({ mentor: userId })
+          .populate('student', 'name email')
+          .sort({ sessionDate: -1, sessionTime: -1 })
+      : await Booking.find({ student: userId })
+          .populate('mentor', 'name email')
+          .sort({ sessionDate: -1, sessionTime: -1 });
 
     console.log('All bookings found:', allBookings.length);
     
     if (allBookings.length === 0) {
-      console.log('No bookings found at all for student:', studentId);
+      console.log('No bookings found at all for user:', userId);
       
       // As a fallback, get all bookings and filter for completed ones
       const fallbackBookings = await Booking.find({
         status: { $in: ['confirmed', 'completed', 'ended', 'finished'] }
       })
-      .populate('mentor', 'name email')
-      .sort({ sessionDate: -1, sessionTime: -1 })
-      .limit(10);
+       .populate(isMentor ? 'student' : 'mentor', 'name email')
+       .sort({ sessionDate: -1, sessionTime: -1 })
+       .limit(10);
       
       console.log('Fallback bookings count:', fallbackBookings.length);
       
-      const sessions = fallbackBookings.map(booking => ({
-        _id: booking._id,
-        sessionId: booking._id,
-        mentorName: booking.mentor?.name || 'Mentor',
-        sessionDate: booking.sessionDate,
-        sessionTime: booking.sessionTime,
-        duration: booking.duration || 60,
-        topic: booking.sessionTitle || 'General Mentoring',
-        status: booking.status,
-        hasNotes: false,
-        hasAIAnalysis: true
-      }));
+       const sessions = fallbackBookings.map(booking => ({
+         _id: booking._id,
+         sessionId: booking._id,
+         mentorName: booking.mentor?.name || 'Mentor',
+         studentName: booking.student?.name || 'Student',
+         sessionDate: booking.sessionDate,
+         sessionTime: booking.sessionTime,
+         duration: booking.duration || 60,
+         topic: booking.sessionTitle || 'General Mentoring',
+         status: booking.status,
+         hasNotes: false,
+         hasAIAnalysis: true
+       }));
 
       return res.json({
         success: true,
@@ -66,12 +71,13 @@ const getCompletedSessions = async (req, res) => {
       });
     }
     
-    console.log('Booking statuses:', allBookings.map(b => ({ 
-      id: b._id, 
-      status: b.status, 
-      date: b.sessionDate,
-      mentor: b.mentor?.name 
-    })));
+     console.log('Booking statuses:', allBookings.map(b => ({ 
+       id: b._id, 
+       status: b.status, 
+       date: b.sessionDate,
+       mentor: b.mentor?.name,
+       student: b.student?.name
+     })));
 
     // Filter for completed sessions
     const completedBookings = allBookings.filter(booking => 
@@ -84,18 +90,19 @@ const getCompletedSessions = async (req, res) => {
     console.log('Completed bookings found:', completedBookings.length);
 
     // Transform data for frontend
-    const sessions = completedBookings.map(booking => ({
-      _id: booking._id,
-      sessionId: booking._id,
-      mentorName: booking.mentor?.name || 'Mentor',
-      sessionDate: booking.sessionDate,
-      sessionTime: booking.sessionTime,
-      duration: booking.duration || 60,
-      topic: booking.sessionTitle || 'General Mentoring',
-      status: booking.status,
-      hasNotes: false,
-      hasAIAnalysis: true
-    }));
+     const sessions = completedBookings.map(booking => ({
+       _id: booking._id,
+       sessionId: booking._id,
+       mentorName: booking.mentor?.name || 'Mentor',
+       studentName: booking.student?.name || 'Student',
+       sessionDate: booking.sessionDate,
+       sessionTime: booking.sessionTime,
+       duration: booking.duration || 60,
+       topic: booking.sessionTitle || 'General Mentoring',
+       status: booking.status,
+       hasNotes: false,
+       hasAIAnalysis: true
+     }));
 
     console.log('Returning sessions:', sessions.length);
 

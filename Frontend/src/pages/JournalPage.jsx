@@ -1,11 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Navbar from '../components/StudentDashboard/Navbar';
+import MentorNavbar from '../components/MentorDashboard/Navbar';
 import RichTextEditor from '../components/Journal/RichTextEditor';
 import SessionSidebar from '../components/Journal/SessionSidebar';
 import sessionDataService from '../services/sessionDataService';
 
-const JournalPage = () => {
+const JournalPage = ({
+  navbarVariant,
+  redirectPath,
+  defaultUserName
+}) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [loading, setLoading] = useState(false);
@@ -18,8 +23,14 @@ const JournalPage = () => {
   const [sessionNotes, setSessionNotes] = useState({});
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [viewMode, setViewMode] = useState('editor'); // 'editor' or 'saved-notes'
+  const [savingNotes, setSavingNotes] = useState(false);
+  const [saveNotesFeedback, setSaveNotesFeedback] = useState(null);
 
   const user = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null;
+  const userRole = user?.role;
+  const effectiveNavbarVariant = navbarVariant || (userRole === 'mentor' ? 'mentor' : 'student');
+  const effectiveRedirectPath = redirectPath || (userRole === 'mentor' ? '/mentor/dashboard' : '/student/dashboard');
+  const NavbarComponent = effectiveNavbarVariant === 'mentor' ? MentorNavbar : Navbar;
 
   // Check if coming from a session
   const fromSession = location.state?.fromSession;
@@ -53,6 +64,7 @@ const JournalPage = () => {
     setSessionInfo(null);
     setError(null);
     setNoConversation(false);
+    setSaveNotesFeedback(null);
 
     try {
       // Load AI insights for the selected session
@@ -85,9 +97,11 @@ const JournalPage = () => {
 
   // Save notes for current session
   const saveCurrentNotes = async () => {
-    if (!selectedSession || !writingContent.trim()) return;
+    if (!selectedSession || !writingContent.trim() || savingNotes) return;
     
     try {
+      setSavingNotes(true);
+      setSaveNotesFeedback(null);
       // Get existing notes for this session
       const existingNotes = sessionNotes[selectedSession._id || selectedSession.sessionId] || '';
       
@@ -130,8 +144,12 @@ const JournalPage = () => {
       
       // Clear the editor after saving
       setWritingContent('');
+      setSaveNotesFeedback({ type: 'success', message: 'Notes saved.' });
     } catch (err) {
       console.error('Error saving notes:', err);
+      setSaveNotesFeedback({ type: 'error', message: 'Failed to save notes. Please try again.' });
+    } finally {
+      setSavingNotes(false);
     }
   };
 
@@ -145,7 +163,7 @@ const JournalPage = () => {
         insights,
         writingContent
       );
-      navigate('/student/dashboard');
+      navigate(effectiveRedirectPath);
     } catch (err) {
       console.error('Error saving journal entry:', err);
     }
@@ -156,45 +174,38 @@ const JournalPage = () => {
     setError(null);
     
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${'https://k23dx.onrender.com' || 'http://localhost:4000'}/api/ai/session-insights/${sessionId}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
+      const data = await sessionDataService.getSessionInsights(sessionId);
 
-      const data = await response.json();
-
-      if (data.success) {
-        // Check if no conversation happened
+      if (data?.success) {
         if (data.noConversation) {
           setNoConversation(true);
+          setInsights(null);
           setSessionInfo({
-            mentorName: data.data.mentorName,
-            studentName: data.data.studentName,
-            sessionDate: data.data.sessionDate,
-            sessionTime: data.data.sessionTime,
-            duration: data.data.duration,
-            actualDuration: data.data.actualDuration
+            mentorName: data.data?.mentorName,
+            studentName: data.data?.studentName,
+            sessionDate: data.data?.sessionDate,
+            sessionTime: data.data?.sessionTime,
+            duration: data.data?.duration,
+            actualDuration: data.data?.actualDuration
           });
         } else {
-          setInsights(data.data.insights);
+          setNoConversation(false);
+          setInsights(data.data?.insights || null);
           setSessionInfo({
-            mentorName: data.data.mentorName,
-            studentName: data.data.studentName,
-            sessionDate: data.data.sessionDate,
-            sessionTime: data.data.sessionTime,
-            duration: data.data.duration,
-            topic: data.data.topic
+            mentorName: data.data?.mentorName,
+            studentName: data.data?.studentName,
+            sessionDate: data.data?.sessionDate,
+            sessionTime: data.data?.sessionTime,
+            duration: data.data?.duration,
+            topic: data.data?.topic
           });
         }
       } else {
-        setError(data.message || 'Failed to generate insights');
+        setError(data?.message || 'Failed to generate insights');
       }
     } catch (err) {
       console.error('Error fetching insights:', err);
-      setError('Failed to connect to AI service. Please try again.');
+      setError(err?.message || 'Failed to connect to AI service. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -202,7 +213,7 @@ const JournalPage = () => {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-gray-100 overflow-x-hidden pt-14">
-      <Navbar userName={user?.name || 'Student'} />
+      <NavbarComponent userName={user?.name || defaultUserName || (effectiveNavbarVariant === 'mentor' ? 'Mentor' : 'Student')} />
       
       <div className="flex h-[calc(100vh-3.5rem)]">
         {/* Sidebar */}
@@ -210,10 +221,12 @@ const JournalPage = () => {
           <SessionSidebar
             activeSessionId={selectedSession?._id || selectedSession?.sessionId}
             onSessionSelect={handleSessionSelect}
+            userRole={userRole}
             currentSessionData={fromSession && sessionId ? {
               _id: sessionId,
               sessionId: sessionId,
               mentorName: sessionInfo?.mentorName,
+              studentName: sessionInfo?.studentName,
               sessionDate: sessionInfo?.sessionDate,
               sessionTime: sessionInfo?.sessionTime,
               duration: sessionInfo?.duration,
@@ -225,22 +238,9 @@ const JournalPage = () => {
 
         {/* Main Content */}
         <div className="flex-1 flex flex-col">
-          {/* Toggle Sidebar Button */}
-          <div className="p-4 border-b border-gray-800">
-            <button
-              onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="px-3 py-1 bg-gray-700 hover:bg-gray-600 text-white rounded-lg text-sm transition-colors flex items-center space-x-2"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-              <span>{sidebarOpen ? 'Hide' : 'Show'} Sessions</span>
-            </button>
-          </div>
-
-          <div className="flex-1 overflow-y-auto">
+          <div className="flex-1 overflow-y-auto hide-scrollbar">
             {selectedSession ? (
-              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+              <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-6 py-8">
                 
 
                 {/* View Toggle Button */}
@@ -396,7 +396,7 @@ const JournalPage = () => {
                     {/* Action Items */}
                     <div className="bg-[#121212] rounded-xl border border-gray-800 p-4">
                       <div className="flex items-center space-x-2 mb-3">
-                        <svg className="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
                         </svg>
                         <h3 className="text-sm font-semibold text-white">Action Items</h3>
@@ -404,7 +404,7 @@ const JournalPage = () => {
                       <ul className="space-y-2">
                         {insights.actionItems?.map((item, index) => (
                           <li key={index} className="flex items-start space-x-2">
-                            <input type="checkbox" className="mt-0.5 w-3 h-3 rounded border-gray-600 bg-gray-700 text-green-500 focus:ring-green-500" />
+                            <input type="checkbox" className="mt-0.5 w-3 h-3 rounded border-gray-600 bg-gray-700 text-gray-300 focus:ring-gray-500" />
                             <span className="text-gray-300 text-sm">{item}</span>
                           </li>
                         ))}
@@ -431,7 +431,7 @@ const JournalPage = () => {
           {/* Writing Section */}
           <div className="space-y-6">
             <div className="flex items-center space-x-3 mb-4">
-              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-green-500 to-teal-500 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-lg bg-gray-700 flex items-center justify-center">
                 <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                 </svg>
@@ -458,14 +458,25 @@ const JournalPage = () => {
               </button>
               <button 
                 onClick={saveCurrentNotes}
-                className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors flex items-center space-x-2 text-sm"
+                disabled={!selectedSession || !writingContent.trim() || savingNotes}
+                className={`px-4 py-2 rounded-lg font-medium transition-colors flex items-center space-x-2 text-sm ${
+                  (!selectedSession || !writingContent.trim() || savingNotes)
+                    ? 'bg-gray-800 text-gray-500 cursor-not-allowed'
+                    : 'bg-gray-700 hover:bg-gray-600 text-white'
+                }`}
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
                 </svg>
-                <span>Save Notes</span>
+                <span>{savingNotes ? 'Saving...' : 'Save Notes'}</span>
               </button>
             </div>
+
+            {saveNotesFeedback && (
+              <div className={`text-sm text-right ${saveNotesFeedback.type === 'success' ? 'text-gray-300' : 'text-red-400'}`}>
+                {saveNotesFeedback.message}
+              </div>
+            )}
           </div>
         </div>
                 ) : (

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FiStar, FiCalendar, FiUsers, FiAward } from 'react-icons/fi';
+import { API_BASE_URL } from '../../config/apiConfig';
 
 const ProfileContent = ({ mentorData, activeTab, mentorId }) => {
   const [reviews, setReviews] = useState([]);
@@ -8,6 +9,7 @@ const ProfileContent = ({ mentorData, activeTab, mentorId }) => {
   const [videos, setVideos] = useState([]);
   const [videosLoading, setVideosLoading] = useState(true);
   const [showFreeTrialModal, setShowFreeTrialModal] = useState(false);
+  const [freeTrialSubmitting, setFreeTrialSubmitting] = useState(false);
 
   useEffect(() => {
     const fetchReviews = async () => {
@@ -87,8 +89,51 @@ const ProfileContent = ({ mentorData, activeTab, mentorId }) => {
     fetchVideos();
   }, [mentorId]);
 
-  const handleFreeTrialClick = () => {
-    setShowFreeTrialModal(true);
+  const handleFreeTrialClick = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+      if (!mentorId) return;
+
+      setFreeTrialSubmitting(true);
+
+      const normalizedApiBase = (API_BASE_URL && API_BASE_URL.includes('8081'))
+        ? null
+        : API_BASE_URL;
+
+      const baseUrls = [
+        'https://k23dx.onrender.com',
+        'http://localhost:4000',
+        normalizedApiBase
+      ].filter(Boolean);
+
+      for (const baseUrl of baseUrls) {
+        try {
+          const url = `${baseUrl}/api/free-trial/request`;
+          const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ mentorId })
+          });
+
+          const data = await response.json();
+          if (response.ok && data?.success) {
+            console.log('[FreeTrial] Using', url);
+            setShowFreeTrialModal(true);
+            return;
+          }
+        } catch {
+          // try next baseUrl
+        }
+      }
+    } catch (err) {
+      return;
+    } finally {
+      setFreeTrialSubmitting(false);
+    }
   };
 
   const renderOverview = () => (
@@ -100,7 +145,7 @@ const ProfileContent = ({ mentorData, activeTab, mentorId }) => {
           <div className="flex-1 text-center lg:text-left">
             <div className="mb-4">
               <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-[#2d2d2d] text-gray-300 border border-[#444]">
-                <svg className="w-3 h-3 mr-1 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                <svg className="w-3 h-3 mr-1 text-white" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clipRule="evenodd" />
                 </svg>
                 Limited Time Offer
@@ -115,25 +160,25 @@ const ProfileContent = ({ mentorData, activeTab, mentorId }) => {
             {/* Features List */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-4 text-left">
               <div className="flex items-center text-xs text-gray-400">
-                <svg className="w-3 h-3 mr-2 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                <svg className="w-3 h-3 mr-2 text-white" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                 </svg>
                 1-on-1 Mentoring Sessions
               </div>
               <div className="flex items-center text-xs text-gray-400">
-                <svg className="w-3 h-3 mr-2 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                <svg className="w-3 h-3 mr-2 text-white" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                 </svg>
                 Group Workshops
               </div>
               <div className="flex items-center text-xs text-gray-400">
-                <svg className="w-3 h-3 mr-2 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                <svg className="w-3 h-3 mr-2 text-white" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                 </svg>
                 Career Guidance
               </div>
               <div className="flex items-center text-xs text-gray-400">
-                <svg className="w-3 h-3 mr-2 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                <svg className="w-3 h-3 mr-2 text-white" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                 </svg>
                 Resource Library Access
@@ -143,12 +188,13 @@ const ProfileContent = ({ mentorData, activeTab, mentorId }) => {
             {/* CTA Button */}
             <button 
               onClick={handleFreeTrialClick}
-              className="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-md transition-colors duration-200"
+              disabled={freeTrialSubmitting}
+              className="inline-flex items-center px-4 py-2 bg-[#202327] hover:bg-gray-700 text-white text-sm font-medium rounded-md transition-colors duration-200 border border-white"
             >
               <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
               </svg>
-              Start Free Trial
+              {freeTrialSubmitting ? 'Sending...' : 'Start Free Trial'}
             </button>
             
             <p className="text-xs text-gray-500 mt-2">
@@ -159,7 +205,7 @@ const ProfileContent = ({ mentorData, activeTab, mentorId }) => {
           {/* Right side - Simple Icon */}
           <div className="flex-shrink-0">
             <div className="w-16 h-16 bg-[#2d2d2d] rounded-lg flex items-center justify-center border border-[#444]">
-              <svg className="w-8 h-8 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
               </svg>
             </div>
@@ -582,6 +628,23 @@ const ProfileContent = ({ mentorData, activeTab, mentorId }) => {
         {renderContent()}
       </div>
 
+      {freeTrialSubmitting && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+          <div className="bg-[#121212] border border-[#333] rounded-lg px-6 py-5 w-full max-w-sm mx-4">
+            <div className="flex items-center">
+              <svg className="w-5 h-5 text-white animate-spin" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" d="M4 12a8 8 0 018-8" stroke="currentColor" strokeWidth="4" strokeLinecap="round" />
+              </svg>
+              <div className="ml-3">
+                <p className="text-white font-semibold">Sending request…</p>
+                <p className="text-sm text-gray-400">Emailing the mentor your details</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Free Trial Confirmation Modal */}
       {showFreeTrialModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -615,7 +678,7 @@ const ProfileContent = ({ mentorData, activeTab, mentorId }) => {
             <div className="p-6">
               <div className="text-center">
                 <div className="mb-4">
-                  <svg className="w-16 h-16 mx-auto text-blue-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-16 h-16 mx-auto text-white mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                   </svg>
                 </div>
@@ -632,7 +695,7 @@ const ProfileContent = ({ mentorData, activeTab, mentorId }) => {
 
                 <button
                   onClick={() => setShowFreeTrialModal(false)}
-                  className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200"
+                  className="w-full bg-[#202327] hover:bg-gray-700 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 border border-white"
                 >
                   Got it, thanks!
                 </button>

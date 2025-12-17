@@ -22,7 +22,7 @@ const TopOfferings = () => {
   return (
     <div className="bg-[#121212] rounded-lg border border-gray-800 p-4 w-[270px]">
       <div className="flex items-center gap-2 mb-3">
-        <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
         </svg>
         <h3 className="text-sm font-semibold text-white">Top Offerings</h3>
@@ -48,14 +48,14 @@ const TopOfferings = () => {
             {/* Header */}
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
-                <FiGift size={20} style={{ color: '#73501c' }} />
+                <FiGift size={20} style={{ color: '#ffffff' }} />
                 <h2 className="text-lg font-semibold text-white">{selectedOffering.name}</h2>
               </div>
               <button
                 onClick={() => setShowModal(false)}
                 className="text-gray-400 hover:text-white transition-colors"
               >
-                <FiX className="h-5 w-5" style={{ color: '#73501c' }} />
+                <FiX className="h-5 w-5" style={{ color: '#ffffff' }} />
               </button>
             </div>
 
@@ -72,19 +72,19 @@ const TopOfferings = () => {
                 <h3 className="text-white font-semibold mb-2">How to Get Started:</h3>
                 <ol className="text-sm text-gray-300 space-y-2">
                   <li className="flex gap-2">
-                    <span className="text-[#da8c18] font-bold">1.</span>
+                    <span className="text-white font-bold">1.</span>
                     <span>Browse mentors offering this service</span>
                   </li>
                   <li className="flex gap-2">
-                    <span className="text-[#da8c18] font-bold">2.</span>
+                    <span className="text-white font-bold">2.</span>
                     <span>Check their reviews and experience</span>
                   </li>
                   <li className="flex gap-2">
-                    <span className="text-[#da8c18] font-bold">3.</span>
+                    <span className="text-white font-bold">3.</span>
                     <span>Book a session at your preferred time</span>
                   </li>
                   <li className="flex gap-2">
-                    <span className="text-[#da8c18] font-bold">4.</span>
+                    <span className="text-white font-bold">4.</span>
                     <span>Connect and achieve your goals</span>
                   </li>
                 </ol>
@@ -101,7 +101,7 @@ const TopOfferings = () => {
               </button>
               <button
                 onClick={() => setShowModal(false)}
-                className="flex-1 px-4 py-2 rounded-lg bg-[#da8c18] text-white hover:bg-[#c97d0f] transition-colors font-medium text-sm"
+                className="flex-1 px-4 py-2 rounded-lg bg-[#202327] text-white hover:bg-gray-700 transition-colors font-medium text-sm border border-white"
               >
                 Find Mentors
               </button>

@@ -31,12 +31,12 @@ const MentorNavbar = ({ userName = 'Mentor' }) => {
   };
 
   const menuItems = [
-    { label: 'Home', href: '/mentor/dashboard', icon: Home, color: 'text-blue-400' },
-    { label: 'My Mentees', href: '/mentor/mentees', icon: Users, color: 'text-blue-400' },
-    { label: 'My Tasks', href: '/mentor/tasks', icon: CheckSquare, color: 'text-blue-400' },
-    { label: 'Messages', href: '/mentor/messages', icon: MessageCircle, color: 'text-blue-400' },
-    { label: 'Get Mentees', href: '/mentor/get-mentees', icon: UserPlus, color: 'text-blue-400' },
-    { label: 'Journal', href: '/mentor/journal', icon: BookOpen, color: 'text-blue-400', badge: 'New' },
+    { label: 'Home', href: '/mentor/dashboard', icon: Home, color: 'text-white' },
+    { label: 'My Mentees', href: '/mentor/mentees', icon: Users, color: 'text-white' },
+    { label: 'My Tasks', href: '/mentor/tasks', icon: CheckSquare, color: 'text-white' },
+    { label: 'Messages', href: '/mentor/messages', icon: MessageCircle, color: 'text-white' },
+    { label: 'Get Mentees', href: '/mentor/get-mentees', icon: UserPlus, color: 'text-white' },
+    { label: 'Journal', href: '/mentor/journal', icon: BookOpen, color: 'text-white', badge: 'New' },
   ];
 
   return (
@@ -49,12 +49,15 @@ const MentorNavbar = ({ userName = 'Mentor' }) => {
           
           {/* Logo and Branding */}
           <Link to="/mentor/dashboard" className="flex items-center gap-2 hover:opacity-80 transition-opacity pl-4">
-            <img src={LogoHat} alt="Ment2Be" className="h-8 w-8" />
-            <span className="text-white font-bold text-lg hidden sm:inline">Ment2Be</span>
+            <img
+              src={LogoHat}
+              alt="Ment2Be"
+              className="h-8 w-8"
+            />
           </Link>
 
           {/* Desktop Navigation Items */}
-          <div className="hidden md:flex items-center gap-3 flex-1 justify-center">
+          <div className="hidden md:flex items-center gap-3 flex-1 justify-start ml-6">
             {menuItems.map((item) => {
               const Icon = item.icon;
               const isActive = location.pathname === item.href;

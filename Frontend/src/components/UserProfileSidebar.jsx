@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LogOut, User, Settings, HelpCircle, X, ChevronDown } from 'lucide-react';
+import { LogOut, User, HelpCircle, X, ChevronDown } from 'lucide-react';
 
 const UserProfileSidebar = ({ userName = 'User' }) => {
   const navigate = useNavigate();
@@ -30,9 +30,8 @@ const UserProfileSidebar = ({ userName = 'User' }) => {
   }, [isOpen]);
 
   const menuItems = [
-    { label: 'Profile', icon: User, action: () => { setIsOpen(false); navigate(`/student/profile`); }, color: 'text-indigo-400' },
-    { label: 'Settings', icon: Settings, action: () => { setIsOpen(false); }, color: 'text-blue-400' },
-    { label: 'Help', icon: HelpCircle, action: () => { setIsOpen(false); }, color: 'text-green-400' },
+    { label: 'Profile', icon: User, action: () => { setIsOpen(false); navigate(`/student/profile`); }, color: 'text-white' },
+    { label: 'Help', icon: HelpCircle, action: () => { setIsOpen(false); }, color: 'text-white' },
   ];
 
   return (
@@ -40,10 +39,10 @@ const UserProfileSidebar = ({ userName = 'User' }) => {
       {/* User Profile Icon Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="p-1.5 rounded-lg hover:bg-gray-700/50 transition-colors flex items-center gap-1"
+        className="p-1.5 rounded-lg border border-white/20 hover:bg-gray-700/50 hover:border-white/30 transition-colors flex items-center gap-1"
         title="Profile Menu"
       >
-        <User size={18} className="text-indigo-400 hover:text-indigo-300" />
+        <User size={18} className="text-white" />
         <ChevronDown size={16} className="text-gray-400" />
       </button>
 
@@ -78,7 +77,7 @@ const UserProfileSidebar = ({ userName = 'User' }) => {
 
         {/* Role Badge */}
         <div className="px-6 py-3">
-          <span className="inline-block px-3 py-1 bg-blue-900/40 text-blue-400 text-xs font-medium rounded-full capitalize border border-blue-700/50">
+          <span className="inline-block px-3 py-1 bg-gray-800/60 text-gray-200 text-xs font-medium rounded-full capitalize border border-gray-700/60">
             {user?.role || 'user'}
           </span>
         </div>
@@ -106,7 +105,7 @@ const UserProfileSidebar = ({ userName = 'User' }) => {
         {/* Logout */}
         <button
           onClick={handleLogout}
-          className="w-full text-left px-6 py-3 flex items-center gap-3 text-sm text-red-400 hover:bg-red-900/20 transition-colors font-medium"
+          className="w-full text-left px-6 py-3 flex items-center gap-3 text-sm text-gray-200 hover:bg-gray-700/50 transition-colors font-medium"
         >
           <LogOut size={18} />
           Logout

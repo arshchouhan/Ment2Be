@@ -44,16 +44,16 @@ if (typeof document !== 'undefined') {
 
 const statusConfig = {
   'not-started': { label: 'Not started', className: 'bg-gray-600 text-gray-100' },
-  'in-progress': { label: 'In Progress', className: 'bg-blue-500 text-white' },
-  'pending-review': { label: 'Pending Review', className: 'bg-yellow-600 text-white' },
-  'completed': { label: 'Completed', className: 'bg-emerald-500 text-white' },
+  'in-progress': { label: 'In Progress', className: 'bg-gray-700 text-gray-100' },
+  'pending-review': { label: 'Pending Review', className: 'bg-gray-700 text-gray-100' },
+  'completed': { label: 'Completed', className: 'bg-gray-700 text-gray-100' },
 };
 
 const priorityConfig = {
-  'low': { label: 'Low Priority', className: 'text-emerald-600' },
-  'medium': { label: 'Medium Priority', className: 'text-amber-600' },
-  'high': { label: 'High Priority', className: 'text-orange-600' },
-  'urgent': { label: 'Urgent Priority', className: 'text-red-600' },
+  'low': { label: 'Low Priority', className: 'text-gray-300' },
+  'medium': { label: 'Medium Priority', className: 'text-gray-300' },
+  'high': { label: 'High Priority', className: 'text-gray-300' },
+  'urgent': { label: 'Urgent Priority', className: 'text-gray-300' },
 };
 
 export function TaskCard({ task, onTaskUpdate }) {
@@ -248,8 +248,8 @@ export function TaskCard({ task, onTaskUpdate }) {
           <div>
             <div className="flex items-start justify-between gap-4 mb-2">
               <h3 className="text-2xl font-bold text-white">{task.title}</h3>
-              <div className="flex items-center gap-1 text-amber-500">
-                <Star className="h-5 w-5 fill-amber-500" />
+              <div className="flex items-center gap-1 text-gray-300">
+                <Star className="h-5 w-5 fill-gray-300" />
                 <span className="text-lg font-medium">{task.points || 0}</span>
               </div>
             </div>
@@ -323,11 +323,11 @@ export function TaskCard({ task, onTaskUpdate }) {
             
             {task.status === 'completed' ? (
               // Completed Task - Show message
-              <div className="flex flex-col items-center justify-center w-full px-4 py-6 border-2 border-dashed border-emerald-700/50 rounded-lg bg-emerald-900/20">
+              <div className="flex flex-col items-center justify-center w-full px-4 py-6 border-2 border-dashed border-gray-700 rounded-lg bg-[#1a1a1a]">
                 <div className="flex flex-col items-center gap-3">
-                  <CheckCircle2 className="h-8 w-8 text-emerald-500" />
+                  <CheckCircle2 className="h-8 w-8 text-gray-200" />
                   <div className="text-center">
-                    <p className="text-sm text-emerald-400 font-medium">Task Completed</p>
+                    <p className="text-sm text-gray-200 font-medium">Task Completed</p>
                     <p className="text-xs text-gray-400 mt-1">This task has been completed and approved</p>
                   </div>
                 </div>
@@ -335,10 +335,10 @@ export function TaskCard({ task, onTaskUpdate }) {
             ) : (task.uploadedFiles?.length > 0) ? (
               // Proof Already Submitted - Show submitted files
               <div className="space-y-3">
-                <div className="flex items-center gap-2 p-3 bg-blue-900/20 border border-blue-700/50 rounded-lg">
-                  <CheckCircle2 className="h-5 w-5 text-blue-400 flex-shrink-0" />
+                <div className="flex items-center gap-2 p-3 bg-[#1a1a1a] border border-gray-700 rounded-lg">
+                  <CheckCircle2 className="h-5 w-5 text-gray-200 flex-shrink-0" />
                   <div>
-                    <p className="text-sm text-blue-400 font-medium">Proof Submitted</p>
+                    <p className="text-sm text-gray-200 font-medium">Proof Submitted</p>
                     <p className="text-xs text-gray-400">Your proof has been submitted for review</p>
                   </div>
                 </div>
@@ -348,11 +348,11 @@ export function TaskCard({ task, onTaskUpdate }) {
                   {task.uploadedFiles.map((file, idx) => (
                     <div key={idx} className="flex items-center justify-between p-3 bg-gray-900 rounded-lg border border-gray-800">
                       <div className="flex items-center gap-3 flex-1 min-w-0">
-                        <File className="h-4 w-4 text-green-400 flex-shrink-0" />
+                        <File className="h-4 w-4 text-gray-400 flex-shrink-0" />
                         <div className="min-w-0 flex-1">
                           <p className="text-sm text-white truncate">{file.name}</p>
                           <p className="text-xs text-gray-500">
-                            {file.size ? formatFileSize(file.size) : 'N/A'} • {file.uploadedAt ? new Date(file.uploadedAt).toLocaleDateString() : 'N/A'}
+                            {formatFileSize(file.size)} • Submitted
                           </p>
                         </div>
                       </div>
@@ -386,7 +386,7 @@ export function TaskCard({ task, onTaskUpdate }) {
                     {uploadedFiles.map((file) => (
                       <div key={file.id} className="flex items-center justify-between p-3 bg-gray-900 rounded-lg border border-gray-800">
                         <div className="flex items-center gap-3 flex-1 min-w-0">
-                          <File className="h-4 w-4 text-blue-400 flex-shrink-0" />
+                          <File className="h-4 w-4 text-gray-300 flex-shrink-0" />
                           <div className="min-w-0 flex-1">
                             <p className="text-sm text-white truncate">{file.name}</p>
                             <p className="text-xs text-gray-500">{formatFileSize(file.size)} • {file.uploadedAt}</p>
@@ -420,7 +420,7 @@ export function TaskCard({ task, onTaskUpdate }) {
               <button
                 onClick={handleSubmitProof}
                 disabled={uploadedFiles.length === 0 || isUpdating}
-                className="flex-1 px-4 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-700 disabled:cursor-not-allowed text-white rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
+                className="flex-1 px-4 py-3 bg-gray-700 hover:bg-gray-600 disabled:bg-gray-700 disabled:cursor-not-allowed text-white rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
               >
                 {isUpdating ? (
                   <>
@@ -434,7 +434,7 @@ export function TaskCard({ task, onTaskUpdate }) {
             ) : (
               <button
                 disabled
-                className="flex-1 px-4 py-3 bg-green-600/50 text-green-400 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
+                className="flex-1 px-4 py-3 bg-gray-800 text-gray-400 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
               >
                 <CheckCircle2 className="w-4 h-4" />
                 Proof Submitted
@@ -465,8 +465,8 @@ export function TaskCard({ task, onTaskUpdate }) {
               <p className="text-sm text-gray-400 line-clamp-2 mt-1">{task.description}</p>
             )}
           </div>
-          <div className="flex items-center gap-1 text-amber-500">
-            <Star className="h-4 w-4 fill-amber-500" />
+          <div className="flex items-center gap-1 text-gray-300">
+            <Star className="h-4 w-4 fill-gray-300" />
             <span className="text-sm font-medium">{task.points || 0}</span>
           </div>
         </div>

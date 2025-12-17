@@ -230,7 +230,7 @@ const ProfileHeader = ({ mentorData, isOwnProfile = false, mentorId }) => {
                   {/* Rating */}
                   <div className="flex items-center">
                     <div className="flex items-center bg-[#2d2d2d] px-3 py-1 rounded-full">
-                      <FiStar className="h-4 w-4 text-yellow-400 mr-1" />
+                      <FiStar className="h-4 w-4 text-white mr-1" />
                       <span className="text-white font-medium">{mentorStats.rating || '0.0'}</span>
                       <span className="text-gray-400 text-sm ml-1">({mentorStats.reviewCount} reviews)</span>
                     </div>
@@ -247,16 +247,16 @@ const ProfileHeader = ({ mentorData, isOwnProfile = false, mentorId }) => {
                 {/* Stats */}
                 <div className="flex flex-wrap items-center gap-4 mt-4 text-sm">
                   <div className="flex items-center text-gray-300">
-                    <FiUsers className="h-4 w-4 mr-1.5 text-gray-400" />
+                    <FiUsers className="h-4 w-4 mr-1.5 text-white" />
                     <span>Mentored {mentorStats.mentoredStudents || 0} students</span>
                   </div>
                   <div className="flex items-center text-gray-300">
-                    <FiClock className="h-4 w-4 mr-1.5 text-green-400" />
+                    <FiClock className="h-4 w-4 mr-1.5 text-white" />
                     <span>{mentorStats.totalSessions || 0} sessions</span>
                   </div>
                   {mentorData.stats?.isTopMentor && (
-                    <div className="flex items-center text-yellow-400 bg-yellow-900/30 px-2 py-0.5 rounded-full">
-                      <FiAward className="h-3.5 w-3.5 mr-1" />
+                    <div className="flex items-center text-white bg-[#2d2d2d] px-2 py-0.5 rounded-full border border-[#444]">
+                      <FiAward className="h-3.5 w-3.5 mr-1 text-white" />
                       <span className="text-xs font-medium">Top Mentor</span>
                     </div>
                   )}
@@ -286,7 +286,7 @@ const ProfileHeader = ({ mentorData, isOwnProfile = false, mentorId }) => {
                 {/* Location and Social Links */}
                 <div className="flex flex-wrap items-center gap-4 mt-4">
                   <div className="flex items-center text-gray-300">
-                    <FiMapPin className="h-4 w-4 mr-1.5 text-red-400" />
+                    <FiMapPin className="h-4 w-4 mr-1.5 text-white" />
                     <span className="text-sm">{mentorData.location || 'Remote'}</span>
                   </div>
                   

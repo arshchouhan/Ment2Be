@@ -1,4 +1,5 @@
-const API_BASE_URL = 'https://k23dx.onrender.com/api' || 'http://localhost:4000/api';
+const rawBaseUrl = import.meta?.env?.VITE_API_URL || 'http://localhost:4000';
+const API_BASE_URL = rawBaseUrl.endsWith('/api') ? rawBaseUrl : `${rawBaseUrl}/api`;
 
 class SessionDataService {
   // Helper method for authenticated fetch requests

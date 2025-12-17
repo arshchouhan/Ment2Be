@@ -80,6 +80,59 @@ public class JwtUtil {
     }
     
     /**
+     * Extract user role from JWT token (with fallback to basic parsing if verification fails)
+     */
+    public String extractUserRole(String token) {
+        try {
+            if (token == null || token.isEmpty()) {
+                System.err.println("[JwtUtil] Token is null or empty");
+                return null;
+            }
+
+            try {
+                Jws<Claims> jws = Jwts.parser()
+                    .verifyWith(Keys.hmacShaKeyFor(JWT_SECRET.getBytes()))
+                    .build()
+                    .parseSignedClaims(token);
+
+                String role = jws.getPayload().get("role", String.class);
+                if (role != null && !role.isBlank()) {
+                    System.out.println("[JwtUtil] Extracted role from token: " + role);
+                    return role;
+                }
+            } catch (JwtException e) {
+                System.err.println("[JwtUtil] JWT verification failed for role extraction, falling back to basic parsing: " + e.getMessage());
+            }
+
+            String[] parts = token.split("\\.");
+            if (parts.length != 3) {
+                System.err.println("[JwtUtil] Invalid JWT format - expected 3 parts, got " + parts.length);
+                return null;
+            }
+
+            String payload = new String(Base64.getUrlDecoder().decode(parts[1]));
+            System.out.println("[JwtUtil] JWT Payload (role extraction): " + payload);
+
+            String searchPattern = "\"role\":\"";
+            if (payload.contains(searchPattern)) {
+                int start = payload.indexOf(searchPattern) + searchPattern.length();
+                int end = payload.indexOf("\"", start);
+                if (end > start) {
+                    String role = payload.substring(start, end);
+                    System.out.println("[JwtUtil] Extracted role from payload: " + role);
+                    return role;
+                }
+            }
+
+            System.err.println("[JwtUtil] Could not find role in JWT payload");
+            return null;
+        } catch (Exception e) {
+            System.err.println("[JwtUtil] Error extracting role from token: " + e.getMessage());
+            return null;
+        }
+    }
+    
+    /**
      * Simple token validation - checks format and expiration if present
      */
     public boolean validateToken(String token) {

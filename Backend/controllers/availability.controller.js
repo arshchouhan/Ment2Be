@@ -11,6 +11,26 @@ const normalizeDateString = (input) => {
 };
 import User from '../models/user.model.js';
 
+const parseTimeToMinutes = (timeStr) => {
+  if (!timeStr || typeof timeStr !== 'string') return Number.POSITIVE_INFINITY;
+  const parts = timeStr.trim().split(' ');
+  if (parts.length < 2) return Number.POSITIVE_INFINITY;
+
+  const time = parts[0];
+  const period = parts[1].toUpperCase();
+  const [hhRaw, mmRaw] = time.split(':');
+
+  const hh = Number(hhRaw);
+  const mm = Number(mmRaw);
+  if (Number.isNaN(hh) || Number.isNaN(mm)) return Number.POSITIVE_INFINITY;
+
+  let hour24 = hh;
+  if (period === 'PM' && hh !== 12) hour24 += 12;
+  if (period === 'AM' && hh === 12) hour24 = 0;
+
+  return hour24 * 60 + mm;
+};
+
 // Save or update mentor availability
 export const saveAvailability = async (req, res) => {
   try {
@@ -252,6 +272,61 @@ export const getAvailability = async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Failed to fetch availability',
+      error: error.message
+    });
+  }
+};
+
+// Get next (earliest upcoming) available slot for a mentor (public)
+export const getNextAvailableSlot = async (req, res) => {
+  try {
+    const { mentorId } = req.params;
+
+    const todayStr = new Date().toISOString().substring(0, 10);
+
+    const availabilities = await Availability.find({
+      mentor: mentorId,
+      isActive: true,
+      date: { $gte: todayStr }
+    }).sort({ date: 1 });
+
+    if (!availabilities || availabilities.length === 0) {
+      return res.status(200).json({
+        success: true,
+        data: null,
+        message: 'No upcoming availability found'
+      });
+    }
+
+    for (const availability of availabilities) {
+      const unbooked = (availability.timeSlots || []).filter((slot) => slot && slot.isBooked !== true);
+      if (unbooked.length === 0) continue;
+
+      const sorted = [...unbooked].sort((a, b) => parseTimeToMinutes(a.startTime) - parseTimeToMinutes(b.startTime));
+      const first = sorted[0];
+
+      return res.status(200).json({
+        success: true,
+        data: {
+          date: availability.date,
+          startTime: first.startTime,
+          endTime: first.endTime,
+          duration: availability.duration
+        },
+        message: 'Next available slot retrieved successfully'
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: null,
+      message: 'No unbooked slots found'
+    });
+  } catch (error) {
+    console.error('Error fetching next available slot:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to fetch next available slot',
       error: error.message
     });
   }

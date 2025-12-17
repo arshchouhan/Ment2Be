@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useNavigate } from "react-router-dom"
 import './ForumPage.css'
 import * as forumService from "../../services/forumService"
@@ -21,11 +21,11 @@ import {
 } from "lucide-react"
 
 const domains = [
-  { id: "for-you", label: "For You", icon: Zap, color: "text-yellow-400" },
-  { id: "engineering", label: "Engineering", icon: Monitor, color: "text-blue-400" },
-  { id: "data-science", label: "Data Science", icon: BarChart3, color: "text-purple-400" },
-  { id: "business", label: "Business", icon: Briefcase, color: "text-green-400" },
-  { id: "product", label: "Product", icon: Lightbulb, color: "text-orange-400" },
+  { id: "for-you", label: "For You", icon: Zap, color: "text-white" },
+  { id: "engineering", label: "Engineering", icon: Monitor, color: "text-white" },
+  { id: "data-science", label: "Data Science", icon: BarChart3, color: "text-white" },
+  { id: "business", label: "Business", icon: Briefcase, color: "text-white" },
+  { id: "product", label: "Product", icon: Lightbulb, color: "text-white" },
 ]
 
 export function ForumPage() {
@@ -37,6 +37,8 @@ export function ForumPage() {
   const [filteredQuestions, setFilteredQuestions] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [isSortOpen, setIsSortOpen] = useState(false)
+  const sortDropdownRef = useRef(null)
 
   const user = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null;
 
@@ -68,6 +70,28 @@ export function ForumPage() {
   useEffect(() => {
     fetchQuestions();
   }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (sortDropdownRef.current && !sortDropdownRef.current.contains(event.target)) {
+        setIsSortOpen(false)
+      }
+    }
+
+    const handleEscape = (event) => {
+      if (event.key === 'Escape') {
+        setIsSortOpen(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    window.addEventListener('keydown', handleEscape)
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+      window.removeEventListener('keydown', handleEscape)
+    }
+  }, [])
 
   // Filter and sort questions
   const filterAndSortQuestions = (questionsData, domain, search, sort) => {
@@ -116,6 +140,8 @@ export function ForumPage() {
     filterAndSortQuestions(questions, selectedDomain, searchQuery, sort);
   };
 
+  const sortOptions = ["Most Recent", "Most Answered", "Most Upvoted"]
+
   return (
     <div className="h-screen bg-[#000000] overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 py-8 h-full flex flex-col">
@@ -135,13 +161,13 @@ export function ForumPage() {
 
             {/* Search Bar */}
             <div className="relative mb-8">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-cyan-400" />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-white" />
               <input
                 type="text"
                 placeholder="Search Questions Here"
                 value={searchQuery}
                 onChange={(e) => handleSearch(e.target.value)}
-                className="w-full pl-12 h-12 border border-[#404040] rounded-lg text-blue-500 placeholder:text-blue-500 bg-[#121212] focus:outline-none focus:border-blue-500"
+                className="w-full pl-12 h-12 border border-[#404040] rounded-lg text-white placeholder:text-[#535353] bg-[#121212] focus:outline-none focus:border-white"
               />
             </div>
 
@@ -158,8 +184,8 @@ export function ForumPage() {
                       onClick={() => handleDomainChange(domain.id)}
                       className={`flex flex-col items-center justify-center px-6 py-4 rounded-lg border transition-all min-w-[100px] ${
                         isSelected
-                          ? "border-blue-500 text-blue-500 bg-[#121212]"
-                          : "border-[#404040] text-[#b3b3b3] hover:border-blue-300 bg-[#121212]"
+                          ? "border-white text-white bg-[#121212]"
+                          : "border-[#404040] text-[#b3b3b3] hover:border-white bg-[#121212]"
                       }`}
                     >
                       <Icon className={`h-6 w-6 mb-2 ${domain.color}`} />
@@ -176,15 +202,38 @@ export function ForumPage() {
                 <h2 className="text-lg font-semibold text-white">Questions</h2>
                 <div className="flex items-center gap-2 text-sm text-[#b3b3b3]">
                   <span>Sort by:</span>
-                  <select 
-                    value={sortBy}
-                    onChange={(e) => handleSortChange(e.target.value)}
-                    className="flex items-center gap-1 font-medium text-white bg-[#121212] border border-[#404040] rounded px-2 py-1 cursor-pointer"
-                  >
-                    <option>Most Recent</option>
-                    <option>Most Answered</option>
-                    <option>Most Upvoted</option>
-                  </select>
+                  <div ref={sortDropdownRef} className="relative">
+                    <button
+                      type="button"
+                      onClick={() => setIsSortOpen((v) => !v)}
+                      className="inline-flex items-center gap-2 font-medium text-white bg-[#121212] border border-[#404040] rounded-lg px-3 py-2 cursor-pointer hover:border-white transition-colors"
+                    >
+                      <span className="text-sm">{sortBy}</span>
+                      <ChevronDown className={`h-4 w-4 text-white transition-transform ${isSortOpen ? 'rotate-180' : ''}`} />
+                    </button>
+
+                    {isSortOpen && (
+                      <div className="absolute right-0 mt-2 w-48 bg-[#121212] border border-[#404040] rounded-lg shadow-xl overflow-hidden z-50">
+                        {sortOptions.map((option) => (
+                          <button
+                            key={option}
+                            type="button"
+                            onClick={() => {
+                              handleSortChange(option)
+                              setIsSortOpen(false)
+                            }}
+                            className={`w-full text-left px-4 py-2 text-sm transition-colors ${
+                              option === sortBy
+                                ? 'bg-[#2a2d32] text-white'
+                                : 'text-[#b3b3b3] hover:bg-[#2a2d32] hover:text-white'
+                            }`}
+                          >
+                            {option}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
 
@@ -215,7 +264,7 @@ export function ForumPage() {
                   <div className="flex justify-center mb-6">
                     <div className="relative w-24 h-24">
                       <div className="absolute inset-0 bg-gradient-to-br from-gray-700 to-gray-800 rounded-full flex items-center justify-center">
-                        <MessageCircle className="h-12 w-12 text-gray-500" />
+                        <MessageCircle className="h-12 w-12 text-white" />
                       </div>
                     </div>
                   </div>
@@ -266,7 +315,7 @@ export function ForumPage() {
                     <div key={question._id || question.id} className="p-5 border border-[#404040] rounded-lg bg-[#121212]">
                       {/* Author Info */}
                       <div className="flex items-center gap-2 mb-3">
-                        <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center overflow-hidden flex-shrink-0">
+                        <div className="h-8 w-8 rounded-full bg-[#2a2d32] border border-[#404040] flex items-center justify-center overflow-hidden flex-shrink-0">
                           {question.author?.profilePicture ? (
                             <img 
                               src={question.author.profilePicture} 
@@ -282,7 +331,7 @@ export function ForumPage() {
                           ) : null}
                           <span 
                             style={{ display: question.author?.profilePicture ? 'none' : 'flex' }}
-                            className="text-blue-600 text-xs font-medium w-full h-full flex items-center justify-center bg-blue-100"
+                            className="text-white text-xs font-medium w-full h-full flex items-center justify-center"
                           >
                             {authorInitials}
                           </span>
@@ -310,7 +359,7 @@ export function ForumPage() {
                         <div className="mb-4">
                           <p className="text-[#b3b3b3] text-sm leading-relaxed">{question.answers[0].content}</p>
                           {question.answers.length > 1 && (
-                            <button className="text-blue-500 text-sm font-medium mt-2 hover:underline">
+                            <button className="text-white text-sm font-medium mt-2 hover:underline">
                               Read all {question.answers.length} answers
                             </button>
                           )}
@@ -496,8 +545,8 @@ export function ForumPage() {
                   <div className="space-y-2">
                     {topMentee.map((mentee, idx) => (
                       <div key={idx} className="flex items-center gap-3 p-2 bg-[#1a1a1a] rounded">
-                        <div className="text-yellow-400 font-bold text-lg">🏆</div>
-                        <div className="h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center flex-shrink-0 overflow-hidden">
+                        <div className="text-white font-bold text-lg">🏆</div>
+                        <div className="h-8 w-8 rounded-full bg-[#2a2d32] border border-[#404040] flex items-center justify-center flex-shrink-0 overflow-hidden">
                           {mentee.profilePicture ? (
                             <img 
                               src={mentee.profilePicture} 
@@ -513,7 +562,7 @@ export function ForumPage() {
                           ) : null}
                           <span 
                             style={{ display: mentee.profilePicture ? 'none' : 'flex' }}
-                            className="text-white font-medium text-xs w-full h-full flex items-center justify-center bg-blue-500"
+                            className="text-white font-medium text-xs w-full h-full flex items-center justify-center"
                           >
                             {mentee.name ? mentee.name.split(' ').map(n => n[0]).join('') : '?'}
                           </span>

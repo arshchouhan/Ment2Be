@@ -6,6 +6,7 @@ import {
   deleteAvailability,
   getAvailableSlots,
   getLatestAvailability,
+  getNextAvailableSlot,
   quickSetupAvailability
 } from '../controllers/availability.controller.js';
 
@@ -17,6 +18,9 @@ router.get('/mentor/:mentorId', getAvailableSlots);
 
 // Get latest availability for a mentor (public display)
 router.get('/latest/:mentorId', getLatestAvailability);
+
+// Get next (earliest upcoming) available slot for a mentor (public display)
+router.get('/next/:mentorId', getNextAvailableSlot);
 
 // PROTECTED ROUTES - Authentication required (for mentors managing their own availability)
 // Save mentor availability

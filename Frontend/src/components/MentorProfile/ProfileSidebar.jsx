@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FiStar, FiUsers, FiClock, FiTrendingUp, FiCalendar } from 'react-icons/fi';
+import { API_BASE_URL } from '../../config/apiConfig';
 
 const ProfileSidebar = ({ mentorData, onBookSession, mentorId }) => {
   const [stats, setStats] = useState({
@@ -8,6 +9,7 @@ const ProfileSidebar = ({ mentorData, onBookSession, mentorId }) => {
     karmaPoints: 0
   });
   const [loading, setLoading] = useState(true);
+  const [earliestSlot, setEarliestSlot] = useState(null);
 
   useEffect(() => {
     const fetchMentorStats = async () => {
@@ -55,6 +57,82 @@ const ProfileSidebar = ({ mentorData, onBookSession, mentorId }) => {
     fetchMentorStats();
   }, [mentorId]);
 
+  useEffect(() => {
+    const fetchEarliestSlot = async () => {
+      try {
+        if (!mentorId) return;
+
+        const normalizedApiBase = (API_BASE_URL && API_BASE_URL.includes('8081'))
+          ? null
+          : API_BASE_URL;
+
+        const baseUrls = [
+          'https://k23dx.onrender.com',
+          'http://localhost:4000',
+          normalizedApiBase
+        ].filter(Boolean);
+
+        const tryFetchSlot = async (url) => {
+          try {
+            const response = await fetch(url);
+            let data = null;
+            try {
+              data = await response.json();
+            } catch {
+              data = null;
+            }
+            return { response, data };
+          } catch {
+            return { response: null, data: null };
+          }
+        };
+
+        const formatSlot = (date, startTime) => {
+          if (!date || !startTime) return null;
+          const dateObj = new Date(date);
+          const formattedDate = Number.isNaN(dateObj.getTime())
+            ? date
+            : dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+          return `${formattedDate} • ${startTime}`;
+        };
+
+        for (const baseUrl of baseUrls) {
+          // 1) Prefer the proper "next" endpoint (earliest upcoming slot)
+          const nextUrl = `${baseUrl}/api/mentor-availability/next/${mentorId}`;
+          const nextRes = await tryFetchSlot(nextUrl);
+
+          if (nextRes.response?.ok && nextRes.data?.success && nextRes.data?.data?.date && nextRes.data?.data?.startTime) {
+            setEarliestSlot(formatSlot(nextRes.data.data.date, nextRes.data.data.startTime));
+            console.log('[Availability] Using', nextUrl);
+            return;
+          }
+
+          // 2) Fallback: older deployments may only have /latest
+          const latestUrl = `${baseUrl}/api/mentor-availability/latest/${mentorId}`;
+          const latestRes = await tryFetchSlot(latestUrl);
+
+          const date = latestRes.data?.data?.date;
+          const slots = latestRes.data?.data?.timeSlots;
+          const firstUnbooked = Array.isArray(slots)
+            ? slots.find((slot) => slot && slot.isBooked !== true)
+            : null;
+
+          if (latestRes.response?.ok && latestRes.data?.success && date && firstUnbooked?.startTime) {
+            setEarliestSlot(formatSlot(date, firstUnbooked.startTime));
+            console.log('[Availability] Using', latestUrl);
+            return;
+          }
+        }
+
+        setEarliestSlot(null);
+      } catch (err) {
+        setEarliestSlot(null);
+      }
+    };
+
+    fetchEarliestSlot();
+  }, [mentorId]);
+
   return (
     <div className="space-y-6">
       {/* Achievements/Stats Card */}
@@ -64,7 +142,7 @@ const ProfileSidebar = ({ mentorData, onBookSession, mentorId }) => {
         <div className="space-y-4">
           {/* Rating */}
           <div className="flex items-center">
-            <FiStar className="h-5 w-5 text-yellow-400 mr-3" />
+            <FiStar className="h-5 w-5 text-white mr-3" />
             <div>
               <div className="font-semibold text-white">{mentorData.rating.toFixed(1)}/5.0</div>
               <div className="text-sm text-gray-400">Rating ({mentorData.reviews} reviews)</div>
@@ -73,7 +151,7 @@ const ProfileSidebar = ({ mentorData, onBookSession, mentorId }) => {
 
           {/* Sessions completed */}
           <div className="flex items-center">
-            <FiUsers className="h-5 w-5 text-blue-400 mr-3" />
+            <FiUsers className="h-5 w-5 text-white mr-3" />
             <div>
               <div className="font-semibold text-white">{loading ? '...' : stats.sessionsCompleted}</div>
               <div className="text-sm text-gray-400">Sessions completed</div>
@@ -82,7 +160,7 @@ const ProfileSidebar = ({ mentorData, onBookSession, mentorId }) => {
 
           {/* Total mentoring time */}
           <div className="flex items-center">
-            <FiClock className="h-5 w-5 text-green-400 mr-3" />
+            <FiClock className="h-5 w-5 text-white mr-3" />
             <div>
               <div className="font-semibold text-white">{loading ? '...' : stats.totalMentoringTime}</div>
               <div className="text-sm text-gray-400">Total mentoring time</div>
@@ -91,7 +169,7 @@ const ProfileSidebar = ({ mentorData, onBookSession, mentorId }) => {
 
           {/* Karma Points */}
           <div className="flex items-center">
-            <FiTrendingUp className="h-5 w-5 text-purple-400 mr-3" />
+            <FiTrendingUp className="h-5 w-5 text-white mr-3" />
             <div>
               <div className="font-semibold text-white">{loading ? '...' : stats.karmaPoints}</div>
               <div className="text-sm text-gray-400">Karma Points</div>
@@ -123,7 +201,7 @@ const ProfileSidebar = ({ mentorData, onBookSession, mentorId }) => {
           <div className="flex justify-between text-sm">
             <span className="text-gray-400">Hourly Rate:</span>
             <span className="font-medium text-white">
-              {mentorData.hourlyRate > 0 ? `$${mentorData.hourlyRate}` : 'Free'}
+              {mentorData?.hourlyRate > 0 ? `$${mentorData.hourlyRate}` : 'Free'}
             </span>
           </div>
           <div className="flex justify-between text-sm">
@@ -132,23 +210,13 @@ const ProfileSidebar = ({ mentorData, onBookSession, mentorId }) => {
           </div>
           <div className="flex justify-between text-sm">
             <span className="text-gray-400">Availability:</span>
-            <span className="font-medium text-green-400">Available now</span>
+            <span className="font-medium text-white">{earliestSlot ? earliestSlot : 'Not set'}</span>
           </div>
-        </div>
-
-        {/* Availability Status Badges */}
-        <div className="flex items-center gap-2 mb-4">
-          <span className="px-3 py-1 rounded-full text-xs font-semibold text-white" style={{ backgroundColor: '#da8c18' }}>
-            1 available
-          </span>
-          <span className="px-3 py-1 rounded-full text-xs font-semibold text-white" style={{ backgroundColor: '#da8c18' }}>
-            1 unavailable
-          </span>
         </div>
 
         <button 
           onClick={onBookSession}
-          className="w-full bg-green-600 text-white py-2.5 px-4 rounded-md hover:bg-green-700 transition-colors font-medium flex items-center justify-center"
+          className="w-full bg-[#202327] text-white py-2.5 px-4 rounded-md hover:bg-gray-700 transition-colors font-medium flex items-center justify-center border border-white"
         >
           <FiCalendar className="h-4 w-4 mr-2" />
           Book Session

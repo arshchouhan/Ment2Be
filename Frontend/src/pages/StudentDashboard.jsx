@@ -7,6 +7,7 @@ import KarmaPointsCard from '../components/KarmaPointsCard/KarmaPointsCard';
 import RateModal from '../components/StudentDashboard/RateModal';
 import ReviewModal from '../components/StudentDashboard/ReviewModal';
 import VideoUploadModal from '../components/StudentDashboard/VideoUploadModal';
+import PageLoader from '../components/PageLoader';
 import { formatDistanceToNow } from 'date-fns';
 import { fetchStudentTasks } from '../services/studentTasksApi';
 
@@ -70,7 +71,7 @@ const MentorCard = ({ mentor, onNavigate }) => {
         </div>
         <div className="flex items-center space-x-2">
           <div className="flex items-center bg-[#535353] text-white text-xs font-medium px-2 py-0.5 rounded">
-            <FiStar className="text-yellow-400 mr-1" size={12} />
+            <FiStar className="text-white mr-1" size={12} />
             {Number(mentor.averageRating || 0).toFixed(1)} ({mentor.totalReviews || 0})
           </div>
           <span className="text-xs bg-gray-600 text-white px-2 py-0.5 rounded-full whitespace-nowrap">{formatLastInteraction(mentor.lastInteraction || mentor.createdAt || mentor.updatedAt)}</span>
@@ -78,8 +79,8 @@ const MentorCard = ({ mentor, onNavigate }) => {
       </div>
       {!loadingAvail && availability && (
         <div className="flex items-center space-x-2 text-xs">
-          <FiCalendar className="w-3 h-3 text-green-400" />
-          <span className="text-green-400 font-medium">{availability.timeSlots?.length || 0} slots available</span>
+          <FiCalendar className="w-3 h-3 text-white" />
+          <span className="text-gray-300 font-medium">{availability.timeSlots?.length || 0} slots available</span>
         </div>
       )}
     </div>
@@ -722,11 +723,7 @@ const UserDashboard = () => {
   const profileCompletion = calculateProfileCompletion(profile);
 
   if (loading)
-    return (
-      <div className="min-h-screen bg-[#000000] flex items-center justify-center">
-        <p className="text-gray-400 text-sm">Loading your dashboard...</p>
-      </div>
-    );
+    return <PageLoader label="Loading dashboard..." />;
 
   return (
     <div className="h-screen bg-[#000000] text-white overflow-hidden flex flex-col">
@@ -755,7 +752,7 @@ const UserDashboard = () => {
           {/* LEFT COLUMN - Profile Card */}
           <aside className="col-span-2 bg-[#121212] rounded-lg p-4 border border-gray-700 h-fit">
             <div className="flex flex-col items-center text-center space-y-4">
-              <div className="relative w-32 h-32">
+              <div className="relative">
                 <div className="w-full h-full rounded-lg bg-gray-700 overflow-hidden border-4 border-gray-600 flex items-center justify-center">
                   {profile?.profilePicture ? (
                     <img src={profile.profilePicture} alt={profile.name} className="w-full h-full object-cover" />
@@ -779,17 +776,17 @@ const UserDashboard = () => {
                   onClick={() => navigate('/student/mentors')}
                   className="w-full flex items-center space-x-2 px-3 py-1.5 text-gray-300 text-sm hover:bg-[#202327] rounded-lg transition-colors text-left"
                 >
-                  <FiUser className="w-4 h-4 text-blue-400" />
+                  <FiUser className="w-4 h-4 text-white" />
                   <span>Mentors: {connectedMentorsLoading ? '...' : connectedMentorsCount}</span>
                 </button>
 
                 <div className="flex items-center space-x-2 px-3 py-1.5 text-gray-300 text-sm">
-                  <FiAward className="w-4 h-4 text-purple-400" />
+                  <FiAward className="w-4 h-4 text-white" />
                   <span>Karma Points: {profile?.karmaPoints || 0}</span>
                 </div>
 
                 <div className="flex items-center space-x-2 px-3 py-1.5 text-gray-300 text-sm">
-                  <FiCalendar className="w-4 h-4 text-green-400" />
+                  <FiCalendar className="w-4 h-4 text-white" />
                   <span>Sessions: {profile?.totalSessions || 0}</span>
                 </div>
 
@@ -801,7 +798,7 @@ const UserDashboard = () => {
                   }}
                   className="w-full flex items-center space-x-2 px-3 py-1.5 text-left text-gray-300 hover:bg-[#212121] rounded-lg transition-colors text-sm mt-2"
                 >
-                  <FiLogOut className="w-4 h-4 text-red-400" />
+                  <FiLogOut className="w-4 h-4 text-white" />
                   <span>Sign out</span>
                 </button>
               </div>
@@ -822,7 +819,7 @@ const UserDashboard = () => {
                     <p className="text-sm text-gray-400 mt-1">Help mentors get to know you better</p>
                   </div>
                   <button onClick={handleCloseProfileForm} className="p-2 hover:bg-[#202327] rounded-lg transition-colors">
-                    <FiX className="w-5 h-5 text-gray-400" />
+                    <FiX className="w-5 h-5 text-white" />
                   </button>
                 </div>
 
@@ -989,7 +986,7 @@ const UserDashboard = () => {
                 <div className="bg-[#121212] rounded-lg shadow p-4 border border-gray-700">
                   <div className="flex items-center justify-between mb-3">
                     <h2 className="text-sm font-semibold text-white flex items-center">
-                      <svg className="w-4 h-4 mr-2 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-4 h-4 mr-2 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
                       </svg>
                       Your Tasks
@@ -1006,20 +1003,20 @@ const UserDashboard = () => {
                       {recentTasks.map((task) => {
                         const getStatusColor = (status) => {
                           switch(status) {
-                            case 'completed': return 'bg-green-900 text-green-300';
-                            case 'in-progress': return 'bg-blue-900 text-blue-300';
-                            case 'pending-review': return 'bg-yellow-900 text-yellow-300';
-                            case 'not-started': return 'bg-gray-700 text-gray-300';
-                            default: return 'bg-gray-700 text-gray-300';
+                            case 'completed': return 'bg-gray-800 text-gray-200 border border-gray-700';
+                            case 'in-progress': return 'bg-gray-800 text-gray-200 border border-gray-700';
+                            case 'pending-review': return 'bg-gray-800 text-gray-200 border border-gray-700';
+                            case 'not-started': return 'bg-gray-800 text-gray-200 border border-gray-700';
+                            default: return 'bg-gray-800 text-gray-200 border border-gray-700';
                           }
                         };
                         
                         const getPriorityColor = (priority) => {
                           switch(priority) {
-                            case 'high': return 'bg-red-900 text-red-300';
-                            case 'medium': return 'bg-orange-900 text-orange-300';
-                            case 'low': return 'bg-blue-900 text-blue-300';
-                            default: return 'bg-gray-700 text-gray-300';
+                            case 'high': return 'bg-gray-800 text-gray-200 border border-gray-700';
+                            case 'medium': return 'bg-gray-800 text-gray-200 border border-gray-700';
+                            case 'low': return 'bg-gray-800 text-gray-200 border border-gray-700';
+                            default: return 'bg-gray-800 text-gray-200 border border-gray-700';
                           }
                         };
 
@@ -1037,6 +1034,7 @@ const UserDashboard = () => {
                                 </span>
                                 <span className="text-[10px] text-gray-400 ml-auto">{formatLastInteraction(task.createdAt)}</span>
                               </div>
+
                             </div>
                           </div>
                         );
@@ -1045,7 +1043,7 @@ const UserDashboard = () => {
                   ) : (
                     <div className="text-center py-6">
                       <p className="text-gray-400 text-sm">No tasks assigned yet</p>
-                      <button onClick={() => navigate('/student/tasks')} className="mt-2 text-blue-400 hover:text-blue-300 text-xs font-medium">View all tasks</button>
+                      <button onClick={() => navigate('/student/tasks')} className="mt-2 text-gray-300 hover:text-white text-xs font-medium">View all tasks</button>
                     </div>
                   )}
                 </div>
@@ -1053,7 +1051,7 @@ const UserDashboard = () => {
                 <div className="bg-[#121212] rounded-lg shadow p-4 border border-gray-700 mb-4">
                   <div className="flex items-center justify-between mb-3">
                     <h2 className="text-sm font-semibold text-white flex items-center">
-                      <svg className="w-4 h-4 mr-2 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-4 h-4 mr-2 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                       </svg>
                       Recent Messages
@@ -1097,8 +1095,8 @@ const UserDashboard = () => {
                 <div className="bg-[#121212] rounded-lg shadow p-4 border border-gray-700">
                   <div className="flex items-center justify-between mb-3">
                     <h2 className="text-sm font-semibold text-white flex items-center">
-                      <svg className="w-4 h-4 mr-2 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                      <svg className="w-4 h-4 mr-2 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
                       </svg>
                       Rate Your Mentor
                     </h2>
@@ -1146,8 +1144,9 @@ const UserDashboard = () => {
                                 }}
                                 className="px-2 py-1.5 bg-gray-600 hover:bg-gray-700 text-white rounded text-xs font-medium transition-colors flex items-center justify-center"
                               >
-                                <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
                                 </svg>
                                 Rate
                               </button>
@@ -1248,7 +1247,7 @@ const UserDashboard = () => {
                 <div className="bg-[#121212] rounded-lg shadow p-4 border border-gray-700">
                   <div className="flex items-center justify-between mb-3">
                     <h2 className="text-sm font-semibold text-white flex items-center">
-                      <svg className="w-4 h-4 mr-2 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-4 h-4 mr-2 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                       </svg>
                       Your Recent Mentors
@@ -1258,7 +1257,7 @@ const UserDashboard = () => {
 
                   {mentorsLoading ? (
                     <div className="flex items-center justify-center py-8">
-                      <FiLoader className="animate-spin text-gray-400 mr-2" />
+                      <FiLoader className="animate-spin text-white mr-2" />
                       <span className="text-gray-400 text-sm">Loading mentors...</span>
                     </div>
                   ) : mentors.length > 0 ? (
@@ -1293,11 +1292,12 @@ const UserDashboard = () => {
                       {profile.profilePicture ? (
                         <img src={profile.profilePicture} alt={profile.name} className="w-full h-full object-cover" />
                       ) : (
-                        <FiUser className="w-5 h-5 text-blue-400" />
+                        <FiUser className="w-5 h-5 text-white" />
                       )}
                     </div>
                     <div>
                       <p className="text-xs font-medium text-white">{profile.name}</p>
+
                       <div className="flex items-center space-x-2">
                         <span className="text-xs text-gray-300">{profile.karmaPoints || 0} Karma</span>
                         <span className="text-[10px] text-gray-500">•</span>
@@ -1314,11 +1314,11 @@ const UserDashboard = () => {
                   <div className="w-full bg-gray-700 rounded-full h-1.5 mb-3">
                     <div 
                       className="h-1.5 rounded-full transition-all duration-300" 
-                      style={{ width: `${profileCompletion}%`, backgroundColor: '#da8c18' }}
+                      style={{ width: `${profileCompletion}%`, backgroundColor: '#ffffff' }}
                     ></div>
                   </div>
                   <button onClick={handleCompleteProfile} className="mt-3 w-full flex items-center justify-center px-3 py-2 border border-gray-600 rounded-lg text-xs font-semibold text-gray-300 bg-[#202327] hover:bg-[#2a2d32] transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500">
-                    <FiUserPlus className="w-4 h-4 mr-2 text-purple-400" />
+                    <FiUserPlus className="w-4 h-4 mr-2 text-white" />
                     Complete Your Profile
                   </button>
                 </div>
@@ -1329,7 +1329,7 @@ const UserDashboard = () => {
             <div className="bg-[#121212] rounded-lg shadow p-4 border border-gray-700">
               <div className="flex items-center justify-between mb-3">
                 <h2 className="text-sm font-semibold text-white flex items-center">
-                  <FiCalendar className="w-3.5 h-3.5 mr-1.5 text-yellow-400" />
+                  <FiCalendar className="w-3.5 h-3.5 mr-1.5 text-white" />
                   Next Session
                 </h2>
                 <button onClick={() => navigate('/student/sessions')} className="text-[#535353] hover:text-white text-xs font-medium">View All</button>
@@ -1349,11 +1349,11 @@ const UserDashboard = () => {
                 </div>
               ) : (
                 <div className="text-center py-4">
-                  <FiCalendar className="w-8 h-8 text-yellow-400 mx-auto mb-2" />
+                  <FiCalendar className="w-8 h-8 text-white mx-auto mb-2" />
                   <h3 className="text-xs font-medium text-gray-300 mb-1">No upcoming sessions</h3>
                   <p className="text-[11px] text-gray-400 mb-2">Book a session with a mentor to get started!</p>
                   <button onClick={() => navigate('/student/explore')} className="inline-flex items-center px-2.5 py-1 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors text-xs">
-                    <FiUser className="w-3 h-3 mr-1.5 text-blue-400" />
+                    <FiUser className="w-3 h-3 mr-1.5 text-white" />
                     Find Mentors
                   </button>
                 </div>

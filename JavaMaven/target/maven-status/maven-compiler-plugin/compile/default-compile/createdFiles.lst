@@ -22,6 +22,7 @@ com\app\controllers\TaskController$11.class
 com\app\chat\ChatController$ChatResponse.class
 com\app\model\Conversation$Participant.class
 com\app\controllers\TaskController$2.class
+com\app\controllers\JournalController.class
 com\app\service\QuestionService.class
 com\app\karma\KarmaController$KarmaResponse.class
 com\app\controllers\TaskController$14.class

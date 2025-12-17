@@ -145,8 +145,8 @@ export function StudentSessionCard({
 
   const historyStatusConfig = {
     completed: { icon: FiCheckCircle, className: "text-white" },
-    cancelled: { icon: FiXCircle, className: "text-[#535353]" },
-    missed: { icon: FiAlertCircle, className: "text-[#535353]" },
+    cancelled: { icon: FiXCircle, className: "text-white" },
+    missed: { icon: FiAlertCircle, className: "text-white" },
   }
 
   const currentStatus = statusConfig[sessionStatus] || { label: sessionStatus || "Unknown", className: "bg-[#202327] text-[#535353] border-[#404040]" }
@@ -174,7 +174,7 @@ export function StudentSessionCard({
               <Dropdown
                 trigger={
                   <button className="h-8 w-8 flex items-center justify-center rounded-lg hover:bg-[#2a2d32]">
-                    <FiMoreHorizontal className="h-4 w-4 text-[#b3b3b3]" />
+                    <FiMoreHorizontal className="h-4 w-4 text-white" />
                     <span className="sr-only">More options</span>
                   </button>
                 }
@@ -192,11 +192,11 @@ export function StudentSessionCard({
             <p className="text-xs font-medium text-[white] uppercase tracking-wide mb-3">Activity Stats</p>
             <div className="grid grid-cols-5 gap-2">
               {[ 
-                { icon: FiBookOpen, value: totalSessions, label: 'Total', iconColor: 'text-gray-400' },
-                { icon: FiCheckCircle, value: completedSessions, label: 'Done', iconColor: 'text-green-400' },
-                { icon: FiXCircle, value: cancelledSessions, label: 'Cancelled', iconColor: 'text-red-400' },
-                { icon: FiAlertCircle, value: missedSessions, label: 'Missed', iconColor: 'text-yellow-400' },
-                { icon: FiClock, value: totalHoursStudied, label: 'Hours', iconColor: 'text-cyan-400' },
+                { icon: FiBookOpen, value: totalSessions, label: 'Total', iconColor: 'text-white' },
+                { icon: FiCheckCircle, value: completedSessions, label: 'Done', iconColor: 'text-white' },
+                { icon: FiXCircle, value: cancelledSessions, label: 'Cancelled', iconColor: 'text-white' },
+                { icon: FiAlertCircle, value: missedSessions, label: 'Missed', iconColor: 'text-white' },
+                { icon: FiClock, value: totalHoursStudied, label: 'Hours', iconColor: 'text-white' },
               ].map(({ icon: Icon, value, label, iconColor }) => (
                 <div key={label} className="flex flex-col items-center p-2 rounded-lg bg-[#202327]">
                   <Icon className={`h-5 w-5 ${iconColor} mb-1`} />
@@ -210,7 +210,7 @@ export function StudentSessionCard({
           {/* Course Info */}
           <div className="px-5 py-4 border-b border-[#404040] bg-[#121212]">
             <div className="flex items-center gap-2 mb-1">
-              <FiBookOpen className="h-4 w-4 text-orange-400" />
+              <FiBookOpen className="h-4 w-4 text-white" />
               <span className="text-xs font-medium text-[white] uppercase tracking-wide">{courseCode}</span>
             </div>
             <h4 className="font-semibold text-white">{courseName}</h4>
@@ -220,7 +220,7 @@ export function StudentSessionCard({
           <div className="px-5 py-4 space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <FiCalendar className="h-5 w-5 text-green-400" />
+                <FiCalendar className="h-5 w-5 text-white" />
                 <div>
                   <p className="text-xs text-[#535353]">Date</p>
                   <p className="text-sm font-medium text-white">{sessionDate}</p>
@@ -229,20 +229,20 @@ export function StudentSessionCard({
               {/* Session Countdown */}
               <div className="text-right">
                 <p className="text-xs text-[#535353]">Time Until Session</p>
-                <p className="text-sm font-medium text-cyan-400 font-mono">
+                <p className="text-sm font-medium text-white font-mono">
                   {timeLeft}
                 </p>
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <FiClock className="h-5 w-5 text-cyan-400" />
+              <FiClock className="h-5 w-5 text-white" />
               <div>
                 <p className="text-xs text-[#535353]">Time & Duration</p>
                 <p className="text-sm font-medium text-white">{sessionTime} · {duration}</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
-              {sessionType === "online" ? <FiVideo className="h-5 w-5 text-orange-400" /> : <FiMapPin className="h-5 w-5 text-orange-400" />}
+              {sessionType === "online" ? <FiVideo className="h-5 w-5 text-white" /> : <FiMapPin className="h-5 w-5 text-white" />}
               <div>
                 <p className="text-xs text-[#535353]">{sessionType === "online" ? "Online Session" : "In-Person"}</p>
                 <p className="text-sm font-medium text-white">{location}</p>
@@ -316,10 +316,10 @@ export function StudentSessionCard({
             <div className="flex-1">
               <h3 className="font-semibold text-white text-lg">{studentName}</h3>
               <div className="flex items-center gap-2 text-sm text-[#535353] mt-1">
-                <FiMail className="h-3.5 w-3.5 text-red-400" /><span>{studentEmail}</span>
+                <FiMail className="h-3.5 w-3.5 text-white" /><span>{studentEmail}</span>
               </div>
               <div className="flex items-center gap-2 text-sm text-[#535353] mt-0.5">
-                <FiPhone className="h-3.5 w-3.5 text-green-400" /><span>{studentPhone}</span>
+                <FiPhone className="h-3.5 w-3.5 text-white" /><span>{studentPhone}</span>
               </div>
             </div>
           </div>
@@ -327,17 +327,17 @@ export function StudentSessionCard({
           {/* Quick Stats */}
           <div className="grid grid-cols-3 gap-3">
             <div className="flex flex-col items-center p-3 bg-[#202327] rounded-lg border border-[#404040]">
-              <FiTrendingUp className="h-4 w-4 text-green-400 mb-1" />
+              <FiTrendingUp className="h-4 w-4 text-white mb-1" />
               <span className="text-2xl font-bold text-white">{completionRate}%</span>
               <span className="text-xs text-[#535353]">Completion Rate</span>
             </div>
             <div className="flex flex-col items-center p-3 bg-[#202327] rounded-lg border border-[#404040]">
-              <FiStar className="h-4 w-4 text-yellow-400 mb-1" />
+              <FiStar className="h-4 w-4 text-white mb-1" />
               <span className="text-2xl font-bold text-white">{averageRating}</span>
               <span className="text-xs text-[#535353]">Avg Rating</span>
             </div>
             <div className="flex flex-col items-center p-3 bg-[#202327] rounded-lg border border-[#404040]">
-              <FiClock className="h-4 w-4 text-cyan-400 mb-1" />
+              <FiClock className="h-4 w-4 text-white mb-1" />
               <span className="text-2xl font-bold text-white">{totalHoursStudied}</span>
               <span className="text-xs text-[#535353]">Hours Studied</span>
             </div>
@@ -346,7 +346,7 @@ export function StudentSessionCard({
           {/* Enrollment Info */}
           <div className="flex items-center justify-between p-3 bg-[#202327] rounded-lg">
             <div className="flex items-center gap-2">
-              <FiCalendar className="h-4 w-4 text-orange-400" />
+              <FiCalendar className="h-4 w-4 text-white" />
               <span className="text-sm text-[#535353]">Enrolled Since</span>
             </div>
             <span className="text-sm font-medium text-white">{enrollmentDate}</span>

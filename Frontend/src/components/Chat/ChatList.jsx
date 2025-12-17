@@ -27,18 +27,18 @@ export function ChatList({ conversations, activeConversationId, onSelectConversa
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <div className="p-2 rounded-lg bg-gray-700 border border-gray-600">
-              <MessageSquare className="w-5 h-5 text-blue-400" />
+              <MessageSquare className="w-5 h-5 text-white" />
             </div>
             <h2 className="font-semibold text-white">Messages</h2>
           </div>
           <button className="p-2 rounded-lg hover:bg-[#212121] transition-colors">
-            <Plus className="w-5 h-5 text-green-400" />
+            <Plus className="w-5 h-5 text-white" />
           </button>
         </div>
 
         {/* Search */}
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white" />
           <input
             type="text"
             placeholder="Search conversations..."

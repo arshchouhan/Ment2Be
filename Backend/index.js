@@ -21,6 +21,7 @@ import taskRouter from './routes/task.routes.js';
 import twilioRouter from './routes/twilio.routes.js';
 import forumRouter from './routes/forum.routes.js';
 import availabilityRouter from './routes/availability.routes.js';
+import freeTrialRouter from './routes/freeTrial.routes.js';
 import categoryRouter from './routes/category.routes.js';
 import uploadRouter from './routes/upload.routes.js';
 import aiRouter from './routes/ai.routes.js';
@@ -138,6 +139,7 @@ app.use('/api/tasks', taskRouter); // Task management endpoints
 app.use('/api/twilio', twilioRouter); // Twilio Video endpoints
 app.use('/api/forum', forumRouter); // Forum Q&A endpoints
 app.use('/api/mentor-availability', availabilityRouter); // Mentor availability endpoints
+app.use('/api/free-trial', freeTrialRouter); // Free trial request email endpoints
 app.use('/api/categories', categoryRouter); // Category endpoints
 app.use('/api/upload', uploadRouter); // File upload endpoints
 app.use('/api/ai', aiRouter); // AI session insights endpoints

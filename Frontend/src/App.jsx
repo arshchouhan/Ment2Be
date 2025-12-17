@@ -32,12 +32,15 @@ import ConnectedStudents from './pages/ConnectedStudents';
 import StudentConnectedMentors from './pages/StudentConnectedMentors';
 import SolutionsPage from './pages/SolutionsPage';
 import ContactUsPage from './pages/ContactUsPage';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
   const location = useLocation();
 
   return (
     <>
+      <ToastContainer position="top-center" autoClose={4000} hideProgressBar={false} newestOnTop closeOnClick pauseOnFocusLoss draggable pauseOnHover theme="dark" />
       {/* ✅ key forces rerender on every navigation */}
       <Routes location={location} key={location.key}>
         {/* Root redirect */}

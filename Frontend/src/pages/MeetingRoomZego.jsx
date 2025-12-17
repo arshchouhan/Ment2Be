@@ -151,7 +151,8 @@ const MeetingRoomZego = () => {
   // Socket.IO connection for session sync
   useEffect(() => {
     // Connect to Socket.IO server
-    const socket = io('http://localhost:4000');
+    const SOCKET_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:4000';
+    const socket = io(SOCKET_URL);
     socketRef.current = socket;
 
     socket.on('connect', () => {

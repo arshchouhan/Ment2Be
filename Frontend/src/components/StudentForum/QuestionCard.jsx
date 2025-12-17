@@ -71,19 +71,19 @@ export function QuestionCard({ question }) {
     <div className="bg-[#1a1a1a] rounded-lg border border-[#2a2a2a] p-5">
       {/* Header */}
       <div className="flex items-center gap-3 mb-4">
-        <div className="h-9 w-9 rounded-full bg-blue-600 flex items-center justify-center text-white text-sm font-medium">
+        <div className="h-9 w-9 rounded-full bg-gray-700 flex items-center justify-center text-white text-sm font-medium">
           {authorInitials}
         </div>
         <div className="flex items-center text-sm text-gray-400">
           <span>Asked by </span>
-          <span className="text-blue-400 ml-1">{authorName}</span>
+          <span className="text-gray-200 ml-1">{authorName}</span>
           <span className="mx-2">|</span>
           <span>{formatDate(question.createdAt)}</span>
         </div>
       </div>
 
       {/* Question */}
-      <p className="text-blue-400 font-medium mb-4 leading-relaxed">{question.title}</p>
+      <p className="text-gray-200 font-medium mb-4 leading-relaxed">{question.title}</p>
       <p className="text-gray-300 text-sm mb-4 leading-relaxed">{question.content}</p>
 
       {/* Category Badge */}
@@ -98,7 +98,7 @@ export function QuestionCard({ question }) {
         <div className="mb-4 bg-[#0a0a0a] rounded p-3 border border-[#2a2a2a]">
           <p className="text-gray-300 text-sm leading-relaxed">{question.answers[0].content}</p>
           {question.answers.length > 1 && (
-            <button className="text-blue-500 text-sm mt-2 hover:underline">
+            <button className="text-gray-300 text-sm mt-2 hover:underline">
               Read all {question.answers.length} answers
             </button>
           )}
@@ -112,7 +112,7 @@ export function QuestionCard({ question }) {
             onClick={handleUpvote}
             disabled={isUpvoting}
             className={`flex items-center gap-2 text-sm transition-colors ${
-              upvoted ? "text-blue-500" : "text-gray-400 hover:text-gray-300"
+              upvoted ? "text-white" : "text-gray-400 hover:text-gray-300"
             } ${isUpvoting ? "opacity-50 cursor-not-allowed" : ""}`}
           >
             <ChevronUp className="h-4 w-4" />

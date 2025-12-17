@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import SessionItem from './SessionItem';
 import sessionDataService from '../../services/sessionDataService';
 
-const SessionSidebar = ({ activeSessionId, onSessionSelect, currentSessionData }) => {
+const SessionSidebar = ({ activeSessionId, onSessionSelect, currentSessionData, userRole }) => {
   const [sessions, setSessions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -40,16 +40,16 @@ const SessionSidebar = ({ activeSessionId, onSessionSelect, currentSessionData }
     : sessions;
 
   return (
-    <div className="w-80 bg-[#0a0a0a] border-r border-gray-800 flex flex-col h-full">
+    <div className="w-72 bg-[#0a0a0a] border-r border-gray-800 flex flex-col h-full">
       <div className="p-4 border-b border-gray-800">
         <h3 className="text-white font-semibold text-lg">Session Journal</h3>
         <p className="text-gray-400 text-sm mt-1">Your completed mentoring sessions</p>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4 space-y-3">
+      <div className="flex-1 overflow-y-auto hide-scrollbar p-4 space-y-3">
         {loading ? (
           <div className="flex flex-col items-center justify-center py-8">
-            <div className="w-8 h-8 rounded-full border-2 border-gray-600 border-t-purple-500 animate-spin"></div>
+            <div className="w-8 h-8 rounded-full border-2 border-gray-600 border-t-gray-400 animate-spin"></div>
             <p className="text-gray-400 text-sm mt-2">Loading sessions...</p>
           </div>
         ) : error ? (
@@ -83,6 +83,7 @@ const SessionSidebar = ({ activeSessionId, onSessionSelect, currentSessionData }
               <SessionItem
                 key={session._id || session.id}
                 session={session}
+                userRole={userRole}
                 isActive={activeSessionId === (session._id || session.id)}
                 onClick={() => handleSessionClick(session)}
                 hasNotes={session.hasNotes || false}

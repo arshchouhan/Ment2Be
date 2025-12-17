@@ -8,13 +8,13 @@ const SlotCard = ({ slot }) => {
     <div className="group relative overflow-hidden rounded-lg border border-gray-700/50 bg-[#121212] p-3">
       <div className="flex flex-col gap-2">
         <div className="flex items-center gap-2">
-          <FiCalendar className="h-4 w-4 text-[#4d7cc7]" />
+          <FiCalendar className="h-4 w-4 text-white" />
           <span className="font-medium text-white">{slot.date}</span>
         </div>
 
         {slot.time && (
           <div className="flex items-center gap-2 text-gray-400">
-            <FiClock className="h-4 w-4" />
+            <FiClock className="h-4 w-4 text-white" />
             <span className="text-sm">{slot.time}</span>
           </div>
         )}
@@ -31,10 +31,10 @@ const DaySection = ({ group }) => {
     <div className="space-y-2">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <div className="h-1.5 w-1.5 rounded-full bg-[#4d7cc7]" />
+          <div className="h-1.5 w-1.5 rounded-full bg-white" />
           <h3 className="font-medium text-white">{group.day}</h3>
         </div>
-        <span className="rounded-full px-2.5 py-0.5 text-xs font-medium text-white" style={{ backgroundColor: '#da8c18' }}>
+        <span className="rounded-full px-2.5 py-0.5 text-xs font-medium text-black" style={{ backgroundColor: '#ffffff' }}>
           {group.availableCount} Available
         </span>
       </div>
@@ -136,11 +136,11 @@ export const AvailableSlotsCard = ({ className, data, onEdit, onSave }) => {
         <div className="p-6">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-2">
-              <FiClock className="w-6 h-6 text-blue-500" />
+              <FiClock className="w-6 h-6 text-white" />
               <h3 className="text-lg font-semibold text-white">Set Your Availability</h3>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-xs bg-green-900/30 text-green-400 px-2 py-1 rounded-full">Active</span>
+              <span className="text-xs bg-[#2a2d32] text-white px-2 py-1 rounded-full border border-[#404040]">Active</span>
               <button 
                 onClick={() => setIsEditing(false)}
                 className="p-1.5 bg-gray-700 hover:bg-gray-600 rounded-full transition-colors"
@@ -158,7 +158,7 @@ export const AvailableSlotsCard = ({ className, data, onEdit, onSave }) => {
               type="date" 
               value={selectedDate}
               onChange={(e) => setSelectedDate(e.target.value)}
-              className="w-full bg-[#1e2738] border border-gray-700 text-white px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full bg-[#202327] border border-[#404040] text-white px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-white focus:border-transparent"
             />
           </div>
 
@@ -173,8 +173,8 @@ export const AvailableSlotsCard = ({ className, data, onEdit, onSave }) => {
                   onClick={() => toggleTimeSlot(time)}
                   className={`px-3 py-2 ${
                     selectedTimeSlots.includes(time)
-                      ? 'bg-blue-600 border-blue-500 text-white'
-                      : 'bg-[#1e2738] border-gray-700 text-gray-300 hover:bg-[#2a3749] hover:border-blue-500/50'
+                      ? 'bg-white border-white text-black'
+                      : 'bg-[#202327] border-[#404040] text-white hover:bg-[#2a2d32]'
                   } border rounded-lg transition-all text-sm font-medium`}
                 >
                   {time}
@@ -189,7 +189,7 @@ export const AvailableSlotsCard = ({ className, data, onEdit, onSave }) => {
             <select 
               value={duration}
               onChange={(e) => setDuration(e.target.value)}
-              className="w-full bg-[#1e2738] border border-gray-700 text-white px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
+              className="w-full bg-[#202327] border border-[#404040] text-white px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-white focus:border-transparent appearance-none"
             >
               <option value="30">30 minutes</option>
               <option value="45">45 minutes</option>
@@ -202,7 +202,7 @@ export const AvailableSlotsCard = ({ className, data, onEdit, onSave }) => {
           <button 
             type="button"
             onClick={handleSaveAvailability}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2"
+            className="w-full bg-white hover:bg-gray-200 text-black py-3 px-4 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2"
           >
             <FiCheck className="w-4 h-4" />
             Save Availability
@@ -217,7 +217,7 @@ export const AvailableSlotsCard = ({ className, data, onEdit, onSave }) => {
       <div className="border-b border-gray-700/50 bg-[#121212] p-4">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-3">
-            <FiCalendar className="h-5 w-5 text-[#4d7cc7]" />
+            <FiCalendar className="h-5 w-5 text-white" />
             <div>
               <h3 className="text-base font-semibold text-white">Your Available Slots</h3>
               <p className="text-xs text-gray-400">Select a time that works for you</p>
@@ -227,19 +227,9 @@ export const AvailableSlotsCard = ({ className, data, onEdit, onSave }) => {
             onClick={() => setIsEditing(true)}
             className="rounded-full bg-[#2a2d32] px-3 py-1 text-xs font-semibold text-white flex items-center gap-1 hover:bg-[#3a3d42] transition-colors"
           >
-            <FiEdit className="h-3 w-3" />
+            <FiEdit className="h-3 w-3 text-white" />
             Edit
           </button>
-        </div>
-
-        {/* Availability Status Badges */}
-        <div className="flex items-center gap-2">
-          <span className="px-3 py-1 rounded-full text-xs font-semibold text-white" style={{ backgroundColor: '#da8c18' }}>
-            1 available
-          </span>
-          <span className="px-3 py-1 rounded-full text-xs font-semibold text-white" style={{ backgroundColor: '#da8c18' }}>
-            1 unavailable
-          </span>
         </div>
       </div>
 

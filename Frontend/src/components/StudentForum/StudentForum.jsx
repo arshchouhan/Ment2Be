@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { Search, Zap, Monitor, BarChart3, Briefcase, Lightbulb, MessageSquare, ArrowRight, Plus } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { Search, Zap, Monitor, BarChart3, Briefcase, Lightbulb, MessageSquare, ArrowRight, Plus, ChevronDown } from "lucide-react";
 import { QuestionCard } from "./QuestionCard";
 import { AskQuestionModal } from "./AskQuestionModal";
 import * as forumService from "../../services/forumService";
@@ -16,10 +16,21 @@ export function StudentForum() {
   const [selectedDomain, setSelectedDomain] = useState("for-you");
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState("most-recent");
+  const [isSortOpen, setIsSortOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  const sortDropdownRef = useRef(null);
+
+  const sortOptions = [
+    { value: "most-recent", label: "Most Recent" },
+    { value: "most-upvoted", label: "Most Upvoted" },
+    { value: "most-answered", label: "Most Answered" },
+  ];
+
+  const selectedSortLabel = sortOptions.find(o => o.value === sortBy)?.label || "Most Recent";
 
   // Get user from localStorage
   const user = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null;
@@ -43,6 +54,28 @@ export function StudentForum() {
 
     fetchQuestions();
   }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (!isSortOpen) return;
+      if (sortDropdownRef.current && !sortDropdownRef.current.contains(event.target)) {
+        setIsSortOpen(false);
+      }
+    };
+
+    const handleEscapeKey = (event) => {
+      if (event.key === 'Escape') {
+        setIsSortOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    window.addEventListener('keydown', handleEscapeKey);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      window.removeEventListener('keydown', handleEscapeKey);
+    };
+  }, [isSortOpen]);
 
   // Dynamic date formatter
   const formatDate = (dateString) => {
@@ -117,19 +150,19 @@ export function StudentForum() {
 
             {/* Search Bar */}
             <div className="relative mb-6">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-blue-500" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
               <input
                 type="text"
                 placeholder="Search Questions Here"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 bg-[#1a1a1a] border border-[#2a2a2a] text-white placeholder:text-gray-500 h-12 rounded-lg focus:outline-none focus:border-blue-500"
+                className="w-full pl-10 bg-[#1a1a1a] border border-[#2a2a2a] text-white placeholder:text-gray-500 h-12 rounded-lg focus:outline-none focus:border-gray-500"
               />
             </div>
 
             {/* Domain Filters */}
             <div className="mb-6">
-              <p className="text-blue-500 text-sm mb-3 underline">Browse all Domains:</p>
+              <p className="text-gray-300 text-sm mb-3 underline">Browse all Domains:</p>
               <div className="flex gap-3 flex-wrap">
                 {domains.map((domain) => {
                   const Icon = domain.icon;
@@ -140,7 +173,7 @@ export function StudentForum() {
                       onClick={() => setSelectedDomain(domain.id)}
                       className={`flex flex-col items-center justify-center px-6 py-4 rounded-lg border transition-all ${
                         isSelected
-                          ? "bg-[#1a1a2e] border-blue-500 text-blue-500"
+                          ? "bg-[#212121] border-gray-500 text-white"
                           : "bg-[#1a1a1a] border-[#2a2a2a] text-gray-400 hover:border-gray-500"
                       }`}
                     >
@@ -158,22 +191,49 @@ export function StudentForum() {
               <div className="flex items-center gap-4">
                 <button
                   onClick={() => setIsModalOpen(true)}
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium flex items-center gap-2 transition-colors"
+                  className="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium flex items-center gap-2 transition-colors"
                 >
                   <Plus className="h-4 w-4" />
                   Ask Question
                 </button>
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-gray-400">Sort by:</span>
-                  <select
-                    value={sortBy}
-                    onChange={(e) => setSortBy(e.target.value)}
-                    className="bg-[#1a1a1a] border border-[#2a2a2a] text-white px-3 py-2 rounded-lg text-sm cursor-pointer focus:outline-none"
-                  >
-                    <option value="most-recent">Most Recent</option>
-                    <option value="most-upvoted">Most Upvoted</option>
-                    <option value="most-answered">Most Answered</option>
-                  </select>
+                  <div className="relative" ref={sortDropdownRef}>
+                    <button
+                      type="button"
+                      onClick={() => setIsSortOpen(prev => !prev)}
+                      className="flex items-center justify-between gap-2 min-w-[170px] bg-[#1a1a1a] border border-[#2a2a2a] text-white px-3 py-2 rounded-lg text-sm hover:border-gray-500 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-600/40"
+                      aria-haspopup="listbox"
+                      aria-expanded={isSortOpen}
+                    >
+                      <span className="truncate">{selectedSortLabel}</span>
+                      <ChevronDown className={`h-4 w-4 text-gray-400 transition-transform ${isSortOpen ? 'rotate-180' : ''}`} />
+                    </button>
+
+                    {isSortOpen && (
+                      <div className="absolute right-0 mt-2 w-[220px] bg-[#121212] border border-[#2a2a2a] rounded-lg shadow-xl overflow-hidden z-20">
+                        <div className="py-1" role="listbox" aria-label="Sort options">
+                          {sortOptions.map((opt) => (
+                            <button
+                              key={opt.value}
+                              type="button"
+                              onClick={() => {
+                                setSortBy(opt.value);
+                                setIsSortOpen(false);
+                              }}
+                              className={`w-full text-left px-4 py-2 text-sm transition-colors ${
+                                opt.value === sortBy
+                                  ? 'bg-[#212121] text-white'
+                                  : 'text-gray-300 hover:bg-[#212121] hover:text-white'
+                              }`}
+                            >
+                              {opt.label}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
@@ -182,7 +242,7 @@ export function StudentForum() {
             <div className="space-y-4 pb-8">
               {loading ? (
                 <div className="bg-[#1a1a1a] rounded-lg border border-[#2a2a2a] p-16 flex flex-col items-center justify-center">
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mb-4"></div>
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-400 mb-4"></div>
                   <p className="text-gray-400">Loading questions...</p>
                 </div>
               ) : error ? (
@@ -211,7 +271,7 @@ export function StudentForum() {
           <div className="w-80 space-y-4 overflow-y-auto" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
             {/* Info Card */}
             <div className="bg-[#1a1a1a] rounded-lg border border-[#2a2a2a] p-4 flex items-center gap-3 cursor-pointer hover:border-gray-500 transition-colors">
-              <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center flex-shrink-0">
+              <div className="w-10 h-10 rounded-full bg-[#2a2a2a] flex items-center justify-center flex-shrink-0">
                 <svg viewBox="0 0 24 24" className="w-5 h-5 text-white fill-current">
                   <path d="M8 5v14l11-7z" />
                 </svg>
@@ -224,12 +284,12 @@ export function StudentForum() {
 
             {/* Student Profile */}
             <div className="bg-[#1a1a1a] rounded-lg border border-[#2a2a2a] p-4 flex items-center gap-3">
-              <div className="h-10 w-10 rounded-full bg-emerald-500 flex items-center justify-center text-white text-sm font-medium flex-shrink-0">
+              <div className="h-10 w-10 rounded-full bg-gray-700 flex items-center justify-center text-white text-sm font-medium flex-shrink-0">
                 {user?.name ? user.name.split(' ').map(n => n[0]).join('') : 'ST'}
               </div>
               <div>
                 <p className="font-medium text-sm">{user?.name || 'Student'}</p>
-                <p className="text-xs text-blue-500">Student</p>
+                <p className="text-xs text-gray-400">Student</p>
               </div>
             </div>
 
@@ -239,7 +299,7 @@ export function StudentForum() {
                 <div>
                   <p className="font-medium text-sm mb-1">My Questions</p>
                   <p className="text-3xl font-bold">{userStats.myQuestions}</p>
-                  <button className="text-blue-500 text-sm flex items-center gap-1 mt-2 hover:underline">
+                  <button className="text-gray-300 text-sm flex items-center gap-1 mt-2 hover:underline">
                     View My Questions <ArrowRight className="h-3 w-3" />
                   </button>
                 </div>
@@ -257,7 +317,7 @@ export function StudentForum() {
                 <div>
                   <p className="font-medium text-sm mb-1">Answered Questions</p>
                   <p className="text-3xl font-bold">{userStats.answeredQuestions}</p>
-                  <button className="text-blue-500 text-sm flex items-center gap-1 mt-2 hover:underline">
+                  <button className="text-gray-300 text-sm flex items-center gap-1 mt-2 hover:underline">
                     View Answered <ArrowRight className="h-3 w-3" />
                   </button>
                 </div>
@@ -275,7 +335,7 @@ export function StudentForum() {
                 <div>
                   <p className="font-medium text-sm mb-1">Pending Answers</p>
                   <p className="text-3xl font-bold">{userStats.pendingQuestions}</p>
-                  <button className="text-blue-500 text-sm flex items-center gap-1 mt-2 hover:underline">
+                  <button className="text-gray-300 text-sm flex items-center gap-1 mt-2 hover:underline">
                     View Pending <ArrowRight className="h-3 w-3" />
                   </button>
                 </div>
@@ -292,7 +352,7 @@ export function StudentForum() {
               <p className="font-medium text-sm mb-3">Top Mentors</p>
               <div className="space-y-3">
                 <div className="flex items-center gap-3">
-                  <div className="h-8 w-8 rounded-full bg-purple-500 flex items-center justify-center text-white text-xs font-medium flex-shrink-0">
+                  <div className="h-8 w-8 rounded-full bg-gray-700 flex items-center justify-center text-white text-xs font-medium flex-shrink-0">
                     RK
                   </div>
                   <div className="flex-1">
@@ -301,7 +361,7 @@ export function StudentForum() {
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <div className="h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center text-white text-xs font-medium flex-shrink-0">
+                  <div className="h-8 w-8 rounded-full bg-gray-700 flex items-center justify-center text-white text-xs font-medium flex-shrink-0">
                     SP
                   </div>
                   <div className="flex-1">
@@ -310,7 +370,7 @@ export function StudentForum() {
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <div className="h-8 w-8 rounded-full bg-amber-500 flex items-center justify-center text-white text-xs font-medium flex-shrink-0">
+                  <div className="h-8 w-8 rounded-full bg-gray-700 flex items-center justify-center text-white text-xs font-medium flex-shrink-0">
                     AM
                   </div>
                   <div className="flex-1">

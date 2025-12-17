@@ -442,44 +442,30 @@ export function MentorshipChat() {
     }
   };
 
-  const handleSelectConversation = (conversationId) => {
+  const handleSelectConversation = async (conversationId) => {
     const conversation = conversations.find(conv => conv.id === conversationId);
     if (!conversation) return;
 
     setActiveConversationId(conversationId);
-    
+
+    let participantIdToMarkRead = null;
+
     if (conversation.isSession && conversation.sessionData) {
       // For session conversations, extract the other user's details from the session data
       const session = conversation.sessionData;
       const isMentor = session.mentor?._id === userId || session.mentor?.id === userId;
       const otherUser = isMentor ? session.student : session.mentor;
+
+      participantIdToMarkRead = otherUser?._id || otherUser?.id;
       
-      const participantInfo = {
-        participantId: otherUser?._id || otherUser?.id || conversation.participantId,
-        name: otherUser?.name || conversation.mentorName || 'Session User',
+      setActiveParticipant({
+        participantId: participantIdToMarkRead,
+        name: otherUser?.name || conversation.mentorName,
         role: isMentor ? 'Mentee' : 'Mentor',
-        avatar: otherUser?.profilePicture || conversation.mentorAvatar || '',
+        avatar: otherUser?.profilePicture || conversation.mentorAvatar,
         isSession: true,
-        sessionData: {
-          ...session,
-          sessionDate: session.sessionDate ? new Date(session.sessionDate) : new Date(),
-          isMentor: isMentor
-        }
-      };
-      
-      setActiveParticipant(participantInfo);
-      
-      // Load session info as the first message
-      const sessionDate = session.sessionDate ? new Date(session.sessionDate) : new Date();
-      const sessionMessage = {
-        id: `session_${session._id || session.id}_info`,
-        content: `Session scheduled for ${sessionDate.toLocaleString()}`,
-        sender: 'system',
-        type: 'info',
-        timestamp: new Date(),
-        isSessionInfo: true
-      };
-      setMessages([sessionMessage]);
+        sessionData: session
+      });
     } else {
       // For regular conversations
       setActiveParticipant({
@@ -489,6 +475,22 @@ export function MentorshipChat() {
         avatar: conversation.mentorAvatar,
         isSession: false
       });
+      participantIdToMarkRead = conversation.participantId;
+    }
+
+    // Mark as read in DB + update badge locally
+    if (participantIdToMarkRead) {
+      try {
+        await messageService.markMessagesAsRead(participantIdToMarkRead);
+      } catch (err) {
+        console.error('Failed to mark messages as read:', err);
+      } finally {
+        setConversations(prev => prev.map(conv =>
+          conv.participantId === participantIdToMarkRead
+            ? { ...conv, unreadCount: 0 }
+            : conv
+        ));
+      }
     }
   };
 
@@ -564,9 +566,9 @@ export function MentorshipChat() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                 </svg>
                 {/* Floating dots animation */}
-                <div className="absolute -top-2 -right-2 w-4 h-4 bg-blue-500 rounded-full animate-bounce"></div>
-                <div className="absolute -bottom-2 -left-2 w-3 h-3 bg-green-500 rounded-full animate-bounce" style={{animationDelay: '0.5s'}}></div>
-                <div className="absolute top-1/2 -right-4 w-2 h-2 bg-purple-500 rounded-full animate-bounce" style={{animationDelay: '1s'}}></div>
+                <div className="absolute -top-2 -right-2 w-4 h-4 bg-white rounded-full animate-bounce"></div>
+                <div className="absolute -bottom-2 -left-2 w-3 h-3 bg-white rounded-full animate-bounce" style={{animationDelay: '0.5s'}}></div>
+                <div className="absolute top-1/2 -right-4 w-2 h-2 bg-white rounded-full animate-bounce" style={{animationDelay: '1s'}}></div>
               </div>
             </div>
             
@@ -579,15 +581,15 @@ export function MentorshipChat() {
             {/* Action Steps */}
             <div className="space-y-3 mb-8">
               <div className="flex items-center justify-center space-x-3 text-sm text-gray-300">
-                <div className="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold text-xs">1</div>
+                <div className="w-6 h-6 bg-white rounded-full flex items-center justify-center text-black font-bold text-xs">1</div>
                 <span>Students book sessions with you</span>
               </div>
               <div className="flex items-center justify-center space-x-3 text-sm text-gray-300">
-                <div className="w-6 h-6 bg-green-600 rounded-full flex items-center justify-center text-white font-bold text-xs">2</div>
+                <div className="w-6 h-6 bg-white rounded-full flex items-center justify-center text-black font-bold text-xs">2</div>
                 <span>Start conversations after booking</span>
               </div>
               <div className="flex items-center justify-center space-x-3 text-sm text-gray-300">
-                <div className="w-6 h-6 bg-purple-600 rounded-full flex items-center justify-center text-white font-bold text-xs">3</div>
+                <div className="w-6 h-6 bg-white rounded-full flex items-center justify-center text-black font-bold text-xs">3</div>
                 <span>Provide guidance and support</span>
               </div>
             </div>
@@ -712,12 +714,12 @@ export function MentorshipChat() {
                       </svg>
                       {/* Animated arrow pointing left */}
                       <div className="absolute -left-12 top-1/2 transform -translate-y-1/2 hidden md:block">
-                        <svg className="w-8 h-8 text-blue-500 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-8 h-8 text-white animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                         </svg>
                       </div>
                       {/* Floating message bubble */}
-                      <div className="absolute -top-3 -right-3 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center animate-bounce">
+                      <div className="absolute -top-3 -right-3 w-6 h-6 bg-white rounded-full flex items-center justify-center animate-bounce">
                         <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
                           <path fillRule="evenodd" d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z" clipRule="evenodd" />
                         </svg>
@@ -736,7 +738,7 @@ export function MentorshipChat() {
                   
                   {/* Helpful tip for mobile users */}
                   <div className="md:hidden mb-6">
-                    <div className="inline-flex items-center px-4 py-2 bg-blue-600/20 border border-blue-600/30 rounded-lg text-blue-400 text-sm">
+                    <div className="inline-flex items-center px-4 py-2 bg-[#2a2d32] border border-[#535353]/30 rounded-lg text-white text-sm">
                       <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>

@@ -234,7 +234,7 @@ export const EnhancedStudentCard = ({
       {showToast && (
         <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-[#1a1a1a] text-gray-300 border border-gray-700 rounded-lg shadow-lg z-50 max-w-sm overflow-hidden">
           <div className="px-4 py-3 flex items-center gap-2">
-            <FiAlertCircle className="w-5 h-5 text-gray-400 flex-shrink-0" />
+            <FiAlertCircle className="w-5 h-5 text-white flex-shrink-0" />
             <span className="text-sm">{toastMessage}</span>
           </div>
           <div className="h-1 bg-gray-700">
@@ -271,7 +271,7 @@ export const EnhancedStudentCard = ({
                 {student.name?.split(' ').map(n => n[0]).join('').toUpperCase() || 'S'}
               </div>
             )}
-            <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-blue-500 rounded-full border-2 border-[#121212]"></div>
+            <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-white rounded-full border-2 border-[#121212]"></div>
           </div>
 
           {/* Student Info */}
@@ -279,7 +279,7 @@ export const EnhancedStudentCard = ({
             <h3 className="text-xl font-bold text-white mb-1">{student.name}</h3>
             <div className="flex items-center gap-3 text-sm text-gray-400">
               <span className="flex items-center gap-1">
-                <FiMail className="w-3 h-3" />
+                <FiMail className="w-3 h-3 text-white" />
                 {student.email}
               </span>
             </div>
@@ -287,35 +287,25 @@ export const EnhancedStudentCard = ({
             {/* Quick Stats */}
             <div className="flex items-center gap-4 mt-3">
               <div className="flex items-center gap-1 text-xs">
-                <FiBook className="w-3 h-3 text-indigo-400" />
+                <FiBook className="w-3 h-3 text-white" />
                 <span className="text-white font-semibold">{totalSessions}</span>
                 <span className="text-gray-400">Total</span>
               </div>
               <div className="flex items-center gap-1 text-xs">
-                <FiCheckCircle className="w-3 h-3 text-blue-400" />
+                <FiCheckCircle className="w-3 h-3 text-white" />
                 <span className="text-white font-semibold">{completedSessions}</span>
                 <span className="text-gray-400">Done</span>
               </div>
               <div className="flex items-center gap-1 text-xs">
-                <FiClock className="w-3 h-3 text-purple-400" />
+                <FiClock className="w-3 h-3 text-white" />
                 <span className="text-white font-semibold">{upcomingSessions}</span>
                 <span className="text-gray-400">Upcoming</span>
               </div>
               <div className="flex items-center gap-1 text-xs">
-                <FiClock className="w-3 h-3 text-blue-400" />
+                <FiClock className="w-3 h-3 text-white" />
                 <span className="text-white font-semibold">{totalHours}h</span>
                 <span className="text-gray-400">Total</span>
               </div>
-            </div>
-
-            {/* Availability Status */}
-            <div className="flex items-center gap-2 mt-3">
-              <span className="px-3 py-1 rounded-full text-xs font-semibold text-white" style={{ backgroundColor: '#da8c18' }}>
-                1 available
-              </span>
-              <span className="px-3 py-1 rounded-full text-xs font-semibold text-white" style={{ backgroundColor: '#da8c18' }}>
-                1 unavailable
-              </span>
             </div>
           </div>
         </div>
@@ -327,12 +317,12 @@ export const EnhancedStudentCard = ({
           <span className="text-sm font-semibold text-gray-400">Select Session ({totalSessions} total)</span>
           <button
             onClick={() => setShowAllSessions(!showAllSessions)}
-            className="text-xs text-blue-400 hover:text-blue-300 flex items-center gap-1"
+            className="text-xs text-white hover:text-white flex items-center gap-1"
           >
             {showAllSessions ? (
-              <>Hide All <FiChevronUp className="w-3 h-3" /></>
+              <>Hide All <FiChevronUp className="w-3 h-3 text-white" /></>
             ) : (
-              <>Show All <FiChevronDown className="w-3 h-3" /></>
+              <>Show All <FiChevronDown className="w-3 h-3 text-white" /></>
             )}
           </button>
         </div>
@@ -356,9 +346,9 @@ export const EnhancedStudentCard = ({
                   <span>{new Date(session.sessionDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
                   <span className={`w-2 h-2 rounded-full ${
                     new Date(session.sessionDate) < new Date() && session.status !== 'completed' && session.status !== 'cancelled' ? 'bg-gray-500' :
-                    session.status === 'confirmed' ? 'bg-indigo-400' :
-                    session.status === 'pending' ? 'bg-purple-400' :
-                    session.status === 'completed' ? 'bg-blue-400' : 'bg-gray-400'
+                    session.status === 'confirmed' ? 'bg-white' :
+                    session.status === 'pending' ? 'bg-white' :
+                    session.status === 'completed' ? 'bg-white' : 'bg-gray-400'
                   }`}></span>
                 </div>
               </button>
@@ -376,25 +366,25 @@ export const EnhancedStudentCard = ({
 
         <div className="space-y-3 mb-6">
           <div className="flex items-center gap-3 text-sm">
-            <FiBook className="w-4 h-4 text-purple-400" />
+            <FiBook className="w-4 h-4 text-white" />
             <span className="text-gray-400">Topic:</span>
             <span className="text-white font-medium">{selectedSession.sessionTitle || 'Mentoring Session'}</span>
           </div>
           
           <div className="flex items-center gap-3 text-sm">
-            <FiCalendar className="w-4 h-4 text-cyan-400" />
+            <FiCalendar className="w-4 h-4 text-white" />
             <span className="text-gray-400">Date:</span>
             <span className="text-white font-medium">{formatDate(selectedSession.sessionDate)}</span>
           </div>
 
           <div className="flex items-center gap-3 text-sm">
-            <FiClock className="w-4 h-4 text-orange-400" />
+            <FiClock className="w-4 h-4 text-white" />
             <span className="text-gray-400">Time:</span>
             <span className="text-white font-medium">{selectedSession.sessionTime} ({selectedSession.duration} min)</span>
           </div>
 
           <div className="flex items-center gap-3 text-sm">
-            <FiMapPin className="w-4 h-4 text-indigo-400" />
+            <FiMapPin className="w-4 h-4 text-white" />
             <span className="text-gray-400">Location:</span>
             <span className="text-white font-medium">{selectedSession.location || 'Online'}</span>
           </div>
@@ -402,7 +392,7 @@ export const EnhancedStudentCard = ({
           {/* Status and Countdown */}
           <div className="flex items-center justify-between p-3 rounded-lg bg-[#1a1a1a]">
             <div className="flex items-center gap-3">
-              <FiClock className="w-4 h-4 text-gray-400" />
+              <FiClock className="w-4 h-4 text-white" />
               <span className="text-gray-400">Status:</span>
               {getStatusBadge(selectedSession.status, selectedSession.sessionDate)}
             </div>

@@ -696,7 +696,7 @@ const MentorMenteesPage = () => {
         {error ? (
           <div className="bg-black border border-red-500 rounded-xl p-6 shadow-lg">
             <h3 className="text-red-400 font-semibold mb-2 flex items-center gap-2">
-              <FiAlertCircle className="w-5 h-5" />
+              <FiAlertCircle className="w-5 h-5 text-white" />
               Error
             </h3>
             <p className="text-[#b3b3b3]">{error}</p>
@@ -707,7 +707,7 @@ const MentorMenteesPage = () => {
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div className="bg-[#121212] border border-gray-700 rounded-lg px-3 py-2 shadow-lg">
                   <div className="flex items-center gap-2">
-                    <FiUser className="w-4 h-4 text-green-400" />
+                    <FiUser className="w-4 h-4 text-white" />
                     <div>
                       <div className="text-lg font-bold text-white">{mentees.length}</div>
                       <div className="text-[10px] text-[#535353]">Total Mentees</div>
@@ -716,7 +716,7 @@ const MentorMenteesPage = () => {
                 </div>
                 <div className="bg-[#121212] border border-gray-700 rounded-lg px-3 py-2 shadow-lg">
                   <div className="flex items-center gap-2">
-                    <FiCalendar className="w-4 h-4 text-cyan-400" />
+                    <FiCalendar className="w-4 h-4 text-white" />
                     <div>
                       <div className="text-lg font-bold text-white">{bookings.length}</div>
                       <div className="text-[10px] text-[#535353]">Total Sessions</div>
@@ -725,7 +725,7 @@ const MentorMenteesPage = () => {
                 </div>
                 <div className="bg-[#121212] border border-gray-700 rounded-lg px-3 py-2 shadow-lg">
                   <div className="flex items-center gap-2">
-                    <FiCheckCircle className="w-4 h-4 text-orange-400" />
+                    <FiCheckCircle className="w-4 h-4 text-white" />
                     <div>
                       <div className="text-lg font-bold text-white">
                         {bookings.filter(b => b.status === 'completed').length}
@@ -736,7 +736,7 @@ const MentorMenteesPage = () => {
                 </div>
                 <div className="bg-[#121212] border border-gray-700 rounded-lg px-3 py-2 shadow-lg">
                   <div className="flex items-center gap-2">
-                    <FiClock className="w-4 h-4 text-yellow-400" />
+                    <FiClock className="w-4 h-4 text-white" />
                     <div>
                       <div className="text-lg font-bold text-white">
                         {Math.round(bookings.filter(b => b.status === 'completed').reduce((sum, b) => sum + b.duration, 0) / 60)}h
@@ -768,7 +768,7 @@ const MentorMenteesPage = () => {
                               : 'border-[#404040] text-white hover:bg-[#2a2d32] hover:border-white'
                           }`}
                         >
-                          <FiChevronLeft className="w-5 h-5" />
+                          <FiChevronLeft className="w-5 h-5 text-white" />
                         </button>
                         <span className="text-sm text-[#b3b3b3] px-2">
                           {currentSessionIndex + 1} of {activeSessions.length}
@@ -782,7 +782,7 @@ const MentorMenteesPage = () => {
                               : 'border-[#404040] text-white hover:bg-[#2a2d32] hover:border-white'
                           }`}
                         >
-                          <FiChevronRight className="w-5 h-5" />
+                          <FiChevronRight className="w-5 h-5 text-white" />
                         </button>
                       </div>
                     )}
@@ -815,7 +815,7 @@ BookSession.jsx:106 📋 Available slots: []r-gray-700 rounded-xl overflow-visib
                             {/* Avatar */}
                             <div className="relative">
                               <div className="w-16 h-16 rounded-full bg-gray-800 flex items-center justify-center text-white text-xl font-bold border-2 border-gray-600">
-                                <FiUser className="w-8 h-8 text-gray-600" />
+                                <FiUser className="w-8 h-8 text-white" />
                               </div>
                             </div>
 
@@ -824,7 +824,7 @@ BookSession.jsx:106 📋 Available slots: []r-gray-700 rounded-xl overflow-visib
                               <h3 className="text-xl font-bold text-gray-600 mb-1">No Mentee Yet</h3>
                               <div className="flex items-center gap-3 text-sm text-gray-600">
                                 <span className="flex items-center gap-1">
-                                  <FiMail className="w-3 h-3" />
+                                  <FiMail className="w-3 h-3 text-white" />
                                   No contact information
                                 </span>
                               </div>
@@ -832,22 +832,22 @@ BookSession.jsx:106 📋 Available slots: []r-gray-700 rounded-xl overflow-visib
                               {/* Quick Stats */}
                               <div className="flex items-center gap-4 mt-3 flex-wrap">
                                 <div className="flex items-center gap-1 text-xs">
-                                  <FiBook className="w-3 h-3 text-gray-700" />
+                                  <FiBook className="w-3 h-3 text-white" />
                                   <span className="text-gray-600 font-semibold">0</span>
                                   <span className="text-gray-700">Total</span>
                                 </div>
                                 <div className="flex items-center gap-1 text-xs">
-                                  <FiCheckCircle className="w-3 h-3 text-gray-700" />
+                                  <FiCheckCircle className="w-3 h-3 text-white" />
                                   <span className="text-gray-600 font-semibold">0</span>
                                   <span className="text-gray-700">Done</span>
                                 </div>
                                 <div className="flex items-center gap-1 text-xs">
-                                  <FiClock className="w-3 h-3 text-gray-700" />
+                                  <FiClock className="w-3 h-3 text-white" />
                                   <span className="text-gray-600 font-semibold">0</span>
                                   <span className="text-gray-700">Upcoming</span>
                                 </div>
                                 <div className="flex items-center gap-1 text-xs">
-                                  <FiClock className="w-3 h-3 text-gray-700" />
+                                  <FiClock className="w-3 h-3 text-white" />
                                   <span className="text-gray-600 font-semibold">0h</span>
                                   <span className="text-gray-700">Total</span>
                                 </div>
@@ -885,7 +885,7 @@ BookSession.jsx:106 📋 Available slots: []r-gray-700 rounded-xl overflow-visib
                           <div className="flex items-center justify-center min-h-64">
                             <div className="text-center">
                               <div className="w-20 h-20 rounded-full bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center mx-auto mb-4 opacity-50">
-                                <FiCalendar className="w-10 h-10 text-gray-700" />
+                                <FiCalendar className="w-10 h-10 text-white" />
                               </div>
                               <p className="text-gray-600 font-medium mb-2">No session details available</p>
                               <p className="text-gray-700 text-sm max-w-md mx-auto">
@@ -904,7 +904,7 @@ BookSession.jsx:106 📋 Available slots: []r-gray-700 rounded-xl overflow-visib
                   {/* Performance Overview */}
                   <div className="bg-[#121212] border border-gray-700 rounded-xl p-6 shadow-lg">
                     <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                      <FiTrendingUp className="w-5 h-5 text-green-400" />
+                      <FiTrendingUp className="w-5 h-5 text-white" />
                       Performance Overview
                     </h3>
                     <div className="space-y-4">
@@ -916,7 +916,7 @@ BookSession.jsx:106 📋 Available slots: []r-gray-700 rounded-xl overflow-visib
                       </div>
                       <div className="w-full bg-gray-700 rounded-full h-2">
                         <div 
-                          className="bg-green-500 h-2 rounded-full" 
+                          className="bg-white h-2 rounded-full" 
                           style={{width: `${bookings.length > 0 ? Math.round((bookings.filter(b => b.status === 'completed').length / bookings.length) * 100) : 0}%`}}
                         ></div>
                       </div>

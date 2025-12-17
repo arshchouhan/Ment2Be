@@ -77,7 +77,7 @@ export function AskQuestionModal({ open, onOpenChange, onQuestionCreated }) {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               maxLength={200}
-              className="w-full bg-[#0a0a0a] border border-[#2a2a2a] text-white placeholder:text-gray-500 px-4 py-3 rounded-lg focus:outline-none focus:border-blue-500"
+              className="w-full bg-[#0a0a0a] border border-[#2a2a2a] text-white placeholder:text-gray-500 px-4 py-3 rounded-lg focus:outline-none focus:border-gray-500"
             />
             <p className="text-xs text-gray-500 mt-1">{title.length}/200</p>
           </div>
@@ -88,7 +88,7 @@ export function AskQuestionModal({ open, onOpenChange, onQuestionCreated }) {
             <select
               value={category}
               onChange={(e) => setCategory(e.target.value)}
-              className="w-full bg-[#0a0a0a] border border-[#2a2a2a] text-white px-4 py-3 rounded-lg focus:outline-none focus:border-blue-500 cursor-pointer"
+              className="w-full bg-[#0a0a0a] border border-[#2a2a2a] text-white px-4 py-3 rounded-lg focus:outline-none focus:border-gray-500 cursor-pointer"
             >
               <option value="">Choose a category</option>
               <option value="engineering">Engineering</option>
@@ -107,13 +107,13 @@ export function AskQuestionModal({ open, onOpenChange, onQuestionCreated }) {
               value={content}
               onChange={(e) => setContent(e.target.value)}
               rows={6}
-              className="w-full bg-[#0a0a0a] border border-[#2a2a2a] text-white placeholder:text-gray-500 px-4 py-3 rounded-lg focus:outline-none focus:border-blue-500 resize-none"
+              className="w-full bg-[#0a0a0a] border border-[#2a2a2a] text-white placeholder:text-gray-500 px-4 py-3 rounded-lg focus:outline-none focus:border-gray-500 resize-none"
             />
           </div>
 
           {/* Tips */}
           <div className="bg-[#0a0a0a] rounded-lg p-4 border border-[#2a2a2a]">
-            <p className="text-sm font-medium text-blue-400 mb-2">Tips for asking good questions:</p>
+            <p className="text-sm font-medium text-gray-200 mb-2">Tips for asking good questions:</p>
             <ul className="text-xs text-gray-400 space-y-1">
               <li>• Be specific about your situation and goals</li>
               <li>• Include relevant background information</li>
@@ -133,7 +133,7 @@ export function AskQuestionModal({ open, onOpenChange, onQuestionCreated }) {
             <button
               onClick={handleSubmit}
               disabled={loading || !title || !content || !category}
-              className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white px-6 py-2 rounded-lg font-medium transition-colors"
+              className="bg-gray-700 hover:bg-gray-600 disabled:bg-gray-600 disabled:cursor-not-allowed text-white px-6 py-2 rounded-lg font-medium transition-colors"
             >
               {loading ? 'Posting...' : 'Post Question'}
             </button>

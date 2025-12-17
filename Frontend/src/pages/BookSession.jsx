@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { FiArrowLeft, FiCalendar, FiClock, FiUser, FiDollarSign } from 'react-icons/fi';
 import Navbar from '../components/StudentDashboard/Navbar';
 import { getAvailableSlots } from '../services/availabilityService';
+import { toast } from 'react-toastify';
 
 const BookSession = () => {
   const navigate = useNavigate();
@@ -29,6 +30,8 @@ const BookSession = () => {
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
   const [availableTimeSlots, setAvailableTimeSlots] = useState([]);
   const [bookedTimeSlots, setBookedTimeSlots] = useState([]);
+  const [feePaid, setFeePaid] = useState(false);
+  const [payingFee, setPayingFee] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -123,6 +126,129 @@ const BookSession = () => {
   const handleTimeSlotSelect = (time) => {
     setSelectedTimeSlot(time);
     setFormData(prev => ({ ...prev, sessionTime: time }));
+  };
+
+  const handlePayFee = () => {
+    const loadRazorpay = () => {
+      return new Promise((resolve) => {
+        if (window.Razorpay) {
+          resolve(true);
+          return;
+        }
+        const script = document.createElement('script');
+        script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+        script.onload = () => resolve(true);
+        script.onerror = () => resolve(false);
+        document.body.appendChild(script);
+      });
+    };
+
+    const startPayment = async () => {
+      if (payingFee || feePaid) return;
+
+      try {
+        setPayingFee(true);
+        const token = localStorage.getItem('token');
+        if (!token) {
+          navigate('/login');
+          return;
+        }
+
+        const ok = await loadRazorpay();
+        if (!ok) {
+          toast.error('Failed to load payment gateway. Please try again.');
+          return;
+        }
+
+        const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+        const apiBase = baseUrl.endsWith('/api') ? baseUrl : `${baseUrl}/api`;
+
+        const platformFeePaise = 9900;
+
+        const orderRes = await fetch(`${apiBase}/payments/razorpay/order`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            amount: platformFeePaise,
+            currency: 'INR',
+            receipt: `booking_fee_${Date.now()}`,
+            notes: {
+              mentorId,
+              mentorName
+            }
+          })
+        });
+
+        const orderData = await orderRes.json();
+        if (!orderRes.ok || !orderData?.success) {
+          if ((orderData?.message || '').toLowerCase().includes('keys not configured')) {
+            toast.info("Payments will be integrated in version 2. Continue with booking it's free");
+          } else {
+            toast.error(orderData?.message || 'Failed to initiate payment');
+          }
+          return;
+        }
+
+        const { keyId, order } = orderData;
+
+        const user = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null;
+
+        const options = {
+          key: keyId,
+          amount: order.amount,
+          currency: order.currency,
+          name: 'Ment2Be',
+          description: 'Platform Fee',
+          order_id: order.id,
+          handler: async function (response) {
+            try {
+              const verifyRes = await fetch(`${apiBase}/payments/razorpay/verify`, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(response)
+              });
+
+              const verifyData = await verifyRes.json();
+              if (verifyRes.ok && verifyData?.success) {
+                setFeePaid(true);
+                toast.success('Payment successful.');
+              } else {
+                toast.error(verifyData?.message || 'Payment verification failed');
+              }
+            } catch (err) {
+              console.error('Verify payment error:', err);
+              toast.error('Payment verification failed');
+            }
+          },
+          prefill: {
+            name: user?.name || '',
+            email: user?.email || ''
+          },
+          theme: {
+            color: '#4b5563'
+          }
+        };
+
+        const rzp = new window.Razorpay(options);
+        rzp.on('payment.failed', function () {
+          toast.error('Payment failed.');
+        });
+        rzp.open();
+      } catch (err) {
+        console.error('Payment init error:', err);
+        toast.error('Failed to start payment');
+      } finally {
+        setPayingFee(false);
+      }
+    };
+
+    startPayment();
   };
 
   const handleSubmit = async (e) => {
@@ -244,10 +370,10 @@ const BookSession = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-black text-white">
         <Navbar userName={user?.name || 'Student'} />
         <div className="flex items-center justify-center h-64">
-          <div className="text-gray-500">Loading...</div>
+          <div className="text-gray-400">Loading...</div>
         </div>
       </div>
     );
@@ -364,9 +490,26 @@ const BookSession = () => {
                         <FiDollarSign className="w-3.5 h-3.5 mr-1" />
                         Session Price:
                       </span>
-                      <span className="text-white font-bold text-base">
-                        {mentorData.hourlyRate > 0 ? `$${mentorData.hourlyRate}` : 'Free'}
-                      </span>
+                      {mentorData.hourlyRate > 0 ? (
+                        <span className="text-white font-bold text-base">
+                          {`$${mentorData.hourlyRate}`}
+                        </span>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={handlePayFee}
+                          disabled={feePaid || payingFee}
+                          className={`px-3 py-1.5 rounded-lg font-medium transition-colors text-xs ${
+                            feePaid
+                              ? 'bg-gray-800 text-gray-500 cursor-not-allowed'
+                              : payingFee
+                              ? 'bg-gray-700 text-gray-300 cursor-not-allowed'
+                              : 'bg-gray-600 hover:bg-gray-700 text-white'
+                          }`}
+                        >
+                          {feePaid ? 'Paid' : payingFee ? 'Processing...' : 'Pay Fee'}
+                        </button>
+                      )}
                     </div>
                   </div>
                 )}

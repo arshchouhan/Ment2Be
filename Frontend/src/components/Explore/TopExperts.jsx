@@ -7,6 +7,14 @@ const TopExperts = () => {
   const [selectedExpert, setSelectedExpert] = useState(null);
   const [showModal, setShowModal] = useState(false);
 
+  const NON_VERIFIED_BADGES = [
+    'Featured',
+    'Highly Rated',
+    'Mentor Favorite',
+    'Top Contributor',
+    'In Demand'
+  ];
+
   useEffect(() => {
     const fetchTopExperts = async () => {
       try {
@@ -61,6 +69,18 @@ const TopExperts = () => {
       .substring(0, 2);
   };
 
+  const getBadgeLabel = (expert) => {
+    if (expert?.verified) return 'Top Pick';
+
+    const id = String(expert?.id || '');
+    const hash = Array.from(id).reduce((acc, ch) => acc + ch.charCodeAt(0), 0);
+    const index = NON_VERIFIED_BADGES.length
+      ? hash % NON_VERIFIED_BADGES.length
+      : 0;
+
+    return NON_VERIFIED_BADGES[index] || 'Featured';
+  };
+
   return (
     <div className="bg-[#121212] rounded-lg border border-[#202327] overflow-hidden flex flex-col h-[350px] w-[270px]">
       <div className="p-2 border-b border-gray-700 flex-shrink-0">
@@ -98,12 +118,12 @@ const TopExperts = () => {
                   ) : null}
                   <div 
                     style={{ display: expert.image ? 'none' : 'flex' }}
-                    className="h-10 w-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-bold text-xs border border-gray-600"
+                    className="h-10 w-10 rounded-full bg-[#202327] flex items-center justify-center text-white font-bold text-xs border border-gray-600"
                   >
                     {getInitials(expert.name)}
                   </div>
                   {expert.verified && (
-                    <div className="absolute -bottom-1 -right-1 bg-cyan-500 text-white rounded-full p-0.5">
+                    <div className="absolute -bottom-1 -right-1 bg-[#202327] text-white rounded-full p-0.5 border border-white">
                       <FiCheckCircle className="h-3 w-3" />
                     </div>
                   )}
@@ -112,12 +132,12 @@ const TopExperts = () => {
                   <div className="flex items-center">
                     <span className="text-sm font-medium text-white truncate">{expert.name}</span>
                     {expert.verified && (
-                      <FiCheckCircle className="ml-1 h-4 w-4 text-cyan-400 flex-shrink-0" />
+                      <FiCheckCircle className="ml-1 h-4 w-4 text-white flex-shrink-0" />
                     )}
                   </div>
                   <p className="text-xs text-gray-400 truncate">{expert.company}</p>
-                  <span className="inline-block mt-1 px-2 py-0.5 rounded-full text-xs font-semibold text-white" style={{ backgroundColor: '#da8c18' }}>
-                    Available
+                  <span className="inline-block mt-1 px-2 py-0.5 rounded-full text-xs font-semibold text-white border border-white" style={{ backgroundColor: '#202327' }}>
+                    {getBadgeLabel(expert)}
                   </span>
                 </div>
               </div>
@@ -133,14 +153,14 @@ const TopExperts = () => {
             {/* Header */}
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
-                <FiUser size={20} style={{ color: '#73501c' }} />
+                <FiUser size={20} style={{ color: '#ffffff' }} />
                 <h2 className="text-lg font-semibold text-white">Connect with {selectedExpert.name}</h2>
               </div>
               <button
                 onClick={() => setShowModal(false)}
                 className="text-gray-400 hover:text-white transition-colors"
               >
-                <FiX className="h-5 w-5" style={{ color: '#73501c' }} />
+                <FiX className="h-5 w-5" style={{ color: '#ffffff' }} />
               </button>
             </div>
 
@@ -162,7 +182,7 @@ const TopExperts = () => {
                 ) : null}
                 <div 
                   style={{ display: selectedExpert.image ? 'none' : 'flex' }}
-                  className="h-12 w-12 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-bold text-sm border border-gray-600"
+                  className="h-12 w-12 rounded-full bg-[#202327] flex items-center justify-center text-white font-bold text-sm border border-gray-600"
                 >
                   {selectedExpert.name?.charAt(0).toUpperCase() || 'M'}
                 </div>
@@ -179,19 +199,19 @@ const TopExperts = () => {
                 <h3 className="text-white font-semibold mb-2">How to Connect:</h3>
                 <ol className="text-sm text-gray-300 space-y-2">
                   <li className="flex gap-2">
-                    <span className="text-[#da8c18] font-bold">1.</span>
+                    <span className="text-white font-bold">1.</span>
                     <span>View the mentor's full profile and expertise</span>
                   </li>
                   <li className="flex gap-2">
-                    <span className="text-[#da8c18] font-bold">2.</span>
+                    <span className="text-white font-bold">2.</span>
                     <span>Check their availability and hourly rate</span>
                   </li>
                   <li className="flex gap-2">
-                    <span className="text-[#da8c18] font-bold">3.</span>
+                    <span className="text-white font-bold">3.</span>
                     <span>Book a session or send a message to discuss your goals</span>
                   </li>
                   <li className="flex gap-2">
-                    <span className="text-[#da8c18] font-bold">4.</span>
+                    <span className="text-white font-bold">4.</span>
                     <span>Start your mentorship journey and grow together</span>
                   </li>
                 </ol>
@@ -208,7 +228,7 @@ const TopExperts = () => {
               </button>
               <button
                 onClick={() => setShowModal(false)}
-                className="flex-1 px-4 py-2 rounded-lg bg-[#da8c18] text-white hover:bg-[#c97d0f] transition-colors font-medium text-sm"
+                className="flex-1 px-4 py-2 rounded-lg bg-[#202327] text-white hover:bg-gray-700 transition-colors font-medium text-sm border border-white"
               >
                 View Profile
               </button>

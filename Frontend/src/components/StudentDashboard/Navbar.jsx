@@ -51,11 +51,10 @@ const Navbar = ({ userName = 'Student' }) => {
           {/* Logo and Branding */}
           <Link to="/student/dashboard" className="flex items-center gap-2 hover:opacity-80 transition-opacity pl-4">
             <img src={LogoHat} alt="Ment2Be" className="h-8 w-8" />
-            <span className="text-white font-bold text-lg hidden sm:inline">Ment2Be</span>
           </Link>
 
           {/* Desktop Navigation Items */}
-          <div className="hidden md:flex items-center gap-3 flex-1 justify-center">
+          <div className="hidden md:flex items-center gap-3 flex-1 justify-start ml-6">
             {menuItems.map((item) => {
               const Icon = item.icon;
               const isActive = location.pathname === item.href;
@@ -73,7 +72,7 @@ const Navbar = ({ userName = 'Student' }) => {
                 >
                   <Icon 
                     size={18} 
-                    className="text-blue-400"
+                    className={isActive ? 'text-white' : 'text-gray-300'}
                   />
                   <span className={`text-xs font-medium ${
                     isActive ? 'text-white' : 'text-gray-300'

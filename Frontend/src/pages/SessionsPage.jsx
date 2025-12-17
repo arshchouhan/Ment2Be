@@ -132,15 +132,15 @@ const SessionsPage = () => {
   const getStatusColor = (status) => {
     switch (status) {
       case 'confirmed':
-        return 'bg-green-100 text-green-800 border-green-200';
+        return 'bg-[#2c2c2c] text-gray-200 border-gray-600';
       case 'pending':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+        return 'bg-[#2c2c2c] text-gray-200 border-gray-600';
       case 'cancelled':
-        return 'bg-red-100 text-red-800 border-red-200';
+        return 'bg-[#2c2c2c] text-gray-400 border-gray-600';
       case 'completed':
-        return 'bg-blue-100 text-blue-800 border-blue-200';
+        return 'bg-[#2c2c2c] text-gray-200 border-gray-600';
       default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
+        return 'bg-[#2c2c2c] text-gray-200 border-gray-600';
     }
   };
 
@@ -160,10 +160,10 @@ const SessionsPage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-black text-white">
         <Navbar userName={user?.name || 'Student'} />
         <div className="flex items-center justify-center h-64">
-          <div className="text-gray-500">Loading bookings...</div>
+          <div className="text-gray-400">Loading bookings...</div>
         </div>
       </div>
     );
@@ -200,17 +200,17 @@ const SessionsPage = () => {
     return (
       <div className={`rounded-lg p-4 mb-3 transition-all ${
         booking.status === 'completed'
-          ? 'bg-gradient-to-r from-[#1a3a1a] to-[#121212] border border-green-700/50 shadow-lg shadow-green-900/20'
+          ? 'bg-gradient-to-r from-[#1f1f1f] to-[#121212] border border-gray-700 shadow-lg shadow-black/30'
           : 'bg-[#121212] border border-gray-700 hover:border-white'
       }`}>
         <div className="flex items-start space-x-3">
           <div className="flex-shrink-0">
             <div className={`h-10 w-10 rounded-full flex items-center justify-center ${
               booking.status === 'completed'
-                ? 'bg-green-900/30'
+                ? 'bg-gray-800'
                 : 'bg-gray-800'
             }`}>
-              <FiUser className={`h-5 w-5 ${booking.status === 'completed' ? 'text-green-400' : 'text-gray-300'}`} />
+              <FiUser className="h-5 w-5 text-gray-200" />
             </div>
           </div>
           <div className="flex-1 min-w-0">
@@ -219,7 +219,7 @@ const SessionsPage = () => {
             </h4>
             <p className="text-xs text-gray-400">{booking.mentor?.title || 'Mentor'}</p>
             
-            <div className={`mt-2 flex items-center text-xs ${booking.status === 'completed' ? 'text-green-400' : 'text-gray-400'}`}>
+            <div className="mt-2 flex items-center text-xs text-gray-400">
               <FiCalendar className="mr-1 h-3 w-3" />
               {new Date(booking.sessionDate).toLocaleDateString()}
               <span className="mx-1">•</span>
@@ -230,7 +230,7 @@ const SessionsPage = () => {
             <div className="mt-2">
               <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
                 booking.status === 'completed' 
-                  ? 'bg-green-900/40 text-green-300 border border-green-700/50' 
+                  ? 'bg-[#2c2c2c] text-gray-200 border border-gray-600' 
                   : booking.status === 'cancelled' 
                     ? 'bg-[#2c2c2c] text-gray-400 border border-gray-600'
                     : 'bg-[#2c2c2c] text-white border border-gray-600'

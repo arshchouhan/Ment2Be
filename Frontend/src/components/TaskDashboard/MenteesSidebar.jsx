@@ -109,7 +109,7 @@ export function MenteesSidebar({ selectedMentee, onSelectMentee }) {
         <div className="p-4 border-b border-gray-700">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Users className="w-5 h-5 text-blue-400" />
+              <Users className="w-5 h-5 text-white" />
               <h2 className="font-semibold text-white">Mentees</h2>
             </div>
             <span className="bg-gray-700 text-gray-300 text-xs font-medium px-2 py-1 rounded-full">
@@ -170,7 +170,7 @@ export function MenteesSidebar({ selectedMentee, onSelectMentee }) {
                             {mentee.completed}/{mentee.total} completed
                           </span>
                           <div className="flex items-center gap-1 text-xs text-gray-400">
-                            <Award className="w-3 h-3 text-yellow-400" />
+                            <Award className="w-3 h-3 text-white" />
                             <span>{mentee.streak}</span>
                           </div>
                         </div>

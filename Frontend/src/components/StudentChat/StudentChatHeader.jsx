@@ -39,7 +39,7 @@ export function StudentChatHeader({
               {getInitials(mentorName)}
             </span>
           </div>
-          <Circle className="absolute -bottom-0.5 -right-0.5 h-3 w-3 fill-green-500 text-green-500" />
+          <Circle className="absolute -bottom-0.5 -right-0.5 h-3 w-3 fill-gray-300 text-gray-300" />
         </div>
         <div>
           <div className="flex items-center gap-2">

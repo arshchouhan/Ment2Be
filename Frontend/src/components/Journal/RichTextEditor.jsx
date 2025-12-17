@@ -46,7 +46,7 @@ const RichTextEditor = ({ value, onChange, placeholder = 'Start writing your not
         ref={editorRef}
         contentEditable
         onInput={handleInput}
-        className="bg-[#0a0a0a] text-gray-300 p-4 min-h-[400px] focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+        className="bg-[#0a0a0a] text-gray-300 p-4 min-h-[400px] focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent"
         style={{ minHeight: height }}
         suppressContentEditableWarning={true}
       />

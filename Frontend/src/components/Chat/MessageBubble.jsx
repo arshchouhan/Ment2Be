@@ -12,28 +12,28 @@ const typeConfig = {
   [MessageTypes.QUESTION]: {
     icon: HelpCircle,
     label: "Question",
-    className: "bg-blue-100 text-blue-800",
+    className: "bg-[#2a2d32] text-white",
   },
   [MessageTypes.INSIGHT]: {
     icon: Lightbulb,
     label: "Insight",
-    className: "bg-yellow-100 text-yellow-800",
+    className: "bg-[#2a2d32] text-white",
   },
   [MessageTypes.ADVICE]: {
     icon: BookOpen,
     label: "Advice",
-    className: "bg-green-100 text-green-800",
+    className: "bg-[#2a2d32] text-white",
   },
   [MessageTypes.ACTION]: {
     icon: CheckSquare,
     label: "Action Item",
-    className: "bg-purple-100 text-purple-800",
+    className: "bg-[#2a2d32] text-white",
   },
   // Fallback for unknown message types
   unknown: {
     icon: AlertCircle,
     label: "Unknown",
-    className: "bg-gray-100 text-gray-800",
+    className: "bg-[#2a2d32] text-white",
   },
 };
 
@@ -108,14 +108,14 @@ export function MessageBubble({ message = {} }) {
           className={cn(
             "rounded-2xl px-4 py-2 text-sm transition-all duration-200",
             isMentor 
-              ? "bg-blue-500 text-white rounded-tr-none" 
-              : "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-tl-none",
+              ? "bg-[#2a2d32] text-white border border-[#535353]/30 rounded-tr-none" 
+              : "bg-[#212121] text-white border border-[#535353]/30 rounded-tl-none",
             "hover:shadow-lg hover:shadow-gray-900/20"
           )}
         >
           {/* Message type indicator */}
           {messageType !== MessageTypes.NORMAL && (
-            <div className={cn("flex items-center mb-1 text-xs font-medium", isMentor ? 'text-blue-100' : 'text-gray-500')}>
+            <div className={cn("flex items-center mb-1 text-xs font-medium", isMentor ? 'text-white' : 'text-gray-300')}>
               <Icon className="w-3.5 h-3.5 mr-1" />
               <span>{config.label}</span>
             </div>
@@ -127,7 +127,7 @@ export function MessageBubble({ message = {} }) {
           </div>
           
           {/* Message time */}
-          <div className={cn("text-xs mt-1 text-right", isMentor ? 'text-blue-100' : 'text-gray-500')}>
+          <div className={cn("text-xs mt-1 text-right", isMentor ? 'text-[#b3b3b3]' : 'text-[#b3b3b3]')}>
             {formatTime(messageTime)}
           </div>
         </div>

@@ -2,14 +2,14 @@ import React from 'react';
 import { FiUsers, FiStar, FiClock, FiMessageSquare, FiDollarSign, FiUser, FiCode, FiGlobe } from 'react-icons/fi';
 
 const categories = [
-  { name: 'All Mentors', count: 24, icon: <FiUsers className="mr-2" size={18} style={{ color: '#73501c' }} /> },
-  { name: 'Software Engineering', count: 15, icon: <FiCode className="mr-2" size={18} style={{ color: '#73501c' }} /> },
-  { name: 'Product Management', count: 10, icon: <FiClock className="mr-2" size={18} style={{ color: '#73501c' }} /> },
-  { name: 'Career Guidance', count: 18, icon: <FiMessageSquare className="mr-2" size={18} style={{ color: '#73501c' }} /> },
-  { name: 'Business & Marketing', count: 12, icon: <FiDollarSign className="mr-2" size={18} style={{ color: '#73501c' }} /> },
-  { name: 'Design & UX', count: 9, icon: <FiStar className="mr-2" size={18} style={{ color: '#73501c' }} /> },
-  { name: 'Data Science & AI', count: 14, icon: <FiStar className="mr-2" size={18} style={{ color: '#73501c' }} /> },
-  { name: 'Web Development', count: 20, icon: <FiGlobe className="mr-2" size={18} style={{ color: '#73501c' }} /> },
+  { name: 'All Mentors', count: 24, icon: <FiUsers className="mr-2" size={18} style={{ color: '#ffffff' }} /> },
+  { name: 'Software Engineering', count: 15, icon: <FiCode className="mr-2" size={18} style={{ color: '#ffffff' }} /> },
+  { name: 'Product Management', count: 10, icon: <FiClock className="mr-2" size={18} style={{ color: '#ffffff' }} /> },
+  { name: 'Career Guidance', count: 18, icon: <FiMessageSquare className="mr-2" size={18} style={{ color: '#ffffff' }} /> },
+  { name: 'Business & Marketing', count: 12, icon: <FiDollarSign className="mr-2" size={18} style={{ color: '#ffffff' }} /> },
+  { name: 'Design & UX', count: 9, icon: <FiStar className="mr-2" size={18} style={{ color: '#ffffff' }} /> },
+  { name: 'Data Science & AI', count: 14, icon: <FiStar className="mr-2" size={18} style={{ color: '#ffffff' }} /> },
+  { name: 'Web Development', count: 20, icon: <FiGlobe className="mr-2" size={18} style={{ color: '#ffffff' }} /> },
 ];
 
 const CategoryList = ({ activeCategory, onCategoryClick }) => {

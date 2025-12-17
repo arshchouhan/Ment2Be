@@ -212,32 +212,32 @@ const StudentTaskPage = () => {
             value={earnedPoints}
             subtitle={`/ ${totalPoints} points`}
             icon={Trophy}
-            iconColor="text-amber-500"
-            iconBg="bg-amber-50"
+            iconColor="text-white"
+            iconBg="bg-[#212121]"
           />
           <StatsCard
             title="Completed"
             value={completedTasks.length}
             subtitle={`of ${tasks.length} tasks`}
             icon={CheckCircle2}
-            iconColor="text-emerald-500"
-            iconBg="bg-emerald-50"
+            iconColor="text-white"
+            iconBg="bg-[#212121]"
           />
           <StatsCard
             title="In Progress"
             value={inProgressTasks.length}
             subtitle="tasks active"
             icon={Clock}
-            iconColor="text-blue-500"
-            iconBg="bg-blue-50"
+            iconColor="text-white"
+            iconBg="bg-[#212121]"
           />
           <StatsCard
             title="Day Streak"
             value={streak}
             subtitle="days in a row"
             icon={Flame}
-            iconColor="text-orange-500"
-            iconBg="bg-orange-50"
+            iconColor="text-white"
+            iconBg="bg-[#212121]"
           />
         </div>
 
@@ -248,7 +248,7 @@ const StudentTaskPage = () => {
             tasks={completedTasks}
             title="Completed"
             icon={CheckCircle2}
-            color="text-emerald-500"
+            color="text-white"
             emptyIcon={CheckCircle2}
             emptyTitle="No completed tasks yet"
             emptyDescription="Complete your tasks to see them here"
@@ -259,7 +259,7 @@ const StudentTaskPage = () => {
             tasks={inProgressTasks}
             title="In Progress"
             icon={Clock}
-            color="text-blue-500"
+            color="text-white"
             emptyIcon={Zap}
             emptyTitle="No tasks in progress"
             emptyDescription="Start a task to see it here"
@@ -270,7 +270,7 @@ const StudentTaskPage = () => {
             tasks={pendingReviewTasks}
             title="Pending Review"
             icon={Award}
-            color="text-yellow-500"
+            color="text-white"
             emptyIcon={AlertCircle}
             emptyTitle="No tasks pending review"
             emptyDescription="Submit your tasks for mentor review"

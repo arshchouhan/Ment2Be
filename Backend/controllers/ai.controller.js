@@ -7,6 +7,13 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 // Generate session insights using Gemini AI
 export const generateSessionInsights = async (req, res) => {
   try {
+    if (!process.env.GEMINI_API_KEY) {
+      return res.status(500).json({
+        success: false,
+        message: 'Gemini API key not configured'
+      });
+    }
+
     const { sessionId } = req.params;
     const userId = req.user.id || req.user._id;
 

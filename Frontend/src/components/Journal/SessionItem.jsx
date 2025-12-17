@@ -1,6 +1,6 @@
 import React from 'react';
 
-const SessionItem = ({ session, isActive, onClick, hasNotes, hasAIAnalysis }) => {
+const SessionItem = ({ session, userRole, isActive, onClick, hasNotes, hasAIAnalysis }) => {
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', { 
@@ -18,6 +18,10 @@ const SessionItem = ({ session, isActive, onClick, hasNotes, hasAIAnalysis }) =>
     return `${displayHour}:${minutes} ${ampm}`;
   };
 
+  const mentorName = session.mentorName || session.mentor?.name;
+  const studentName = session.studentName || session.student?.name;
+  const counterpartName = userRole === 'mentor' ? (studentName || 'Student') : (mentorName || 'Mentor');
+
   return (
     <div
       onClick={onClick}
@@ -30,7 +34,7 @@ const SessionItem = ({ session, isActive, onClick, hasNotes, hasAIAnalysis }) =>
       <div className="flex items-start justify-between">
         <div className="flex-1 min-w-0">
           <h4 className="text-white font-medium text-sm truncate">
-            Session with {session.mentorName || 'Mentor'}
+            Session with {counterpartName}
           </h4>
           <div className="flex items-center space-x-2 mt-1">
             <span className="text-gray-400 text-xs">
@@ -48,7 +52,7 @@ const SessionItem = ({ session, isActive, onClick, hasNotes, hasAIAnalysis }) =>
             {session.topic && (
               <>
                 <span className="text-gray-500 text-xs">•</span>
-                <span className="text-blue-400 text-xs truncate max-w-[100px]">
+                <span className="text-gray-300 text-xs truncate max-w-[100px]">
                   {session.topic}
                 </span>
               </>
@@ -58,7 +62,7 @@ const SessionItem = ({ session, isActive, onClick, hasNotes, hasAIAnalysis }) =>
         
         <div className="flex flex-col items-end space-y-1 ml-2">
           {hasNotes && (
-            <div className="w-2 h-2 rounded-full bg-green-500" title="Notes Saved"></div>
+            <div className="w-2 h-2 rounded-full bg-gray-400" title="Notes Saved"></div>
           )}
         </div>
       </div>

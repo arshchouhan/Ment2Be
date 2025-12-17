@@ -103,7 +103,7 @@ const MentorCard = ({ mentor }) => {
                 <p className="text-xs text-gray-500 mt-1">{mentor.experience}</p>
               </div>
               <div className="flex items-center bg-[#535353] text-white text-sm font-medium px-2 py-1 rounded">
-                <FiStar className="text-yellow-400 mr-1" />
+                <FiStar className="text-white mr-1" />
                 {Number(mentor.rating || mentor.averageRating || 0).toFixed(1)} ({mentor.ratedCount || mentor.totalReviews || 0})
               </div>
             </div>
@@ -135,7 +135,7 @@ const MentorCard = ({ mentor }) => {
 
             <div className="mt-4 flex justify-between items-center">
               <button className="flex items-center gap-1 px-3 py-1 bg-[#535353] hover:bg-[#6b7280] text-white rounded text-xs font-medium transition-colors">
-                <FiGift size={14} />
+                <FiGift className="text-white" size={14} />
                 <span>Free Trial</span>
               </button>
               <div className="text-lg font-bold text-[#535353]">

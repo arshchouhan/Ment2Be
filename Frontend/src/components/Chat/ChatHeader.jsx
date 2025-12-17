@@ -63,7 +63,7 @@ export function ChatHeader({
               {getInitials(participantName)}
             </span>
           </div>
-          <Circle className="absolute -bottom-0.5 -right-0.5 h-3 w-3 fill-green-500 text-green-500" />
+          <Circle className="absolute -bottom-0.5 -right-0.5 h-3 w-3 fill-white text-white" />
         </div>
         <div>
           <div className="flex items-center gap-2">
@@ -71,7 +71,7 @@ export function ChatHeader({
               {participantName}
             </h1>
             {sessionData?.isMentor === false && (
-              <span className="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">
+              <span className="text-xs bg-[#2a2d32] text-white px-2 py-0.5 rounded-full border border-[#535353]/30">
                 Mentor
               </span>
             )}
@@ -82,7 +82,7 @@ export function ChatHeader({
             )}
             {sessionTime && (
               <div className="flex items-center text-xs text-gray-400">
-                <Clock className="h-3 w-3 mr-1 text-cyan-400" />
+                <Clock className="h-3 w-3 mr-1 text-white" />
                 <span>{sessionTime}</span>
               </div>
             )}
@@ -95,7 +95,7 @@ export function ChatHeader({
           className="p-2 rounded-lg text-[#b3b3b3] hover:text-white hover:bg-[#212121] transition-colors"
           title="More options"
         >
-          <MoreVertical className="h-5 w-5 text-gray-400" />
+          <MoreVertical className="h-5 w-5 text-white" />
         </button>
       </div>
     </header>

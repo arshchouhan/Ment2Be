@@ -3,7 +3,7 @@ import studentImg1 from '../../assets/handsome-young-indian-student-man-holding-
 import studentImg2 from '../../assets/smiling-happy-indian-student-with-backpack-pointing-his-finger-wall.jpg';
 import studentImg3 from '../../assets/smiling-student-with-laptop.jpg';
 import studentImg4 from '../../assets/front-view-smiley-man-holding-book.jpg';
-import studentImg5 from '../../assets/young-smiling-pretty-caucasian-schoolgirl-wearing-glasses-back-bag-with-headphones-neck-points-camera-holding-books-pink-with-copy-space_50%.jpg';
+import studentImg5 from '../../assets/smiling-young-caucasian-woman-holds-pen-notebook.jpg';
 
 const ProfileCarousel = () => {
   const [currentProfile, setCurrentProfile] = useState(0);
