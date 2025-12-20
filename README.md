@@ -1,11 +1,10 @@
 <div align="center">
 
 <a href="#ment2be">
-  <picture>
-    <source media="(prefers-reduced-motion: no-preference)" srcset="https://readme-typing-svg.herokuapp.com?font=Fira+Code&pause=1000&color=6366F1&center=true&vCenter=true&width=100&height=100&lines=🎓" />
-    <img src="Frontend/src/assets/logo-hat.png" alt="Ment2Be Logo" width="100"/>
-  </picture>
+  <img src="Frontend/src/assets/logo-hat.png" alt="Ment2Be Logo" width="120"/>
 </a>
+
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="line" width="100%"/>
 
 # Ment2Be
 
