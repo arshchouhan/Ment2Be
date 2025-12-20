@@ -12,7 +12,8 @@
 
 **A modern mentorship platform that bridges the gap between aspiring students and industry experts**
 
-[![Live Demo](https://img.shields.io/badge/🚀_Live_Demo-Visit_Site-success?style=for-the-badge)](https://k23dx.netlify.app)
+[![Visit Site](https://img.shields.io/badge/🌐_Visit_Site-ment2be.arshchouhan.me-6366F1?style=for-the-badge&logo=googlechrome&logoColor=white)](https://ment2be.arshchouhan.me)
+[![Live Demo](https://img.shields.io/badge/▶_Live_Demo-Watch_Video-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://youtu.be/HM1EFZ8p1kQ)
 [![GitHub Stars](https://img.shields.io/github/stars/arshchouhan/Ment2Be?style=for-the-badge&logo=github)](https://github.com/arshchouhan/Ment2Be)
 
 <br/>
@@ -260,9 +261,13 @@ Ment2Be/
 |:---:|:---:|
 | <img src="Frontend/src/assets/studentdashbaordimage.png" alt="Student Dashboard" width="100%"/> | <img src="Frontend/src/assets/connect1.png" alt="Connect" width="100%"/> |
 
-| Task Management | Platform Features |
+| Task Management | Student Profile |
 |:---:|:---:|
-| <img src="Frontend/src/assets/taskbymentee.png" alt="Tasks" width="100%"/> | <img src="Frontend/src/assets/trust.png" alt="Features" width="100%"/> |
+| <img src="Frontend/src/assets/taskbymentee.png" alt="Tasks" width="100%"/> | <img src="Frontend/src/assets/student.png" alt="Student" width="100%"/> |
+
+| Student Features | Mentor Profile |
+|:---:|:---:|
+| <img src="Frontend/src/assets/student2.png" alt="Student Features" width="100%"/> | <img src="Frontend/src/assets/mentor.png" alt="Mentor" width="100%"/> |
 
 </div>
 
