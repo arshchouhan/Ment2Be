@@ -4,7 +4,7 @@
  */
 
 // Set to 'nodejs', 'java', or 'render' to switch between backends
-const ACTIVE_BACKEND = 'render'; // ✅ Using Render backend
+const ACTIVE_BACKEND = 'nodejs'; // ✅ Using Render backend
 
 // Base URLs for different backends
 const BASE_URLS = {
