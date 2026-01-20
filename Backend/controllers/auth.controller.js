@@ -1,6 +1,6 @@
 import User from "../models/user.model.js";
 import jwt from "jsonwebtoken";
-import bcrypt from "bcryptjs";
+import bcrypt from "bcrypt";
 import crypto from "crypto";
 import { OAuth2Client } from 'google-auth-library';
 import { sendPasswordResetEmail, sendWelcomeEmail } from "../services/emailService.js";

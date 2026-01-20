@@ -34,20 +34,23 @@ import { handleSocketConnection, getRoomCount, getTotalParticipants } from './so
 import { handleChatConnection, getActiveConversationCount, getTotalChatParticipants } from './socket/chatSocketHandlers.js';
 
 import dotenv from "dotenv"
+import { validateEnv } from './config/env.js';
 
 dotenv.config()
+validateEnv();
 
 const app = express();
 const server = createServer(app);
 const io = new Server(server, {
   cors: {
     origin: [
-      "http://localhost:3000",
-      "http://localhost:5173", // Vite default port
-      "https://k23-dx.vercel.app",
-      "https://ment2be.arshchouhan.me",
-      process.env.FRONTEND_URL
-    ].filter(Boolean), // Remove any undefined values
+      process.env.FRONTEND_URL,
+      process.env.HOSTED_FRONTEND_DOMAIN,
+      ...(process.env.NODE_ENV === 'development' ? [
+        "http://localhost:3000",
+        "http://localhost:5173"
+      ] : [])
+    ].filter(Boolean),
     methods: ["GET", "POST"]
   }
 });
