@@ -38,6 +38,7 @@ import SolutionsPage from './pages/SolutionsPage';
 import ContactUsPage from './pages/ContactUsPage';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import PrivacyPolicy from "./pages/PrivacyPolicy";
 
 function App() {
   const location = useLocation();
@@ -93,6 +94,7 @@ function App() {
         <Route path="/mentor/forum/question/:questionId" element={<QuestionDetailPage />} />
         <Route path="/mentor/journal" element={<MentorJournalPage />} />
         <Route path="/mentor/students" element={<ConnectedStudents />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
 
         {/* Testing Route */}
         <Route path="/karma-test" element={<KarmaTest />} />

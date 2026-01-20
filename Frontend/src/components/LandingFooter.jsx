@@ -179,7 +179,7 @@ const LandingFooter = () => {
               © 2024 Ment2Be. All rights reserved.
             </p>
             <div className="flex space-x-6 mt-4 md:mt-0">
-              <a href="#" className="text-gray-400 hover:text-white transition-colors text-sm">
+              <a href="/privacy-policy" className="text-gray-400 hover:text-white transition-colors text-sm">
                 Privacy Policy
               </a>
               <a href="#" className="text-gray-400 hover:text-white transition-colors text-sm">
