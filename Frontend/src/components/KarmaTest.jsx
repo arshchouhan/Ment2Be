@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { API_BASE_URL } from '../config/backendConfig';
 
 /**
  * Karma Integration Test Component
@@ -17,17 +18,17 @@ function KarmaTest() {
         try {
             // Test 1: Backend Health
             console.log('Testing backend health...');
-            const backendRes = await fetch('http://localhost:4000/api/health');
+            const backendRes = await fetch(`${API_BASE_URL}/health`);
             testResults.backend = await backendRes.json();
 
             // Test 2: Karma Service Health
             console.log('Testing karma service health...');
-            const karmaHealthRes = await fetch('http://localhost:4000/api/karma/health');
+            const karmaHealthRes = await fetch(`${API_BASE_URL}/karma/health`);
             testResults.karmaHealth = await karmaHealthRes.json();
 
             // Test 3: Get Karma Configuration
             console.log('Getting karma configuration...');
-            const configRes = await fetch('http://localhost:4000/api/karma/config');
+            const configRes = await fetch(`${API_BASE_URL}/karma/config`);
             testResults.config = await configRes.json();
 
             // Test 4: Direct Java Service

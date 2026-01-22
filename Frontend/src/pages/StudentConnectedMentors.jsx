@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiX, FiMail, FiPhone, FiLinkedin, FiGithub } from 'react-icons/fi';
+import { API_BASE_URL } from '../config/backendConfig';
 
 const StudentConnectedMentors = () => {
   const navigate = useNavigate();
@@ -22,7 +23,7 @@ const StudentConnectedMentors = () => {
         return;
       }
 
-      const response = await fetch(import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/connections/my-connections?status=connected` : (import.meta.env.PROD ? 'https://k23dx.onrender.com/api/connections/my-connections?status=connected' : 'http://localhost:4000/api/connections/my-connections?status=connected'), {
+      const response = await fetch(`${API_BASE_URL}/connections/my-connections?status=connected`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',

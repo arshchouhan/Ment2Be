@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { API_BASE_URL } from '../config/backendConfig';
 import LandingNavbar from '../components/LandingNavbar';
 import LandingFooter from '../components/LandingFooter';
 
@@ -25,8 +26,7 @@ const ContactUsPage = () => {
     setIsSubmitting(true);
     
     try {
-      const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
-      const response = await fetch(`${baseUrl}/contact`, {
+      const response = await fetch(`${API_BASE_URL}/contact`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

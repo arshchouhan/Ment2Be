@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { API_BASE_URL } from '../config/backendConfig';
 import StudentProfileCompletion from '../components/StudentProfileCompletion';
 import Navbar from '../components/StudentDashboard/Navbar';
 
@@ -9,7 +10,7 @@ const ProfileCompletionPage = () => {
   const handleComplete = async (formData) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/user/profile` : (import.meta.env.PROD ? 'https://k23dx.onrender.com/api/user/profile' : 'http://localhost:4000/api/user/profile'), {
+      const response = await fetch(`${API_BASE_URL}/user/profile`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

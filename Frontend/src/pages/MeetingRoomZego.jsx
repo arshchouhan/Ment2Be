@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
+import { API_BASE_URL } from '../config/backendConfig';
+import { getBackendUrl } from '../utils/apiUrl.js';
 import { ZegoUIKitPrebuilt } from '@zegocloud/zego-uikit-prebuilt';
 import { io } from 'socket.io-client';
 import { 
@@ -109,8 +111,7 @@ const MeetingRoomZego = () => {
     try {
       const token = localStorage.getItem('token');
       if (token && sessionId) {
-        const baseUrl = import.meta.env.VITE_API_URL?.replace('/api', '') || (import.meta.env.PROD ? 'https://k23dx.onrender.com' : 'http://localhost:4000');
-        const response = await fetch(`${baseUrl}/api/bookings/${sessionId}/status`, {
+        const response = await fetch(`${API_BASE_URL}/bookings/${sessionId}/status`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -152,8 +153,7 @@ const MeetingRoomZego = () => {
   // Socket.IO connection for session sync
   useEffect(() => {
     // Connect to Socket.IO server
-    const SOCKET_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:4000';
-    const socket = io(SOCKET_URL);
+    const socket = io(getBackendUrl());
     socketRef.current = socket;
 
     socket.on('connect', () => {

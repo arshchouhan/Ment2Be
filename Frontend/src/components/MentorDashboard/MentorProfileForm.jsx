@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Check, ArrowRight } from 'lucide-react';
+import { API_BASE_URL } from '../../config/backendConfig';
 
 const Step1 = ({ formData, handleChange, nextStep }) => (
   <div className="space-y-6">
@@ -156,7 +157,7 @@ const handleSubmit = async (e) => {
     };
 
     // Send the data to the backend
-    const response = await fetch('http://localhost:4000/api/mentors/profile', {
+    const response = await fetch(`${API_BASE_URL}/mentors/profile`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

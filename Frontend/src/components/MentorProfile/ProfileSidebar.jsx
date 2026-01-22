@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FiStar, FiUsers, FiClock, FiTrendingUp, FiCalendar } from 'react-icons/fi';
-import { API_BASE_URL } from '../../config/apiConfig';
+import { API_BASE_URL } from '../../config/backendConfig';
 
 const ProfileSidebar = ({ mentorData, onBookSession, mentorId }) => {
   const [stats, setStats] = useState({
@@ -22,7 +22,7 @@ const ProfileSidebar = ({ mentorData, onBookSession, mentorId }) => {
         }
 
         // Fetch mentor stats from backend (includes actual mentoring time calculation)
-        const statsResponse = await fetch(`http://localhost:4000/api/bookings/mentor/stats?mentorId=${mentorId}`, {
+        const statsResponse = await fetch(`${API_BASE_URL}/bookings/mentor/stats?mentorId=${mentorId}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -68,7 +68,6 @@ const ProfileSidebar = ({ mentorData, onBookSession, mentorId }) => {
 
         const baseUrls = [
           'https://k23dx.onrender.com',
-          'http://localhost:4000',
           normalizedApiBase
         ].filter(Boolean);
 

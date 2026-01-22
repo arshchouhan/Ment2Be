@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Award, BarChart3, Users } from "lucide-react";
-import { TASK_API_URL } from "../../config/apiConfig.js";
+import { API_BASE_URL } from "../../config/backendConfig";
 
 export function MenteesSidebar({ selectedMentee, onSelectMentee }) {
   const [mentees, setMentees] = useState([]);
@@ -18,7 +18,7 @@ export function MenteesSidebar({ selectedMentee, onSelectMentee }) {
       setLoading(true);
       
       // Fetch mentees from bookings
-      const bookingsResponse = await fetch('http://localhost:4000/api/bookings/mentor', {
+      const bookingsResponse = await fetch(`${API_BASE_URL}/bookings/mentor`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',

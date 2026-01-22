@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { FiCalendar, FiClock, FiUser, FiDollarSign, FiEye, FiMapPin, FiRefreshCw } from 'react-icons/fi';
+import { API_BASE_URL } from '../config/backendConfig';
 import Navbar from '../components/StudentDashboard/Navbar';
 import SessionTimer from '../components/SessionTimer';
 
@@ -89,7 +90,7 @@ const SessionsPage = () => {
       setLoading(true);
       setError(null);
 
-      const response = await fetch(import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/bookings` : (import.meta.env.PROD ? 'https://k23dx.onrender.com/api/bookings' : 'http://localhost:4000/api/bookings'), {
+      const response = await fetch(`${API_BASE_URL}/bookings`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',

@@ -1,22 +1,13 @@
 /**
  * Availability Service - Handles all availability related API calls
- * Easy backend switching between Node.js and Java
+ * Uses centralized API URL configuration
  */
 
-// Switch between 'nodejs', 'java', or 'render'
-// Auto-detect: use 'render' in production, 'nodejs' in development
-const ACTIVE_BACKEND = import.meta.env.VITE_BACKEND || (import.meta.env.PROD ? 'render' : 'nodejs');
+import { getApiUrl } from '../utils/apiUrl.js';
 
-const BACKEND_URLS = {
-  nodejs: 'http://localhost:4000',
-  java: 'http://localhost:8081',
-  render: 'https://k23dx.onrender.com'
-};
+const API_URL = `${getApiUrl()}/mentor-availability`;
 
-const BASE_URL = BACKEND_URLS[ACTIVE_BACKEND] || 'https://k23dx.onrender.com';
-const API_URL = `${BASE_URL}/api/mentor-availability`;
-
-console.log(`🔧 [Availability Service] Using ${ACTIVE_BACKEND.toUpperCase()} backend: ${API_URL}`);
+console.log(`🔧 [Availability Service] API URL: ${API_URL}`);
 
 const getAuthHeader = () => {
   const token = localStorage.getItem('token');
@@ -151,9 +142,7 @@ export const getActiveBackend = () => {
  * Get current API URL
  * @returns {string} Full API URL
  */
-export const getApiUrl = () => {
-  return API_URL;
-};
+// Re-exported from apiUrl.js above
 
 /**
  * Switch backend (for testing purposes)

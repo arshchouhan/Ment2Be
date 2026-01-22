@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { FiCalendar, FiClock, FiUser, FiBookOpen, FiTrendingUp, FiUserPlus, FiLoader, FiX, FiCheck, FiAward, FiLogOut, FiStar } from 'react-icons/fi';
+import { API_BASE_URL } from '../config/backendConfig';
 import Navbar from '../components/StudentDashboard/Navbar';
 import SessionTimer from '../components/SessionTimer';
 import KarmaPointsCard from '../components/KarmaPointsCard/KarmaPointsCard';
@@ -20,8 +21,7 @@ const MentorCard = ({ mentor, onNavigate }) => {
     const fetchAvailability = async () => {
       try {
         const token = localStorage.getItem('token');
-        const baseUrl = import.meta.env.VITE_API_URL?.replace('/api', '') || (import.meta.env.PROD ? 'https://k23dx.onrender.com' : 'http://localhost:4000');
-        const response = await fetch(`${baseUrl}/api/mentor-availability/latest/${mentor._id}`, {
+        const response = await fetch(`${API_BASE_URL}/mentor-availability/latest/${mentor._id}`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -147,7 +147,7 @@ const UserDashboard = () => {
       try {
         setLoading(true);
 
-        const res = await fetch(import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/user/me` : (import.meta.env.PROD ? "https://k23dx.onrender.com/api/user/me" : "http://localhost:4000/api/user/me"), {
+        const res = await fetch(`${API_BASE_URL}/user/me`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -255,7 +255,7 @@ const UserDashboard = () => {
       const token = localStorage.getItem("token");
       if (!token) return;
 
-      const response = await fetch(import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/mentors/top-experts?limit=3` : (import.meta.env.PROD ? 'https://k23dx.onrender.com/api/mentors/top-experts?limit=3' : 'http://localhost:4000/api/mentors/top-experts?limit=3'), {
+      const response = await fetch(`${API_BASE_URL}/mentors/top-experts?limit=3`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -304,7 +304,7 @@ const UserDashboard = () => {
       const token = localStorage.getItem("token");
       if (!token) return;
 
-      const response = await fetch(import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/connections/my-connections?status=connected` : (import.meta.env.PROD ? 'https://k23dx.onrender.com/api/connections/my-connections?status=connected' : 'http://localhost:4000/api/connections/my-connections?status=connected'), {
+      const response = await fetch(`${API_BASE_URL}/connections/my-connections?status=connected`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -332,7 +332,7 @@ const UserDashboard = () => {
 
     try {
       setSessionsLoading(true);
-      const response = await fetch(import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/bookings` : (import.meta.env.PROD ? 'https://k23dx.onrender.com/api/bookings' : 'http://localhost:4000/api/bookings'), {
+      const response = await fetch(`${API_BASE_URL}/bookings`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -407,7 +407,7 @@ const UserDashboard = () => {
 
     try {
       setMessagesLoading(true);
-      const response = await fetch(import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/messages/conversations` : (import.meta.env.PROD ? 'https://k23dx.onrender.com/api/messages/conversations' : 'http://localhost:4000/api/messages/conversations'), {
+      const response = await fetch(`${API_BASE_URL}/messages/conversations`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -455,8 +455,7 @@ const UserDashboard = () => {
           messages.map(async (msg) => {
             if (!msg.profilePicture && msg.participantId) {
               try {
-                const baseUrl = import.meta.env.VITE_API_URL?.replace('/api', '') || (import.meta.env.PROD ? 'https://k23dx.onrender.com' : 'http://localhost:4000');
-                const mentorResponse = await fetch(`${baseUrl}/api/mentors/${msg.participantId}`, {
+                const mentorResponse = await fetch(`${API_BASE_URL}/mentors/${msg.participantId}`, {
                   headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
@@ -555,7 +554,7 @@ const UserDashboard = () => {
       setReviewsLoading(true);
       console.log('Fetching submitted reviews for current user...');
       
-      const response = await fetch(import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/reviews` : (import.meta.env.PROD ? 'https://k23dx.onrender.com/api/reviews' : 'http://localhost:4000/api/reviews'), {
+      const response = await fetch(`${API_BASE_URL}/reviews`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -607,8 +606,7 @@ const UserDashboard = () => {
         return;
       }
 
-      const baseUrl = import.meta.env.VITE_API_URL?.replace('/api', '') || (import.meta.env.PROD ? 'https://k23dx.onrender.com' : 'http://localhost:4000');
-      const response = await fetch(`${baseUrl}/api/bookings/${session._id}/join`, {
+      const response = await fetch(`${API_BASE_URL}/bookings/${session._id}/join`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -694,7 +692,7 @@ const UserDashboard = () => {
         submitData.append('profilePicture', formData.profilePicture);
       }
 
-      const response = await fetch(import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/user/profile` : (import.meta.env.PROD ? 'https://k23dx.onrender.com/api/user/profile' : 'http://localhost:4000/api/user/profile'), {
+      const response = await fetch(`${API_BASE_URL}/user/profile`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`

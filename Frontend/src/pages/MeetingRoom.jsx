@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { FiVideo, FiVideoOff, FiMic, FiMicOff, FiPhone, FiMessageSquare, FiUsers, FiMonitor } from 'react-icons/fi';
+import { getBackendUrl } from '../utils/apiUrl.js';
 import { connect, createLocalAudioTrack, createLocalVideoTrack } from 'twilio-video';
 
 const MeetingRoom = () => {
@@ -58,8 +59,7 @@ const MeetingRoom = () => {
   useEffect(() => {
 
     // Initialize Socket.IO connection
-    const socketUrl = import.meta.env.VITE_API_URL?.replace('/api', '') || (import.meta.env.PROD ? 'https://k23dx.onrender.com' : 'http://localhost:4000');
-    const newSocket = io(socketUrl);
+    const newSocket = io(getBackendUrl());
     setSocket(newSocket);
 
     // Socket event listeners

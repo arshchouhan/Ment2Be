@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiArrowLeft, FiLoader } from 'react-icons/fi';
 import { formatDistanceToNow } from 'date-fns';
+import { API_BASE_URL } from '../config/backendConfig';
 import Navbar from '../components/StudentDashboard/Navbar';
 
 const SubmissionsPage = () => {
@@ -21,7 +22,7 @@ const SubmissionsPage = () => {
     // Fetch profile
     const fetchProfile = async () => {
       try {
-        const res = await fetch(import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/user/me` : (import.meta.env.PROD ? "https://k23dx.onrender.com/api/user/me" : "http://localhost:4000/api/user/me"), {
+        const res = await fetch(`${API_BASE_URL}/user/me`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -41,7 +42,7 @@ const SubmissionsPage = () => {
     const fetchSubmissions = async () => {
       try {
         setLoading(true);
-        const response = await fetch(import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/reviews` : (import.meta.env.PROD ? 'https://k23dx.onrender.com/api/reviews' : 'http://localhost:4000/api/reviews'), {
+        const response = await fetch(`${API_BASE_URL}/reviews`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',

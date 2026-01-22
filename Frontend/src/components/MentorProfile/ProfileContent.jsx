@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FiStar, FiCalendar, FiUsers, FiAward } from 'react-icons/fi';
-import { API_BASE_URL } from '../../config/apiConfig';
+import { API_BASE_URL } from '../../config/backendConfig';
 
 const ProfileContent = ({ mentorData, activeTab, mentorId }) => {
   const [reviews, setReviews] = useState([]);
@@ -22,7 +22,7 @@ const ProfileContent = ({ mentorData, activeTab, mentorId }) => {
         }
 
         // Fetch reviews for this mentor
-        const response = await fetch(`http://localhost:4000/api/reviews?mentorId=${mentorId}`, {
+        const response = await fetch(`${API_BASE_URL}/reviews?mentorId=${mentorId}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -57,7 +57,7 @@ const ProfileContent = ({ mentorData, activeTab, mentorId }) => {
         }
 
         // Fetch videos for this mentor (from reviews that contain video URLs)
-        const response = await fetch(`http://localhost:4000/api/reviews?mentorId=${mentorId}`, {
+        const response = await fetch(`${API_BASE_URL}/reviews?mentorId=${mentorId}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -103,7 +103,6 @@ const ProfileContent = ({ mentorData, activeTab, mentorId }) => {
 
       const baseUrls = [
         'https://k23dx.onrender.com',
-        'http://localhost:4000',
         normalizedApiBase
       ].filter(Boolean);
 

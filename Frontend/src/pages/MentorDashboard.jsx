@@ -1,12 +1,13 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { API_BASE_URL } from '../config/backendConfig';
+import { getBackendUrl } from '../utils/apiUrl.js';
 import MentorNavbar from '../components/MentorDashboard/Navbar';
 import SessionTimer from '../components/SessionTimer';
 import { FiUpload, FiX, FiCalendar, FiUsers, FiClock, FiEdit3, FiSettings, FiLogOut, FiPlus, FiFolder, FiMoreVertical, FiBookOpen, FiTrendingUp, FiUserPlus, FiMessageSquare, FiAward, FiStar, FiCheckCircle, FiAlertCircle } from 'react-icons/fi';
 import { formatDistanceToNow } from 'date-fns';
 import KarmaPointsCard from '../components/KarmaPointsCard/KarmaPointsCard';
 import PageLoader from '../components/PageLoader';
-import { getApiUrl } from '../config/backendConfig';
 
 const MentorDashboard = () => {
   const navigate = useNavigate();
@@ -82,7 +83,7 @@ const MentorDashboard = () => {
   // ✅ FETCH PROFILE FROM MONGODB
   const fetchProfile = async () => {
     try {
-      const res = await fetch(import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/user/me` : (import.meta.env.PROD ? "https://k23dx.onrender.com/api/user/me" : "http://localhost:4000/api/user/me"), {
+      const res = await fetch(`${API_BASE_URL}/user/me`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
@@ -122,7 +123,7 @@ const MentorDashboard = () => {
 
     try {
       setConnectionsLoading(true);
-      const response = await fetch(import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/connections/mentor-connections` : (import.meta.env.PROD ? 'https://k23dx.onrender.com/api/connections/mentor-connections' : 'http://localhost:4000/api/connections/mentor-connections'), {
+      const response = await fetch(`${API_BASE_URL}/connections/mentor-connections`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -187,7 +188,7 @@ const MentorDashboard = () => {
 
     try {
       setSessionsLoading(true);
-      const response = await fetch(import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/bookings/mentor` : (import.meta.env.PROD ? 'https://k23dx.onrender.com/api/bookings/mentor' : 'http://localhost:4000/api/bookings/mentor'), {
+      const response = await fetch(`${API_BASE_URL}/bookings/mentor`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -223,7 +224,7 @@ const MentorDashboard = () => {
     try {
       setMessagesLoading(true);
       console.log('🔄 Fetching recent messages...');
-      const response = await fetch(import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/messages/conversations` : (import.meta.env.PROD ? 'https://k23dx.onrender.com/api/messages/conversations' : 'http://localhost:4000/api/messages/conversations'), {
+      const response = await fetch(`${API_BASE_URL}/messages/conversations`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -276,7 +277,7 @@ const MentorDashboard = () => {
     try {
       setMenteesLoading(true);
       // Fetch connections instead of bookings to get recent connections
-      const response = await fetch(import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/connections/mentor-connections?status=connected` : (import.meta.env.PROD ? 'https://k23dx.onrender.com/api/connections/mentor-connections?status=connected' : 'http://localhost:4000/api/connections/mentor-connections?status=connected'), {
+      const response = await fetch(`${API_BASE_URL}/connections/mentor-connections?status=connected`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -321,8 +322,7 @@ const MentorDashboard = () => {
       console.log('Fetching reviews ABOUT mentor:', profile._id);
       
       // Use mentor query param to fetch reviews ABOUT this mentor (not BY this mentor)
-      const baseUrl = import.meta.env.VITE_API_URL?.replace('/api', '') || (import.meta.env.PROD ? 'https://k23dx.onrender.com' : 'http://localhost:4000');
-      const response = await fetch(`${baseUrl}/api/reviews?mentor=${profile._id}`, {
+      const response = await fetch(`${API_BASE_URL}/reviews?mentor=${profile._id}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -361,7 +361,7 @@ const MentorDashboard = () => {
       }
 
       // Call the join session API to get room details
-      const response = await fetch(`http://localhost:4000/api/bookings/${session._id}/join`, {
+      const response = await fetch(`${API_BASE_URL}/bookings/${session._id}/join`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -613,7 +613,7 @@ const MentorDashboard = () => {
       setIsUploading(true);
       setUploadError(null);
       
-      const response = await fetch(`http://localhost:4000/api/mentors/upload-photo`, {
+      const response = await fetch(`${API_BASE_URL}/mentors/upload-photo`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -661,7 +661,7 @@ const MentorDashboard = () => {
     }
 
     try {
-      const response = await fetch(`http://localhost:4000/api/mentors/upload-photo`, {
+      const response = await fetch(`${API_BASE_URL}/mentors/upload-photo`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,

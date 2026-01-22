@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { X, Upload } from "lucide-react";
-import { TASK_API_URL } from "../../config/apiConfig.js";
+import { API_BASE_URL } from "../../config/backendConfig";
 
 const categories = ["Technical Skills", "Soft Skills", "Career Development", "Content Creation"];
 const priorities = ["high", "medium", "low"];
@@ -29,7 +29,7 @@ export function CreateTaskModal({ isOpen, onClose }) {
     if (!token) return;
 
     try {
-      const response = await fetch('http://localhost:4000/api/bookings/mentor', {
+      const response = await fetch(`${API_BASE_URL}/bookings/mentor`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',

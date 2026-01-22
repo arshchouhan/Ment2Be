@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { FiCalendar, FiClock, FiUser, FiDollarSign, FiEye, FiMapPin, FiRefreshCw, FiMessageSquare, FiVideo, FiTrendingUp, FiAlertCircle, FiCheckCircle, FiChevronLeft, FiChevronRight, FiCheck, FiMail, FiBook } from 'react-icons/fi';
+import { API_BASE_URL } from '../config/backendConfig';
+import { getBackendUrl } from '../utils/apiUrl.js';
 import MentorNavbar from '../components/MentorDashboard/Navbar';
 import { StudentSessionCard } from '../components/MentorDashboard/StudentSessionCard';
 import { EnhancedStudentCard } from '../components/MentorDashboard/EnhancedStudentCard';
@@ -29,7 +31,7 @@ const MentorMenteesPage = () => {
       setLoading(true);
       setError(null);
 
-      const response = await fetch(import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/bookings/mentor` : (import.meta.env.PROD ? 'https://k23dx.onrender.com/api/bookings/mentor' : 'http://localhost:4000/api/bookings/mentor'), {
+      const response = await fetch(`${API_BASE_URL}/bookings/mentor`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -409,8 +411,8 @@ const MentorMenteesPage = () => {
         return;
       }
 
-      const baseUrl = import.meta.env.VITE_API_URL?.replace('/api', '') || (import.meta.env.PROD ? 'https://k23dx.onrender.com' : 'http://localhost:4000');
-      const response = await fetch(`${baseUrl}/api/bookings/${session._id}/confirm`, {
+      const baseUrl = getBackendUrl();
+      const response = await fetch(`${API_BASE_URL}/bookings/${session._id}/confirm`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -440,8 +442,7 @@ const MentorMenteesPage = () => {
         return;
       }
 
-      const baseUrl = import.meta.env.VITE_API_URL?.replace('/api', '') || (import.meta.env.PROD ? 'https://k23dx.onrender.com' : 'http://localhost:4000');
-      const response = await fetch(`${baseUrl}/api/bookings/${session._id}/reject`, {
+      const response = await fetch(`${API_BASE_URL}/bookings/${session._id}/reject`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -473,7 +474,7 @@ const MentorMenteesPage = () => {
       }
 
       if (confirm('Are you sure you want to cancel this session? The student will be notified.')) {
-        const response = await fetch(`http://localhost:4000/api/bookings/${session._id}/cancel`, {
+        const response = await fetch(`${API_BASE_URL}/bookings/${session._id}/cancel`, {
           method: 'PUT',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -818,11 +819,7 @@ const MentorMenteesPage = () => {
                         />
                       ))
                     ) : (
-                      <div className="bg-[#121212] border borde[Backend Config] API URL: http://localhost:8081/api
-availabilityService.js:64 📥 [NODEJS] Fetching available slots for mentor 6929eb49ff37b3c981e9b245 on 2026-01-11
-availabilityService.js:77 ✅ [NODEJS] Found 0 available slots
-BookSession.jsx:105 📅 Availability API Response: {success: true, availableSlots: Array(0), message: 'No availability found for this date'}
-BookSession.jsx:106 📋 Available slots: []r-gray-700 rounded-xl overflow-visible shadow-lg relative">
+                      <div className="bg-[#121212] border border-gray-700 rounded-xl overflow-visible shadow-lg relative">
                         {/* Empty Card Header */}
                         <div className="bg-gradient-to-r from-[#1a1a1a] to-[#121212] p-6 border-b border-gray-700">
                           <div className="flex items-start gap-4">

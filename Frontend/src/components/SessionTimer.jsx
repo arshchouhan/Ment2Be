@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FiClock, FiVideo, FiCalendar } from 'react-icons/fi';
+import { API_BASE_URL } from '../config/backendConfig';
 
 const SessionTimer = ({ session, onJoinSession, onSessionExpired, userRole = 'student' }) => {
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -205,7 +206,7 @@ const SessionTimer = ({ session, onJoinSession, onSessionExpired, userRole = 'st
       const token = localStorage.getItem('token');
       if (!token || !session._id) return;
 
-      await fetch(`http://localhost:4000/api/bookings/${session._id}/expire`, {
+      await fetch(`${API_BASE_URL}/bookings/${session._id}/expire`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,

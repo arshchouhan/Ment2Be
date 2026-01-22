@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FiCheckCircle, FiX, FiUser } from 'react-icons/fi';
+import { API_BASE_URL } from '../../config/backendConfig';
 
 const TopExperts = () => {
   const [experts, setExperts] = useState([]);
@@ -22,7 +23,7 @@ const TopExperts = () => {
         const token = localStorage.getItem("token");
         if (!token) return;
 
-        const response = await fetch('http://localhost:4000/api/mentors/top-experts?limit=4', {
+        const response = await fetch(`${API_BASE_URL}/mentors/top-experts?limit=4`, {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',

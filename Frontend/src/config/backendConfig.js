@@ -1,80 +1,65 @@
 /**
- * Backend Configuration Service
- * Allows easy switching between Node.js and Java backends
+ * Backend Configuration
+ * Single source of truth for API base URL
+ * Reads from Vite environment variables with intelligent defaults
  */
 
-// Set the active backend: 'nodejs' or 'java'
-// Use Vite's import.meta.env instead of process.env
-const ACTIVE_BACKEND = import.meta.env.VITE_BACKEND || (import.meta.env.PROD ? 'render' : 'nodejs');
+// Priority order for API URL resolution:
+// 1. VITE_API_URL (explicit API endpoint)
+// 2. VITE_BACKEND_URL + /api (base URL + api path)
+// 3. VITE_BACKEND selector (nodejs/java/render with hardcoded fallbacks)
+// 4. Default to render backend in production, nodejs in development
 
-// Backend URLs
-const BACKENDS = {
-  nodejs: {
-    name: 'Node.js Backend',
-    url: 'http://localhost:4000',
-    apiUrl: 'http://localhost:4000/api'
-  },
-  java: {
-    name: 'Java Spring Boot Backend',
-    url: 'http://localhost:8081',
-    apiUrl: 'http://localhost:8081/api'
-  },
-  render: {
-    name: 'Render Backend',
-    url: 'https://k23dx.onrender.com',
-    apiUrl: 'https://k23dx.onrender.com/api'
+const API_BASE_URL = (() => {
+  // Priority 1: Explicit API URL
+  if (import.meta.env.VITE_API_URL) {
+    return import.meta.env.VITE_API_URL;
   }
-};
 
-// Get current backend configuration
+  // Priority 2: Backend URL with /api
+  if (import.meta.env.VITE_BACKEND_URL) {
+    const url = import.meta.env.VITE_BACKEND_URL.replace(/\/$/, '');
+    return `${url}/api`;
+  }
+
+  // Priority 3: Backend selector with fallbacks
+  const backend = import.meta.env.VITE_BACKEND || (import.meta.env.PROD ? 'render' : 'nodejs');
+  
+  const backendUrls = {
+    nodejs: 'http://localhost:4000/api',
+    java: 'http://localhost:8081/api',
+    render: 'https://k23dx.onrender.com/api'
+  };
+
+  return backendUrls[backend] || backendUrls.render; // Default to render for safety
+})();
+
+// Export single constant as primary export
+export { API_BASE_URL };
+
+// Legacy exports for backward compatibility
+export const getApiUrl = () => API_BASE_URL;
+
 export const getBackendConfig = () => {
-  const backend = BACKENDS[ACTIVE_BACKEND];
-  if (!backend) {
-    console.warn(`Unknown backend: ${ACTIVE_BACKEND}, defaulting to nodejs`);
-    return BACKENDS.nodejs;
-  }
-  return backend;
+  const base = API_BASE_URL.replace(/\/api\/?$/, '');
+  return {
+    name: API_BASE_URL.includes('render') ? 'Render' : 
+           API_BASE_URL.includes(':8081') ? 'Java' : 'Node.js',
+    url: base,
+    apiUrl: API_BASE_URL
+  };
 };
 
-// Get API URL
-export const getApiUrl = () => {
-  return import.meta.env.VITE_API_URL || getBackendConfig().apiUrl;
-};
+export const getBackendName = () => getBackendConfig().name;
 
-// Get backend name
-export const getBackendName = () => {
-  return getBackendConfig().name;
-};
-
-// Switch backend at runtime (for testing)
-export const switchBackend = (backendName) => {
-  if (!BACKENDS[backendName]) {
-    console.error(`Unknown backend: ${backendName}`);
-    return false;
-  }
-  console.log(`Switched to ${BACKENDS[backendName].name}`);
-  return true;
-};
-
-// Get all available backends
-export const getAvailableBackends = () => {
-  return Object.keys(BACKENDS).map(key => ({
-    id: key,
-    name: BACKENDS[key].name,
-    url: BACKENDS[key].url
-  }));
-};
-
-// Log current backend configuration
-console.log(`[Backend Config] Active Backend: ${getBackendName()}`);
-console.log(`[Backend Config] API URL: ${getApiUrl()}`);
+// Log configuration in development
+if (import.meta.env.DEV) {
+  console.log(`[Backend Config] API URL: ${API_BASE_URL}`);
+}
 
 export default {
-  ACTIVE_BACKEND,
-  BACKENDS,
-  getBackendConfig,
+  API_BASE_URL,
   getApiUrl,
-  getBackendName,
-  switchBackend,
-  getAvailableBackends
+  getBackendConfig,
+  getBackendName
 };

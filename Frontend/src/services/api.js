@@ -1,5 +1,7 @@
 // Central API service for MentorLink platform
-const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://k23dx.onrender.com/api' : 'http://localhost:4000/api');
+import { getApiUrl } from '../utils/apiUrl.js';
+
+const API_URL = getApiUrl();
 
 const apiRequest = async (endpoint, options = {}) => {
   const headers = {

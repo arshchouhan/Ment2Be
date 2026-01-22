@@ -1,5 +1,6 @@
-const rawBaseUrl = import.meta?.env?.VITE_API_URL || (import.meta.env.PROD ? 'https://k23dx.onrender.com' : 'http://localhost:4000');
-const API_BASE_URL = rawBaseUrl.endsWith('/api') ? rawBaseUrl : `${rawBaseUrl}/api`;
+import { getApiUrl } from '../utils/apiUrl.js';
+
+const API_BASE_URL = getApiUrl();
 
 class SessionDataService {
   // Helper method for authenticated fetch requests

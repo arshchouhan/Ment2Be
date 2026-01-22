@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FiMapPin, FiLinkedin, FiGithub, FiEdit, FiStar, FiAward, FiClock, FiUsers } from 'react-icons/fi';
+import { API_BASE_URL } from '../../config/backendConfig';
 
 const ProfileHeader = ({ mentorData, isOwnProfile = false, mentorId }) => {
   const [mentorStats, setMentorStats] = useState({
@@ -20,7 +21,7 @@ const ProfileHeader = ({ mentorData, isOwnProfile = false, mentorId }) => {
         console.log('🔍 [ProfileHeader] Fetching stats for mentor:', mentorId);
 
         // Fetch mentor stats using the correct endpoint
-        const statsResponse = await fetch(`http://localhost:4000/api/bookings/mentor/stats?mentorId=${mentorId}`, {
+        const statsResponse = await fetch(`${API_BASE_URL}/bookings/mentor/stats?mentorId=${mentorId}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -40,7 +41,7 @@ const ProfileHeader = ({ mentorData, isOwnProfile = false, mentorId }) => {
         }
 
         // Fetch reviews for this mentor to calculate rating
-        const reviewsResponse = await fetch(`http://localhost:4000/api/reviews?mentorId=${mentorId}`, {
+        const reviewsResponse = await fetch(`${API_BASE_URL}/reviews?mentorId=${mentorId}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -88,7 +89,7 @@ const ProfileHeader = ({ mentorData, isOwnProfile = false, mentorId }) => {
         const token = localStorage.getItem("token");
         if (!token || !mentorId) return;
 
-        const response = await fetch(`http://localhost:4000/api/connections/check?mentorId=${mentorId}`, {
+        const response = await fetch(`${API_BASE_URL}/connections/check?mentorId=${mentorId}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -120,7 +121,7 @@ const ProfileHeader = ({ mentorData, isOwnProfile = false, mentorId }) => {
       setIsConnecting(true);
       console.log('🔗 [ProfileHeader] Connecting to mentor:', mentorId);
 
-      const response = await fetch('http://localhost:4000/api/connections/connect', {
+      const response = await fetch(`${API_BASE_URL}/connections/connect`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -158,7 +159,7 @@ const ProfileHeader = ({ mentorData, isOwnProfile = false, mentorId }) => {
       setIsConnecting(true);
       console.log('🔗 [ProfileHeader] Disconnecting from mentor:', mentorId);
 
-      const response = await fetch('http://localhost:4000/api/connections/disconnect', {
+      const response = await fetch(`${API_BASE_URL}/connections/disconnect`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

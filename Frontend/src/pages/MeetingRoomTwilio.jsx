@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { FiVideo, FiVideoOff, FiMic, FiMicOff, FiPhone, FiMessageSquare, FiUsers, FiMonitor, FiSettings } from 'react-icons/fi';
+import { API_BASE_URL } from '../config/backendConfig';
 import { connect, createLocalAudioTrack, createLocalVideoTrack } from 'twilio-video';
 
 const MeetingRoom = () => {
@@ -61,7 +62,7 @@ const MeetingRoom = () => {
         throw new Error('No authentication token found');
       }
 
-      const response = await fetch(import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/twilio/token` : (import.meta.env.PROD ? 'https://k23dx.onrender.com/api/twilio/token' : 'http://localhost:4000/api/twilio/token'), {
+      const response = await fetch(`${API_BASE_URL}/twilio/token`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

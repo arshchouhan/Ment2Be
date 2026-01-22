@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { API_BASE_URL } from '../../config/backendConfig';
 
 const ContributionGraph = ({ mentorData, mentorId }) => {
   const [contributionData, setContributionData] = useState([]);
@@ -22,7 +23,7 @@ const ContributionGraph = ({ mentorData, mentorId }) => {
           return;
         }
 
-        const url = `http://localhost:4000/api/bookings/completed-by-date?year=${selectedYear}&mentorId=${mentorId}`;
+        const url = `${API_BASE_URL}/bookings/completed-by-date?year=${selectedYear}&mentorId=${mentorId}`;
         console.log('🌐 [ContributionGraph] Fetching from:', url);
         console.log('👤 [ContributionGraph] Mentor ID being sent:', mentorId);
 

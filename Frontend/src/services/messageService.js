@@ -1,4 +1,6 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://k23dx.onrender.com/api' : 'http://localhost:4000/api');
+import { getApiUrl } from '../utils/apiUrl.js';
+
+const API_BASE_URL = getApiUrl();
 
 // Get auth token from localStorage
 const getAuthToken = () => {

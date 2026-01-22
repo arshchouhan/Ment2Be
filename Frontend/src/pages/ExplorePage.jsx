@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { API_BASE_URL } from '../config/backendConfig';
 import Navbar from '../components/StudentDashboard/Navbar';
 
 // Components
@@ -35,7 +36,7 @@ const ExplorePage = () => {
         const token = localStorage.getItem("token");
         
         // Build query params
-        let url = import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/mentors` : (import.meta.env.PROD ? 'https://k23dx.onrender.com/api/mentors' : 'http://localhost:4000/api/mentors');
+        let url = `${API_BASE_URL}/mentors`;
         if (activeCategory !== 'All Mentors') {
           url += `?skill=${activeCategory}`;
         }

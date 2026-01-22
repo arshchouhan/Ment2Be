@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { API_BASE_URL } from '../config/backendConfig';
 import Navbar from '../components/StudentDashboard/Navbar';
 import ProfileHeader from '../components/MentorProfile/ProfileHeader';
 import ProfileNavigation from '../components/MentorProfile/ProfileNavigation';
@@ -41,8 +42,7 @@ const MentorDetailPage = () => {
         setError(null);
 
         // Fetch mentor by ID directly
-        const baseUrl = import.meta.env.VITE_API_URL?.replace('/api', '') || (import.meta.env.PROD ? 'https://k23dx.onrender.com' : 'http://localhost:4000');
-        const response = await fetch(`${baseUrl}/api/mentors/${mentorId}`, {
+        const response = await fetch(`${API_BASE_URL}/mentors/${mentorId}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',

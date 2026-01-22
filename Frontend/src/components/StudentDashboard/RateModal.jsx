@@ -25,7 +25,7 @@ const RateModal = ({ isOpen, onClose, onSubmit, sessionId, bookingId, mentorName
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:4000/api/reviews', {
+      const response = await fetch(`${API_BASE_URL}/reviews`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

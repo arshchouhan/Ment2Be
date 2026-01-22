@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { FiArrowLeft, FiCalendar, FiClock, FiUser, FiDollarSign } from 'react-icons/fi';
+import { API_BASE_URL } from '../config/backendConfig';
+import { getBackendUrl } from '../utils/apiUrl.js';
 import Navbar from '../components/StudentDashboard/Navbar';
 import { getAvailableSlots } from '../services/availabilityService';
 import { toast } from 'react-toastify';
@@ -48,7 +50,7 @@ const BookSession = () => {
 
       try {
         setLoading(true);
-        const response = await fetch(import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/mentors` : (import.meta.env.PROD ? 'https://k23dx.onrender.com/api/mentors' : 'http://localhost:4000/api/mentors'), {
+        const response = await fetch(`${API_BASE_URL}/mentors`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -160,12 +162,9 @@ const BookSession = () => {
           return;
         }
 
-        const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:4000';
-        const apiBase = baseUrl.endsWith('/api') ? baseUrl : `${baseUrl}/api`;
-
         const platformFeePaise = 9900;
 
-        const orderRes = await fetch(`${apiBase}/payments/razorpay/order`, {
+        const orderRes = await fetch(`${API_BASE_URL}/payments/razorpay/order`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -275,7 +274,7 @@ const BookSession = () => {
         studentNotes: formData.studentNotes
       };
 
-      const response = await fetch(import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/bookings` : (import.meta.env.PROD ? 'https://k23dx.onrender.com/api/bookings' : 'http://localhost:4000/api/bookings'), {
+      const response = await fetch(`${API_BASE_URL}/bookings`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

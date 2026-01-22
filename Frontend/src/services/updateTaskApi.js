@@ -1,22 +1,11 @@
 /**
  * Update Task API Service
  * Centralized API calls for task updates
- * Change ACTIVE_BACKEND to switch between Node.js and Java
  */
 
-import { getApiUrl as getBaseApiUrl } from '../config/backendConfig';
+import { buildApiUrl } from '../utils/apiUrl.js';
 
-// Switch between 'nodejs', 'java', or 'render'
-const ACTIVE_BACKEND = import.meta.env.VITE_BACKEND || (import.meta.env.PROD ? 'render' : 'nodejs');
-
-const BACKEND_URLS = {
-  nodejs: 'http://localhost:4000',
-  java: 'http://localhost:8081',
-  render: 'https://k23dx.onrender.com'
-};
-
-const BASE_URL = BACKEND_URLS[ACTIVE_BACKEND] || 'https://k23dx.onrender.com';
-const API_URL = `${(getBaseApiUrl() || `${BASE_URL}/api`).replace(/\/$/, '')}/tasks`;
+const API_URL = buildApiUrl('/tasks');
 
 const getAuthHeader = () => {
   const token = localStorage.getItem('token');

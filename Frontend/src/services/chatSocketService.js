@@ -1,6 +1,7 @@
 import io from 'socket.io-client';
+import { getBackendUrl } from '../utils/apiUrl.js';
 
-const SOCKET_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://k23dx.onrender.com' : 'http://localhost:4000');
+const SOCKET_URL = getBackendUrl();
 
 class ChatSocketService {
   constructor() {
