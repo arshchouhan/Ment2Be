@@ -1,48 +1,63 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import LoginForm from '../components/auth/LoginForm';
-import RegisterForm from '../components/auth/RegisterForm';
-import ProfileCarousel from '../components/auth/ProfileCarousel';
-import LoadingScreen from '../components/LoadingScreen';
-import { useGoogleOneTapLogin } from '@react-oauth/google';
-import { getApiUrl } from '../config/backendConfig';
-import './Login.css';
+import React, { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { motion } from "framer-motion";
+import LoginForm from "../components/auth/LoginForm";
+import RegisterForm from "../components/auth/RegisterForm";
+import ProfileCarousel from "../components/auth/ProfileCarousel";
+import LoadingScreen from "../components/LoadingScreen";
+import { useGoogleOneTapLogin } from "@react-oauth/google";
+import { getApiUrl } from "../config/backendConfig";
+import "./Login.css";
 
-const API_URL = getApiUrl().replace(/\/$/, '');
+const API_URL = getApiUrl().replace(/\/$/, "");
 
 const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [isRegistering, setIsRegistering] = useState(false);
-  const [registerRole, setRegisterRole] = useState('student');
+  const [registerRole, setRegisterRole] = useState("student");
   const [showLoading, setShowLoading] = useState(false);
   const [isProcessingLogin, setIsProcessingLogin] = useState(false);
+
+  useEffect(() => {
+    if (error) {
+      const timer = setTimeout(() => {
+        setError("");
+      }, 5000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [error]);
 
   // --------------------------
   // GOOGLE LOGIN HANDLER
   // --------------------------
   const handleGoogleAuth = async (code, role) => {
     try {
-      setError('');
+      setError("");
       setShowLoading(true);
       setIsProcessingLogin(true);
 
-      console.log("Sending Google auth request with code:", code, "role:", role);
+      console.log(
+        "Sending Google auth request with code:",
+        code,
+        "role:",
+        role,
+      );
 
       const res = await fetch(`${API_URL}/auth/google`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           code,
-          role
-        })
+          role,
+        }),
       });
 
       const data = await res.json();
       console.log("Google login response:", data);
-      
+
       if (!res.ok) {
         setShowLoading(false);
         setIsProcessingLogin(false);
@@ -54,18 +69,18 @@ const Login = () => {
       localStorage.setItem("user", JSON.stringify(data));
 
       console.log("Navigating to dashboard for role:", data.role);
-      
+
       // Redirect immediately without loading screen
-      const dashboardUrl = data.role === "mentor" ? "/mentor/dashboard" : "/student/dashboard";
+      const dashboardUrl =
+        data.role === "mentor" ? "/mentor/dashboard" : "/student/dashboard";
       console.log("Redirecting to:", dashboardUrl);
-      
+
       // Clear processing state before redirect
       setIsProcessingLogin(false);
       setShowLoading(false);
-      
+
       // Navigate to dashboard
       navigate(dashboardUrl, { replace: true });
-
     } catch (err) {
       setShowLoading(false);
       setIsProcessingLogin(false);
@@ -78,7 +93,7 @@ const Login = () => {
   useEffect(() => {
     // Skip if currently processing a login
     if (isProcessingLogin) return;
-    
+
     const token = localStorage.getItem("token");
     const user = localStorage.getItem("user");
 
@@ -94,16 +109,21 @@ const Login = () => {
 
     // Handle Google OAuth redirect callback (only for redirect mode)
     const urlParams = new URLSearchParams(window.location.search);
-    const code = urlParams.get('code');
+    const code = urlParams.get("code");
     if (code && !isProcessingLogin) {
       // Get the stored role and process the login immediately
-      const storedRole = sessionStorage.getItem('selectedRole') || 'student';
-      console.log("Google redirect detected, code:", code, "stored role:", storedRole);
+      const storedRole = sessionStorage.getItem("selectedRole") || "student";
+      console.log(
+        "Google redirect detected, code:",
+        code,
+        "stored role:",
+        storedRole,
+      );
       setIsProcessingLogin(true);
       handleGoogleAuth(code, storedRole);
       // Clean up URL and session storage
       window.history.replaceState({}, document.title, window.location.pathname);
-      sessionStorage.removeItem('selectedRole');
+      sessionStorage.removeItem("selectedRole");
     }
 
     // If came from "Register as Mentor/Student"
@@ -117,8 +137,9 @@ const Login = () => {
   // SIMPLE LOGIN FETCH HANDLER
   // --------------------------
   const handleLogin = async (formData) => {
+    setIsProcessingLogin(true);
     try {
-      setError('');
+      setError("");
       setShowLoading(true);
 
       const res = await fetch(`${API_URL}/auth/login`, {
@@ -126,30 +147,28 @@ const Login = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email: formData.email,
-          password: formData.password
-        })
+          password: formData.password,
+        }),
       });
 
       const data = await res.json();
       if (!res.ok) {
-        setShowLoading(false);
         throw new Error(data.message || "Login failed");
       }
 
-      // Save user + token
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data));
 
-      // Redirect immediately without loading screen
       if (data.role === "mentor") {
         navigate("/mentor/dashboard");
       } else {
         navigate("/student/dashboard");
       }
-
     } catch (err) {
-      setShowLoading(false);
       setError(err.message);
+    } finally {
+      setShowLoading(false);
+      setIsProcessingLogin(false);
     }
   };
 
@@ -158,7 +177,7 @@ const Login = () => {
   // ------------------------------
   const handleRegister = async (formData) => {
     try {
-      setError('');
+      setError("");
       setShowLoading(true);
 
       // 1. First, register the user
@@ -167,8 +186,8 @@ const Login = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...formData,
-          role: registerRole
-        })
+          role: registerRole,
+        }),
       });
 
       const registerData = await registerRes.json();
@@ -183,14 +202,16 @@ const Login = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email: formData.email,
-          password: formData.password
-        })
+          password: formData.password,
+        }),
       });
 
       const loginData = await loginRes.json();
       if (!loginRes.ok) {
         setShowLoading(false);
-        throw new Error(loginData.message || "Auto-login after registration failed");
+        throw new Error(
+          loginData.message || "Auto-login after registration failed",
+        );
       }
 
       // Save the token and user data from login response
@@ -203,7 +224,6 @@ const Login = () => {
       } else {
         navigate("/student/dashboard");
       }
-
     } catch (err) {
       setShowLoading(false);
       setError(err.message);
@@ -247,15 +267,25 @@ const Login = () => {
 
       {/* Back to Landing Page Button */}
       <button
-        onClick={() => navigate('/')}
+        onClick={() => navigate("/")}
         className="absolute top-6 left-6 z-20 flex items-center gap-2 text-gray-300 hover:text-white transition-colors"
       >
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        <svg
+          className="w-5 h-5"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M10 19l-7-7m0 0l7-7m-7 7h18"
+          />
         </svg>
         <span className="text-sm font-medium">Back to Home</span>
       </button>
-      
+
       {/* Left Side - Login/Register Form */}
       <div className="w-full lg:w-1/2 flex items-center justify-center p-4 lg:p-8 relative z-10">
         <div className="w-full max-w-md">
@@ -276,7 +306,13 @@ const Login = () => {
           )}
 
           {error && (
-            <div className="mt-4 p-4 bg-red-900 border border-red-700 text-red-300 rounded-lg">
+            <div className="relative mt-4 p-4 bg-red-900 border border-red-700 text-red-300 rounded-lg">
+              <button
+                onClick={() => setError("")}
+                className="absolute top-2 right-2 text-red-300 hover:text-white"
+              >
+                ✕
+              </button>
               {error}
             </div>
           )}
