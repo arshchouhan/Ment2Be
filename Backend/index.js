@@ -52,6 +52,7 @@ app.use((req, res, next) => {
 app.use(cors({
   origin: [
     "http://localhost:5173",
+    "http://localhost:5174",
     "https://k23-dx.vercel.app",
     "https://ment2be.arshchouhan.me",
     process.env.FRONTEND_URL,
@@ -59,7 +60,7 @@ app.use(cors({
   ].filter(Boolean),
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"]
+  allowedHeaders: ["Content-Type", "Authorization", "Accept"]
 }));
 
 

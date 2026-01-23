@@ -8,7 +8,7 @@ import { sendPasswordResetEmail, sendWelcomeEmail } from "../services/emailServi
 const client = new OAuth2Client(
   process.env.GOOGLE_CLIENT_ID,
   process.env.GOOGLE_CLIENT_SECRET,
-  'postmessage' // Use postmessage for popup mode
+  'postmessage'
 );
 
 const generateToken = (id, role) => {
@@ -21,7 +21,7 @@ const generateToken = (id, role) => {
 
 export async function Register(req, res) {
   try {
-    const { name, email, password, role, phoneNumber, bio, hourlyRate } = req.validatedData;
+    const { name, email, password, role, phoneNumber } = req.validatedData;
 
     const userExists = await User.findOne({ email });
     if (userExists) {
@@ -36,9 +36,7 @@ export async function Register(req, res) {
       email,
       password,
       role,
-      ...(phoneNumber && { phoneNumber }),
-      ...(bio && { bio }),
-      ...(hourlyRate && role === 'mentor' && { hourlyRate })
+      ...(phoneNumber && { phoneNumber })
     });
 
     if (user) {      
@@ -58,8 +56,6 @@ export async function Register(req, res) {
         name: user.name,
         email: user.email,
         role: user.role,
-        bio: user.bio,
-        ...(user.hourlyRate && { hourlyRate: user.hourlyRate }),
         token
       });
     } else {
