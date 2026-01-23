@@ -1,9 +1,8 @@
 import express from 'express';
 import { createServer } from 'http';
-import { Server } from 'socket.io';
 import cors from 'cors';
-// import { env } from './config/env.js';
 import connectDB from './config/db.js';
+import { initializeSocketIO, getSocketStats } from './config/socket.js';
 import authRouter from './routes/auth.routes.js';
 import phoneAuthRouter from './routes/phoneAuth.routes.js';
 import userRouter from './routes/user.routes.js';
@@ -30,8 +29,6 @@ import debugRouter from './routes/debug.routes.js';
 import connectionRouter from './routes/connection.routes.js';
 import journalRouter from './routes/journal.routes.js';
 import contactRouter from './routes/contact.routes.js';
-import { handleSocketConnection, getRoomCount, getTotalParticipants } from './socket/socketHandlers.js';
-import { handleChatConnection, getActiveConversationCount, getTotalChatParticipants } from './socket/chatSocketHandlers.js';
 
 import dotenv from "dotenv"
 import { validateEnv } from './config/env.js';
@@ -41,19 +38,7 @@ validateEnv();
 
 const app = express();
 const server = createServer(app);
-const io = new Server(server, {
-  cors: {
-    origin: [
-      process.env.FRONTEND_URL,
-      process.env.HOSTED_FRONTEND_DOMAIN,
-      ...(process.env.NODE_ENV === 'development' ? [
-        "http://localhost:3000",
-        "http://localhost:5173"
-      ] : [])
-    ].filter(Boolean),
-    methods: ["GET", "POST"]
-  }
-});
+initializeSocketIO(server);
 
 const PORT = process.env.PORT || 4000;
 const NODE_ENV = process.env.NODE_ENV || 'development';
@@ -65,7 +50,6 @@ app.use((req, res, next) => {
 
 app.use(cors({
   origin: [
-    "http://localhost:3000",
     "http://localhost:5173",
     "https://k23-dx.vercel.app",
     "https://ment2be.arshchouhan.me",
@@ -76,6 +60,7 @@ app.use(cors({
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"]
 }));
+
 
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
@@ -90,19 +75,8 @@ if (NODE_ENV === 'development') {
 app.get('/', (req, res) => {
   res.status(200).json({
     success: true,
-    message: 'Mentor API',
+    message: 'Backend is up and Running',
     version: '1.0.0',
-    endpoints: {
-      auth: '/api/auth',
-      users: '/api/user',
-      mentors: '/api/mentors',
-      bookings: '/api/bookings',
-      skills: '/api/skills',
-      sessions: '/api/sessions',
-      payments: '/api/payments',
-      reviews: '/api/reviews',
-      karma: '/api/karma'
-    }
   });
 });
 
@@ -118,11 +92,7 @@ app.get('/api/health', (req, res) => {
 app.get('/api/socket/stats', (req, res) => {
   res.status(200).json({
     success: true,
-    data: {
-      activeRooms: getRoomCount(),
-      totalParticipants: getTotalParticipants(),
-      timestamp: new Date().toISOString()
-    }
+    data: getSocketStats()
   });
 });
 
@@ -153,10 +123,6 @@ app.use('/api/debug', debugRouter); // Debug endpoints
 app.use('/api/connections', connectionRouter); // Mentor connections endpoints
 app.use('/api/journal', journalRouter); // Journal entries and notes endpoints
 app.use('/api/contact', contactRouter); // Contact form email endpoint
-
-// Initialize Socket.IO handlers
-handleSocketConnection(io);
-handleChatConnection(io);
 
 app.use((req, res) => {
   res.status(404).json({
@@ -222,12 +188,12 @@ const startServer = async () => {
     await connectDB();
 
     server.listen(PORT, '0.0.0.0', () => {
-      console.log('\n' + '='.repeat(50));
+      console.log('\n');
       console.log(`Server running in ${NODE_ENV} mode`);
       console.log(`Port: ${PORT}`);
       console.log(`Local: http://localhost:${PORT}`);
       console.log(`Socket.IO enabled for real-time meetings`);
-      console.log('='.repeat(50) + '\n');
+      console.log('\n');
     });
   } catch (error) {
     console.error('Failed to start server:', error.message);
