@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LogOut, User, HelpCircle, X, ChevronDown, Trash2 } from 'lucide-react';
+import { LogOut, User, HelpCircle, X, ChevronDown, Trash2, Trophy } from 'lucide-react';
 import { getApiUrl } from '../config/backendConfig';
 
 const UserProfileSidebar = ({ userName = 'User' }) => {
@@ -116,6 +116,7 @@ const UserProfileSidebar = ({ userName = 'User' }) => {
 
   const menuItems = [
     { label: 'Profile', icon: User, action: () => { setIsOpen(false); navigate(profilePath); }, color: 'text-white' },
+    { label: 'Achievements', icon: Trophy, action: () => { setIsOpen(false); navigate('/achievements'); }, color: 'text-yellow-400' },
     { label: 'Help', icon: HelpCircle, action: () => { setIsOpen(false); navigate('/help'); }, color: 'text-white' },
   ];
 
@@ -155,9 +156,8 @@ const UserProfileSidebar = ({ userName = 'User' }) => {
       {/* Slide-in Sidebar from Right */}
       <div
         ref={sidebarRef}
-        className={`fixed top-0 right-0 h-screen w-80 bg-[#121212] shadow-2xl z-50 transform transition-transform duration-300 ease-in-out border-l border-gray-700 ${
-          isOpen ? 'translate-x-0' : 'translate-x-full'
-        }`}
+        className={`fixed top-0 right-0 h-screen w-80 bg-[#121212] shadow-2xl z-50 transform transition-transform duration-300 ease-in-out border-l border-gray-700 ${isOpen ? 'translate-x-0' : 'translate-x-full'
+          }`}
       >
         {/* Header */}
         <div className="px-6 py-4 border-b border-gray-700 flex items-center justify-between">
