@@ -14,6 +14,13 @@ import {
   getMentorStats
 } from '../controllers/booking.controller.js';
 import { protect } from '../middleware/auth.middleware.js';
+import { validateRequest } from '../middleware/validation.middleware.js';
+import { 
+  createBookingSchema, 
+  updateBookingStatusSchema, 
+  addSessionReviewSchema,
+  updateMeetingStatusSchema 
+} from '../utils/zodSchemas.js';
 
 const router = express.Router();
 
@@ -23,7 +30,7 @@ router.use(protect);
 // @route   POST /api/bookings
 // @desc    Create a new booking
 // @access  Private (Students only)
-router.post('/', createBooking);
+router.post('/', validateRequest(createBookingSchema), createBooking);
 
 // @route   GET /api/bookings
 // @desc    Get all bookings for the authenticated user
@@ -61,7 +68,7 @@ router.get('/:bookingId', getBookingById);
 // @route   PUT /api/bookings/:bookingId/status
 // @desc    Update booking status (confirm, cancel, complete, etc.)
 // @access  Private (Student or Mentor involved in the booking)
-router.put('/:bookingId/status', updateBookingStatus);
+router.put('/:bookingId/status', validateRequest(updateBookingStatusSchema), updateBookingStatus);
 
 // @route   PUT /api/bookings/:bookingId/confirm
 // @desc    Confirm a pending booking (Mentors only)
@@ -92,7 +99,7 @@ router.put('/:bookingId/cancel', (req, res) => {
 // @route   POST /api/bookings/:bookingId/review
 // @desc    Add rating and review to a completed session
 // @access  Private (Student or Mentor involved in the booking)
-router.post('/:bookingId/review', addSessionReview);
+router.post('/:bookingId/review', validateRequest(addSessionReviewSchema), addSessionReview);
 
 // @route   DELETE /api/bookings/:bookingId
 // @desc    Delete a booking (only pending bookings by the student)
@@ -107,7 +114,7 @@ router.post('/:sessionId/join', joinSession);
 // @route   PUT /api/bookings/:sessionId/meeting-status
 // @desc    Update meeting status (waiting, active, ended)
 // @access  Private (Student or Mentor involved in the session)
-router.put('/:sessionId/meeting-status', updateMeetingStatus);
+router.put('/:sessionId/meeting-status', validateRequest(updateMeetingStatusSchema), updateMeetingStatus);
 
 // @route   PUT /api/bookings/:bookingId/expire
 // @desc    Mark a session as expired when time has passed
