@@ -200,36 +200,48 @@ const getUserBookings = async (req, res) => {
     
     console.log(`📚 getUserBookings - Ratings map returned:`, Array.from(ratingsByMentorId.entries()));
 
-    // Fetch mentor profile pictures from MentorProfile model for those without profile pictures
+    // Batch fetch mentor profile pictures to avoid N+1 query problem
     const MentorProfile = (await import('../models/mentorProfile.model.js')).default;
     
-    const bookingsWithRatings = await Promise.all(
-      bookings.map(async (booking) => {
-        const obj = booking.toObject({ virtuals: true });
-        const mentorId = obj.mentor?._id ? String(obj.mentor._id) : null;
-        const mentorRating = mentorId ? ratingsByMentorId.get(mentorId) : null;
-        console.log(`📚 Enriching booking - Mentor: ${mentorId}, Rating found:`, mentorRating);
+    // Get all mentor IDs that need profile pictures
+    const mentorsNeedingPictures = bookings
+      .filter(booking => booking.mentor && (!booking.mentor.profilePicture || booking.mentor.profilePicture === ''))
+      .map(booking => booking.mentor._id);
+    
+    // Batch fetch all mentor profiles at once
+    const mentorProfiles = mentorsNeedingPictures.length > 0 
+      ? await MentorProfile.find({ 
+          user: { $in: mentorsNeedingPictures } 
+        }).select('user profilePicture')
+      : [];
+    
+    // Create a map for quick lookup
+    const profilePictureMap = new Map(
+      mentorProfiles.map(profile => [profile.user.toString(), profile.profilePicture])
+    );
+    
+    console.log(`📚 Batch fetched ${mentorProfiles.length} mentor profiles to avoid N+1 queries`);
+    
+    // Enrich bookings with ratings and profile pictures
+    const bookingsWithRatings = bookings.map(booking => {
+      const obj = booking.toObject({ virtuals: true });
+      const mentorId = obj.mentor?._id ? String(obj.mentor._id) : null;
+      const mentorRating = mentorId ? ratingsByMentorId.get(mentorId) : null;
+      
+      if (obj.mentor) {
+        obj.mentor.averageRating = mentorRating?.averageRating ?? 0;
+        obj.mentor.totalReviews = mentorRating?.totalReviews ?? 0;
         
-        if (obj.mentor) {
-          obj.mentor.averageRating = mentorRating?.averageRating ?? 0;
-          obj.mentor.totalReviews = mentorRating?.totalReviews ?? 0;
-          
-          // If mentor doesn't have a profile picture, fetch from MentorProfile
-          if (!obj.mentor.profilePicture || obj.mentor.profilePicture === '') {
-            try {
-              const mentorProfile = await MentorProfile.findOne({ user: obj.mentor._id }).select('profilePicture');
-              if (mentorProfile && mentorProfile.profilePicture) {
-                obj.mentor.profilePicture = mentorProfile.profilePicture;
-                console.log(`📚 Fetched profile picture from MentorProfile for mentor ${mentorId}`);
-              }
-            } catch (err) {
-              console.error(`⚠️ Error fetching MentorProfile for ${mentorId}:`, err);
-            }
+        // Use batch-fetched profile picture if available
+        if (!obj.mentor.profilePicture || obj.mentor.profilePicture === '') {
+          const profilePicture = profilePictureMap.get(mentorId);
+          if (profilePicture) {
+            obj.mentor.profilePicture = profilePicture;
           }
         }
-        return obj;
-      })
-    );
+      }
+      return obj;
+    });
 
     const total = await Booking.countDocuments(query);
 
@@ -591,16 +603,19 @@ const getMentorBookings = async (req, res) => {
       .populate('mentor', 'name email profilePicture')
       .sort({ createdAt: -1 });
 
-    // Update expired sessions to 'expired' status
+    // Batch update expired sessions to avoid multiple individual saves
     const now = new Date();
-    for (let booking of bookings) {
-      const sessionDate = new Date(booking.sessionDate);
-      // If session date has passed and status is still pending/confirmed, mark as expired
-      if (sessionDate < now && (booking.status === 'pending' || booking.status === 'confirmed')) {
-        booking.status = 'expired';
-        await booking.save();
-        console.log(`⏰ Session ${booking._id} marked as expired`);
-      }
+    const expiredResult = await Booking.updateMany(
+      {
+        mentor: mentorId,
+        sessionDate: { $lt: now },
+        status: { $in: ['pending', 'confirmed'] }
+      },
+      { status: 'expired' }
+    );
+    
+    if (expiredResult.modifiedCount > 0) {
+      console.log(`⏰ Batch updated ${expiredResult.modifiedCount} expired sessions`);
     }
 
     // Fetch updated bookings after marking expired ones
