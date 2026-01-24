@@ -10,7 +10,8 @@
   [![TailwindCSS](https://img.shields.io/badge/Tailwind-3.4.18-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
   [![Socket.io](https://img.shields.io/badge/Socket.io-4.8.1-010101?style=for-the-badge&logo=socket.io&logoColor=white)](https://socket.io/)
   [![License](https://img.shields.io/badge/License-ISC-blue?style=for-the-badge)](LICENSE)
-  ![Visitor Count](https://profile-counter.glitch.me/arshchouhan-MentorLink/count.svg)
+  ![Visitors](https://visitor-badge.laobi.icu/badge?page_id=arshchouhan.Ment2Be)
+
   
 </div>
 
