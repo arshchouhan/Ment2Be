@@ -38,6 +38,13 @@ import errorMiddleware from './middleware/error.middleware.js';
 dotenv.config()
 validateEnv();
 
+// Log CORS configuration
+if (process.env.CORS_ORIGINS) {
+  console.log('✅ CORS Origins from env:', process.env.CORS_ORIGINS.split(',').map(o => o.trim()));
+} else {
+  console.log('⚠️ CORS Origins: Using default development origins');
+}
+
 const app = express();
 const server = createServer(app);
 initializeSocketIO(server);
@@ -51,22 +58,34 @@ app.use((req, res, next) => {
 });
 
 app.use(cors({
-  origin: [
-    "http://localhost:5173",
-    "http://localhost:5174",
-    "https://k23-dx.vercel.app",
-    "https://ment2be.arshchouhan.me",
-    process.env.FRONTEND_URL,
-    process.env.HOSTED_FRONTEND_DOMAIN
-  ].filter(Boolean),
+  origin: process.env.CORS_ORIGINS ? 
+    process.env.CORS_ORIGINS.split(',').map(origin => origin.trim()) : 
+    [
+      "http://localhost:5173",
+      "http://localhost:5174",
+      "https://k23-dx.vercel.app",
+      "https://ment2be.arshchouhan.me"
+    ],
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization", "Accept"]
 }));
 
 
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+// Request size middleware with route-specific limits
+const createSizeMiddleware = (limit) => {
+  return [
+    express.json({ limit }),
+    express.urlencoded({ extended: true, limit })
+  ];
+};
+
+// Default small size for most routes
+app.use(createSizeMiddleware('1mb'));
+
+// Large file upload routes (override default)
+app.use('/api/upload', createSizeMiddleware('10mb'));
+app.use('/api/mentors/upload-photo', createSizeMiddleware('5mb'));
 
 if (NODE_ENV === 'development') {
   app.use((req, res, next) => {
@@ -74,6 +93,18 @@ if (NODE_ENV === 'development') {
     next();
   });
 }
+
+// Request size validation error handler
+app.use((err, req, res, next) => {
+  if (err.type === 'entity.too.large') {
+    return res.status(413).json({
+      success: false,
+      message: 'Request payload too large',
+      maxSize: req.route?.path?.includes('upload') ? '10MB' : '1MB'
+    });
+  }
+  next(err);
+});
 
 app.get('/', (req, res) => {
   res.status(200).json({
