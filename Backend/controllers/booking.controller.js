@@ -4,6 +4,7 @@ import Connection from '../models/connection.model.js';
 import mongoose from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
 import { getMentorRatingsMap } from '../services/mentorRatingService.js';
+import { checkAchievements } from './achievement.controller.js';
 
 // Create a new booking
 const createBooking = async (req, res) => {
@@ -159,7 +160,7 @@ const getUserBookings = async (req, res) => {
 
     // Build query based on user role and filters
     let query = {};
-    
+
     if (type === 'upcoming') {
       query = {
         $or: [{ student: userId }, { mentor: userId }],
@@ -197,41 +198,41 @@ const getUserBookings = async (req, res) => {
     console.log(`📚 getUserBookings - Mentor IDs to fetch ratings for:`, mentorIds.map(id => String(id)));
 
     const ratingsByMentorId = await getMentorRatingsMap(mentorIds);
-    
+
     console.log(`📚 getUserBookings - Ratings map returned:`, Array.from(ratingsByMentorId.entries()));
 
     // Batch fetch mentor profile pictures to avoid N+1 query problem
     const MentorProfile = (await import('../models/mentorProfile.model.js')).default;
-    
+
     // Get all mentor IDs that need profile pictures
     const mentorsNeedingPictures = bookings
       .filter(booking => booking.mentor && (!booking.mentor.profilePicture || booking.mentor.profilePicture === ''))
       .map(booking => booking.mentor._id);
-    
+
     // Batch fetch all mentor profiles at once
-    const mentorProfiles = mentorsNeedingPictures.length > 0 
-      ? await MentorProfile.find({ 
-          user: { $in: mentorsNeedingPictures } 
-        }).select('user profilePicture')
+    const mentorProfiles = mentorsNeedingPictures.length > 0
+      ? await MentorProfile.find({
+        user: { $in: mentorsNeedingPictures }
+      }).select('user profilePicture')
       : [];
-    
+
     // Create a map for quick lookup
     const profilePictureMap = new Map(
       mentorProfiles.map(profile => [profile.user.toString(), profile.profilePicture])
     );
-    
+
     console.log(`📚 Batch fetched ${mentorProfiles.length} mentor profiles to avoid N+1 queries`);
-    
+
     // Enrich bookings with ratings and profile pictures
     const bookingsWithRatings = bookings.map(booking => {
       const obj = booking.toObject({ virtuals: true });
       const mentorId = obj.mentor?._id ? String(obj.mentor._id) : null;
       const mentorRating = mentorId ? ratingsByMentorId.get(mentorId) : null;
-      
+
       if (obj.mentor) {
         obj.mentor.averageRating = mentorRating?.averageRating ?? 0;
         obj.mentor.totalReviews = mentorRating?.totalReviews ?? 0;
-        
+
         // Use batch-fetched profile picture if available
         if (!obj.mentor.profilePicture || obj.mentor.profilePicture === '') {
           const profilePicture = profilePictureMap.get(mentorId);
@@ -352,7 +353,7 @@ const updateBookingStatus = async (req, res) => {
     // Check authorization
     const isStudent = booking.student.toString() === userId;
     const isMentor = booking.mentor.toString() === userId;
-    
+
     if (!isStudent && !isMentor) {
       return res.status(403).json({
         success: false,
@@ -390,7 +391,7 @@ const updateBookingStatus = async (req, res) => {
     if (status === 'completed') {
       booking.sessionCompleted = true;
       booking.sessionEndTime = new Date();
-      
+
       // Track actual session duration if provided
       if (req.body.actualDuration !== undefined) {
         booking.actualDuration = req.body.actualDuration;
@@ -406,6 +407,12 @@ const updateBookingStatus = async (req, res) => {
     booking.status = status;
     await booking.save();
 
+    // TRIGGER ACHIEVEMENT CHECK
+    if (status === 'completed') {
+      await checkAchievements(booking.student);
+      await checkAchievements(booking.mentor);
+    }
+
     await booking.populate([
       { path: 'student', select: 'name email profilePicture' },
       { path: 'mentor', select: 'name email profilePicture' }
@@ -413,7 +420,7 @@ const updateBookingStatus = async (req, res) => {
 
     // Log the status change for notification purposes
     console.log(`Booking ${bookingId} status changed to ${status} by user ${userId}`);
-    
+
     // TODO: Add email/push notification to the other party
     if (status === 'confirmed') {
       console.log(`Notification: Session confirmed by mentor ${booking.mentor.name} for student ${booking.student.name}`);
@@ -520,7 +527,7 @@ const getBookingStats = async (req, res) => {
     const userId = req.user.id;
     const userRole = req.user.role;
 
-    const matchStage = userRole === 'mentor' 
+    const matchStage = userRole === 'mentor'
       ? { mentor: new mongoose.Types.ObjectId(userId) }
       : { student: new mongoose.Types.ObjectId(userId) };
 
@@ -537,21 +544,21 @@ const getBookingStats = async (req, res) => {
             $sum: { $cond: [{ $eq: ['$status', 'cancelled'] }, 1, 0] }
           },
           upcomingSessions: {
-            $sum: { 
+            $sum: {
               $cond: [
-                { 
+                {
                   $and: [
                     { $in: ['$status', ['pending', 'confirmed']] },
                     { $gte: ['$sessionDate', new Date()] }
                   ]
-                }, 
-                1, 
+                },
+                1,
                 0
               ]
             }
           },
           totalHours: {
-            $sum: { 
+            $sum: {
               $cond: [
                 { $eq: ['$status', 'completed'] },
                 { $divide: ['$duration', 60] },
@@ -560,7 +567,7 @@ const getBookingStats = async (req, res) => {
             }
           },
           averageRating: {
-            $avg: userRole === 'mentor' 
+            $avg: userRole === 'mentor'
               ? '$sessionRating.mentor.rating'
               : '$sessionRating.student.rating'
           }
@@ -613,7 +620,7 @@ const getMentorBookings = async (req, res) => {
       },
       { status: 'expired' }
     );
-    
+
     if (expiredResult.modifiedCount > 0) {
       console.log(`⏰ Batch updated ${expiredResult.modifiedCount} expired sessions`);
     }
@@ -719,8 +726,8 @@ const joinSession = async (req, res) => {
     }
 
     // Check if user is authorized to join (must be either mentor or student)
-    const isAuthorized = booking.student._id.toString() === userId || 
-                        booking.mentor._id.toString() === userId;
+    const isAuthorized = booking.student._id.toString() === userId ||
+      booking.mentor._id.toString() === userId;
 
     if (!isAuthorized) {
       return res.status(403).json({
@@ -745,7 +752,7 @@ const joinSession = async (req, res) => {
     if (booking.meetingStatus === 'not_started') {
       booking.meetingStatus = 'waiting';
     }
-    
+
     // Save any updates (roomId and/or meetingStatus)
     await booking.save();
 
@@ -792,8 +799,8 @@ const updateMeetingStatus = async (req, res) => {
     }
 
     // Check authorization
-    const isAuthorized = booking.student.toString() === userId || 
-                        booking.mentor.toString() === userId;
+    const isAuthorized = booking.student.toString() === userId ||
+      booking.mentor.toString() === userId;
 
     if (!isAuthorized) {
       return res.status(403).json({
@@ -804,7 +811,7 @@ const updateMeetingStatus = async (req, res) => {
 
     // Update meeting status
     booking.meetingStatus = status;
-    
+
     // If session is ending, update session times
     if (status === 'ended') {
       booking.sessionEndTime = new Date();
@@ -870,7 +877,7 @@ const getCompletedSessionsByDate = async (req, res) => {
     });
 
     console.log('⏰ [getCompletedSessionsByDate] Past sessions with start/end times:', pastPendingSessions.length);
-    
+
     // Mark them as completed
     for (let session of pastPendingSessions) {
       session.status = 'completed';
@@ -939,7 +946,7 @@ const getCompletedSessionsByDate = async (req, res) => {
 const getMentorStats = async (req, res) => {
   try {
     const { mentorId } = req.query;
-    
+
     // If mentorId is provided in query, use it. Otherwise use authenticated user's ID
     const targetMentorId = mentorId || req.user.id;
 

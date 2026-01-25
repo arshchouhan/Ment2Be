@@ -26,8 +26,12 @@ export const initializeSocketIO = (server) => {
   handleSocketConnection(io);
   handleChatConnection(io);
 
+  _io = io;
   return io;
 };
+
+let _io;
+export const getIO = () => _io;
 
 /**
  * Get Socket.IO statistics

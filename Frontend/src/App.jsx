@@ -48,6 +48,7 @@ function App() {
   return (
     <>
       <ToastContainer position="top-center" autoClose={4000} hideProgressBar={false} newestOnTop closeOnClick pauseOnFocusLoss draggable pauseOnHover theme="dark" />
+      <AchievementNotifier />
       {/*key forces rerender on every navigation */}
       <Routes location={location} key={location.key}>
         {/* Root redirect */}
@@ -101,6 +102,7 @@ function App() {
 
         {/* Testing Route */}
         <Route path="/karma-test" element={<KarmaTest />} />
+        <Route path="/achievements" element={<AchievementGalleryPage />} />
 
         {/* 404 */}
         <Route path="*" element={<NotFoundPage />} />
