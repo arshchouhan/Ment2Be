@@ -33,7 +33,6 @@
     "mongoose": "^8.19.3",
     "multer": "^2.0.2",
     "nodemailer": "^6.9.16",
-    "pdfkit": "^0.17.2",
     "razorpay": "^2.9.6",
     "socket.io": "^4.7.5",
     "stream-chat": "^9.26.1",

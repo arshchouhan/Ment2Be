@@ -29,7 +29,7 @@ import debugRouter from './routes/debug.routes.js';
 import connectionRouter from './routes/connection.routes.js';
 import journalRouter from './routes/journal.routes.js';
 import contactRouter from './routes/contact.routes.js';
-import analyticsRouter from './routes/analytics.routes.js';
+import achievementRouter from './routes/achievement.routes.js';
 
 import dotenv from "dotenv"
 import { validateEnv } from './config/env.js';
@@ -126,7 +126,7 @@ app.use('/api/debug', debugRouter); // Debug endpoints
 app.use('/api/connections', connectionRouter); // Mentor connections endpoints
 app.use('/api/journal', journalRouter); // Journal entries and notes endpoints
 app.use('/api/contact', contactRouter); // Contact form email endpoint
-app.use('/api/analytics', analyticsRouter); // Advanced mentor analytics endpoints
+app.use('/api/achievements', achievementRouter); // Gamified achievement endpoints
 
 // Global error handling middleware (must be last)
 app.use(errorMiddleware);

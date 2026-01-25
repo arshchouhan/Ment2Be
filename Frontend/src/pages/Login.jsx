@@ -5,7 +5,7 @@ import LoginForm from "../components/auth/LoginForm";
 import RegisterForm from "../components/auth/RegisterForm";
 import ProfileCarousel from "../components/auth/ProfileCarousel";
 import LoadingScreen from "../components/LoadingScreen";
-// import { useGoogleOneTapLogin } from "@react-oauth/google";
+import { useGoogleOneTapLogin } from "@react-oauth/google";
 import { getApiUrl } from "../config/backendConfig";
 import "./Login.css";
 
