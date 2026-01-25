@@ -24,7 +24,6 @@
     "react-player": "^3.4.0",
     "react-router-dom": "^7.9.6",
     "react-toastify": "^11.0.5",
-    "recharts": "^3.7.0",
     "socket.io-client": "^4.8.1",
     "stream-chat": "^9.26.1",
     "tailwind-scrollbar-hide": "^4.0.0",

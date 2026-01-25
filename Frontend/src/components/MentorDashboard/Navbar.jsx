@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
-import { Users, CheckSquare, MessageCircle, UserPlus, Menu, X, Home, LogOut, BookOpen, TrendingUp } from 'lucide-react';
+import { Users, CheckSquare, MessageCircle, UserPlus, Menu, X, Home, LogOut, BookOpen } from 'lucide-react';
 import UserProfileSidebar from '../UserProfileSidebar';
 import LogoHat from '../../assets/logo-hat.png';
 
@@ -36,8 +36,7 @@ const MentorNavbar = ({ userName = 'Mentor' }) => {
     { label: 'My Tasks', href: '/mentor/tasks', icon: CheckSquare, color: 'text-white' },
     { label: 'Messages', href: '/mentor/messages', icon: MessageCircle, color: 'text-white' },
     { label: 'Get Mentees', href: '/mentor/get-mentees', icon: UserPlus, color: 'text-white' },
-    { label: 'Journal', href: '/mentor/journal', icon: BookOpen, color: 'text-white' },
-    { label: 'Analytics', href: '/mentor/analytics', icon: TrendingUp, color: 'text-indigo-400' },
+    { label: 'Journal', href: '/mentor/journal', icon: BookOpen, color: 'text-white', badge: 'New' },
   ];
 
   return (
@@ -47,7 +46,7 @@ const MentorNavbar = ({ userName = 'Mentor' }) => {
     }}>
       <div className="px-0">
         <div className="flex items-center justify-between h-14">
-
+          
           {/* Logo and Branding */}
           <Link to="/mentor/dashboard" className="flex items-center gap-2 hover:opacity-80 transition-opacity pl-4">
             <img
@@ -66,19 +65,21 @@ const MentorNavbar = ({ userName = 'Mentor' }) => {
                 <Link
                   key={item.label}
                   to={item.href}
-                  className={`px-4 py-2 rounded-lg flex items-center gap-2 transition-all duration-200 ${isActive
-                      ? 'text-white'
+                  className={`px-4 py-2 rounded-lg flex items-center gap-2 transition-all duration-200 ${
+                    isActive 
+                      ? 'text-white' 
                       : 'bg-gray-800/40 text-gray-300 hover:bg-gray-700/60 hover:text-white'
-                    }`}
+                  }`}
                   style={isActive ? { backgroundColor: '#2a2d32' } : {}}
                   title={item.label}
                 >
-                  <Icon
-                    size={18}
-                    className={item.color}
+                  <Icon 
+                    size={18} 
+                    className={item.color} 
                   />
-                  <span className={`text-xs font-medium ${isActive ? 'text-white' : 'text-gray-300'
-                    }`}>
+                  <span className={`text-xs font-medium ${
+                    isActive ? 'text-white' : 'text-gray-300'
+                  }`}>
                     {item.label}
                   </span>
                 </Link>
@@ -112,10 +113,11 @@ const MentorNavbar = ({ userName = 'Mentor' }) => {
                   key={item.label}
                   to={item.href}
                   onClick={() => setIsMenuOpen(false)}
-                  className={`w-full block px-3 py-2 rounded-lg transition-colors text-xs ${location.pathname === item.href
+                  className={`w-full block px-3 py-2 rounded-lg transition-colors text-xs ${
+                    location.pathname === item.href
                       ? 'text-white'
                       : 'text-gray-300 hover:bg-gray-700 hover:text-cyan-400'
-                    }`}
+                  }`}
                   style={location.pathname === item.href ? { backgroundColor: '#2a2d32' } : {}}
                 >
                   <div className="flex items-center gap-2">
