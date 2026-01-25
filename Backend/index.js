@@ -1,6 +1,7 @@
 import express from 'express';
 import { createServer } from 'http';
 import cors from 'cors';
+import rateLimit from 'express-rate-limit';
 import connectDB from './config/db.js';
 import { initializeSocketIO, getSocketStats } from './config/socket.js';
 import authRouter from './routes/auth.routes.js';
@@ -50,6 +51,43 @@ initializeSocketIO(server);
 
 const PORT = process.env.PORT || 4000;
 const NODE_ENV = process.env.NODE_ENV || 'development';
+
+// Rate limiting configuration
+const generalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // 100 requests per window
+  message: {
+    success: false,
+    message: 'Too many requests, please try again later',
+    retryAfter: '15 minutes'
+  },
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // 5 login attempts per window
+  message: {
+    success: false,
+    message: 'Too many authentication attempts, please try again later',
+    retryAfter: '15 minutes'
+  },
+  skipSuccessfulRequests: true
+});
+
+const uploadLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 10, // 10 uploads per hour
+  message: {
+    success: false,
+    message: 'Upload limit exceeded, please try again later',
+    retryAfter: '1 hour'
+  }
+});
+
+// Apply rate limiting
+app.use(generalLimiter);
 
 app.use((req, res, next) => {
   res.setHeader("Cross-Origin-Opener-Policy", "same-origin-allow-popups");
@@ -129,8 +167,11 @@ app.get('/api/socket/stats', (req, res) => {
   });
 });
 
-app.use('/api/auth', authRouter);
-app.use('/api/auth/phone', phoneAuthRouter);
+// Apply specific rate limiters to routes
+app.use('/api/auth', authLimiter, authRouter);
+app.use('/api/auth/phone', authLimiter, phoneAuthRouter);
+app.use('/api/upload', uploadLimiter, uploadRouter);
+app.use('/api/mentors/upload-photo', uploadLimiter);
 app.use('/api/user', userRouter);
 app.use('/api/mentors', mentorRouter);
 app.use('/api/mentors/karma', mentorKarmaRouter);
@@ -142,20 +183,19 @@ app.use('/api/payments', paymentsRouter);
 app.use('/api/reviews', reviewsRouter);
 app.use('/api/messages', messageRouter);
 app.use('/api/karma/points', karmaPointsRouter);
-app.use('/api/karma', karmaRouter); // Java microservice integration
-app.use('/api/stream', streamChatRouter); // Stream Chat endpoints
-app.use('/api/tasks', taskRouter); // Task management endpoints
-app.use('/api/twilio', twilioRouter); // Twilio Video endpoints
-app.use('/api/forum', forumRouter); // Forum Q&A endpoints
-app.use('/api/mentor-availability', availabilityRouter); // Mentor availability endpoints
-app.use('/api/free-trial', freeTrialRouter); // Free trial request email endpoints
-app.use('/api/categories', categoryRouter); // Category endpoints
-app.use('/api/upload', uploadRouter); // File upload endpoints
-app.use('/api/ai', aiRouter); // AI session insights endpoints
-app.use('/api/debug', debugRouter); // Debug endpoints
-app.use('/api/connections', connectionRouter); // Mentor connections endpoints
-app.use('/api/journal', journalRouter); // Journal entries and notes endpoints
-app.use('/api/contact', contactRouter); // Contact form email endpoint
+app.use('/api/karma', karmaRouter);
+app.use('/api/stream', streamChatRouter);
+app.use('/api/tasks', taskRouter);
+app.use('/api/twilio', twilioRouter);
+app.use('/api/forum', forumRouter);
+app.use('/api/mentor-availability', availabilityRouter);
+app.use('/api/free-trial', freeTrialRouter);
+app.use('/api/categories', categoryRouter);
+app.use('/api/ai', aiRouter);
+app.use('/api/debug', debugRouter);
+app.use('/api/connections', connectionRouter);
+app.use('/api/journal', journalRouter);
+app.use('/api/contact', contactRouter);
 
 // Global error handling middleware (must be last)
 app.use(errorMiddleware);
