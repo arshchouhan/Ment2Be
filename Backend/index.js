@@ -30,6 +30,7 @@ import debugRouter from './routes/debug.routes.js';
 import connectionRouter from './routes/connection.routes.js';
 import journalRouter from './routes/journal.routes.js';
 import contactRouter from './routes/contact.routes.js';
+import achievementRouter from './routes/achievement.routes.js';
 
 import dotenv from "dotenv"
 import { validateEnv } from './config/env.js';

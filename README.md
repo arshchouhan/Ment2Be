@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="src/assets/Logo.png" alt="MentorLink Logo" width="120"/>
+  <img src="Frontend/src/assets/Logo.png" alt="MentorLink Logo" width="120"/>
   
   # 🎓 MentorLink - Connect, Learn, Grow
   
@@ -10,6 +10,8 @@
   [![TailwindCSS](https://img.shields.io/badge/Tailwind-3.4.18-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
   [![Socket.io](https://img.shields.io/badge/Socket.io-4.8.1-010101?style=for-the-badge&logo=socket.io&logoColor=white)](https://socket.io/)
   [![License](https://img.shields.io/badge/License-ISC-blue?style=for-the-badge)](LICENSE)
+  ![Visitors](https://visitor-badge.laobi.icu/badge?page_id=arshchouhan.Ment2Be)
+
   
 </div>
 
@@ -21,9 +23,11 @@
 - [📸 Platform Showcase](#-platform-showcase)
 - [✨ Features](#-features)
 - [🛠️ Tech Stack](#️-tech-stack)
+- [🏗️ Architecture](#️-architecture)
 - [🚀 Getting Started](#-getting-started)
 - [📁 Project Structure](#-project-structure)
 - [🔌 API Endpoints](#-api-endpoints)
+- [🗄️ Database Schema](#️-database-schema)
 - [🎨 Key Features Explained](#-key-features-explained)
 - [🔧 Configuration](#-configuration)
 - [🧪 Testing](#-testing)
@@ -39,13 +43,13 @@
 <div align="center">
   
   ### 🎯 Mentor Dashboard
-  <img src="src/assets/MentorDahboard.png" alt="Mentor Dashboard" width="800"/>
+  <img src="Frontend/src/assets/MentorDahboard.png" alt="Mentor Dashboard" width="800"/>
   
   ### 👨‍🎓 Student Dashboard
-  <img src="src/assets/studentdashbaordimage.png" alt="Student Dashboard" width="800"/>
+  <img src="Frontend/src/assets/studentdashbaordimage.png" alt="Student Dashboard" width="800"/>
   
   ### 🤝 Connect & Collaborate
-  <img src="src/assets/connect5.png" alt="Connect Feature" width="600"/>
+  <img src="Frontend/src/assets/connect5.png" alt="Connect Feature" width="600"/>
   
 </div>
 
@@ -117,6 +121,112 @@
 | **Razorpay** | Payment Gateway | 2.9.6 |
 | **Nodemailer** | Email Service | 6.9.16 |
 | **Zod** | Validation | 4.1.12 |
+
+---
+
+## 🏗️ Architecture
+
+### System Architecture Overview
+
+```mermaid
+graph TB
+    %% User Layer
+    subgraph "Users"
+        Student[👨‍🎓 Student]
+        Mentor[👨‍🏫 Mentor]
+    end
+    
+    %% Frontend Layer
+    subgraph "Frontend (React + Vite)"
+        Web[🌐 Web App<br/>Responsive UI<br/>Dark Theme]
+        ChatUI[💬 Chat Interface<br/>Stream Chat]
+        VideoUI[🎥 Video Conference<br/>ZegoCloud]
+        Notifications[🔔 Real-time Notifications<br/>Socket.io]
+    end
+    
+    %% Backend Layer
+    subgraph "Backend (Node.js + Express)"
+        API[🔌 REST API<br/>Authentication<br/>Business Logic]
+        SocketServer[📡 Socket.io Server<br/>Real-time Events]
+        Auth[JWT Auth<br/>Google OAuth]
+        FileUpload[📁 File Upload<br/>Cloudinary]
+        Payment[💳 Payment Gateway<br/>Razorpay]
+        Email[📧 Email Service<br/>Nodemailer]
+    end
+    
+    %% Database Layer
+    subgraph "Database"
+        MongoDB[(📊 MongoDB<br/>User Data<br/>Sessions<br/>Messages)]
+    end
+    
+    %% External Services
+    subgraph "External Services"
+        Stream[💬 Stream Chat<br/>Messaging API]
+        Zego[🎥 ZegoCloud<br/>Video SDK]
+        Google[🔐 Google OAuth<br/>Authentication]
+        Razorpay[💰 Razorpay<br/>Payments]
+        Cloudinary[🖼️ Cloudinary<br/>Image Storage]
+    end
+    
+    %% Connections
+    Student --> Web
+    Mentor --> Web
+    
+    Web --> API
+    Web --> ChatUI
+    Web --> VideoUI
+    Web --> Notifications
+    
+    ChatUI --> Stream
+    VideoUI --> Zego
+    Notifications --> SocketServer
+    
+    API --> Auth
+    API --> FileUpload
+    API --> Payment
+    API --> Email
+    
+    Auth --> Google
+    Payment --> Razorpay
+    FileUpload --> Cloudinary
+    
+    API --> MongoDB
+    SocketServer --> MongoDB
+```
+
+### Architecture Components
+
+#### 🎨 Frontend Architecture
+- **Single Page Application (SPA)** built with React 19
+- **Component-based architecture** with reusable UI components
+- **State management** using React Context and hooks
+- **Real-time communication** via Socket.io and WebSocket connections
+- **Responsive design** with TailwindCSS for mobile-first approach
+
+#### ⚙️ Backend Architecture
+- **RESTful API** design with Express.js framework
+- **Microservices-ready** structure with modular controllers
+- **Real-time capabilities** using Socket.io for live updates
+- **Authentication & Authorization** with JWT tokens and OAuth
+- **File handling** with Cloudinary integration for media uploads
+
+#### 🗄️ Data Architecture
+- **Document-based database** using MongoDB with Mongoose ODM
+- **Schema validation** with Zod for input validation
+- **Indexing strategy** for optimal query performance
+- **Data relationships** managed through references and population
+
+#### 🔗 Integration Architecture
+- **Third-party services** integration (Stream Chat, ZegoCloud, Razorpay)
+- **OAuth 2.0** flow for Google authentication
+- **Webhook handling** for payment confirmations
+- **Email service** integration for notifications
+
+#### 📡 Real-time Architecture
+- **WebSocket connections** for instant messaging and notifications
+- **Room-based communication** for video conferencing
+- **Event-driven updates** for live dashboard data
+- **Connection management** with automatic reconnection
 
 ---
 
@@ -351,6 +461,118 @@ GET    /api/tasks/mentee/:id       # Get mentee's tasks
 
 ---
 
+## 🗄️ Database Schema
+
+### Core Models
+
+#### User Model
+```javascript
+{
+  _id: ObjectId,
+  name: String (required),
+  email: String (required, unique),
+  password: String (required, hashed),
+  role: String (enum: ['student', 'mentor']),
+  profilePicture: String (Cloudinary URL),
+  isVerified: Boolean (default: false),
+  karmaPoints: Number (default: 0),
+  createdAt: Date,
+  updatedAt: Date
+}
+```
+
+#### Mentor Profile Model
+```javascript
+{
+  _id: ObjectId,
+  userId: ObjectId (ref: 'User'),
+  bio: String,
+  skills: [String],
+  experience: Number (years),
+  hourlyRate: Number,
+  availability: [{
+    day: String,
+    slots: [{
+      startTime: String,
+      endTime: String,
+      isBooked: Boolean
+    }]
+  }],
+  socialLinks: {
+    linkedin: String,
+    github: String,
+    portfolio: String
+  },
+  rating: Number (1-5),
+  reviewCount: Number,
+  totalEarnings: Number
+}
+```
+
+#### Booking Model
+```javascript
+{
+  _id: ObjectId,
+  studentId: ObjectId (ref: 'User'),
+  mentorId: ObjectId (ref: 'User'),
+  sessionDate: Date,
+  startTime: String,
+  endTime: String,
+  status: String (enum: ['pending', 'confirmed', 'completed', 'cancelled']),
+  topic: String,
+  meetingRoomId: String (ZegoCloud),
+  paymentId: String (Razorpay),
+  amount: Number,
+  createdAt: Date
+}
+```
+
+#### Message Model
+```javascript
+{
+  _id: ObjectId,
+  conversationId: String (Stream Chat),
+  senderId: ObjectId (ref: 'User'),
+  receiverId: ObjectId (ref: 'User'),
+  content: String,
+  messageType: String (enum: ['text', 'question', 'insight', 'advice', 'action']),
+  isRead: Boolean (default: false),
+  createdAt: Date
+}
+```
+
+#### Task Model
+```javascript
+{
+  _id: ObjectId,
+  mentorId: ObjectId (ref: 'User'),
+  menteeId: ObjectId (ref: 'User'),
+  title: String,
+  description: String,
+  status: String (enum: ['not_started', 'in_progress', 'pending_review', 'completed']),
+  priority: String (enum: ['low', 'medium', 'high']),
+  dueDate: Date,
+  progress: Number (0-100),
+  createdAt: Date,
+  updatedAt: Date
+}
+```
+
+#### Review Model
+```javascript
+{
+  _id: ObjectId,
+  bookingId: ObjectId (ref: 'Booking'),
+  reviewerId: ObjectId (ref: 'User'),
+  revieweeId: ObjectId (ref: 'User'),
+  rating: Number (1-5),
+  comment: String,
+  createdAt: Date
+}
+```
+
+---
+
 ## 🎨 Key Features Explained
 
 ### 🎥 Video Conferencing
@@ -559,7 +781,7 @@ This project is licensed under the ISC License.
   
   ### 🌟 Star this repo if you find it helpful!
   
-  <img src="src/assets/connect4.png" alt="Success" width="400"/>
+  <img src="Frontend/src/assets/connect4.png" alt="Success" width="400"/>
   
   **Made with ❤️ by Arsh Chauhan**
   

@@ -86,7 +86,7 @@ class ChatSocketService {
       console.error('Socket not connected');
       return;
     }
-    
+
     const messageData = {
       id: messageId || `temp-${Date.now()}`,
       senderId,
@@ -96,15 +96,15 @@ class ChatSocketService {
       timestamp: new Date().toISOString(),
       status: 'delivered'
     };
-    
+
     console.log('Sending message:', messageData);
-    
+
     // Emit to server for broadcasting
     this.socket.emit('send-message', messageData);
-    
+
     // Also emit locally for immediate UI update
     this.emit('message-sent', messageData);
-    
+
     return messageData;
   }
 
@@ -178,6 +178,13 @@ class ChatSocketService {
   onUserStatusChanged(callback) {
     if (this.socket) {
       this.socket.on('user-status-changed', callback);
+    }
+  }
+
+  // Listen for achievements
+  onAchievementUnlocked(callback) {
+    if (this.socket) {
+      this.socket.on('achievement-unlocked', callback);
     }
   }
 
