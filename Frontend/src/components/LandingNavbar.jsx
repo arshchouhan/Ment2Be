@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import logoHat from "../assets/logo-hat.png";
 
@@ -6,6 +6,15 @@ const LandingNavbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState(null);
   const [showSocialsModal, setShowSocialsModal] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const toggleDropdown = (dropdown) => {
     setOpenDropdown(openDropdown === dropdown ? null : dropdown);
@@ -20,36 +29,42 @@ const LandingNavbar = () => {
   };
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-[#0a0a0a]/95 backdrop-blur-md border-b border-gray-800">
-      <div className="max-w-7xl mx-auto px-6">
-        <div className="flex items-center justify-between h-14 md:h-16">
-          {/* Logo */}
-          <Link
-            to="/"
-            state={{ fromNavbar: true }}
-            className="flex items-center space-x-2"
-          >
-            <img
-              src={logoHat}
-              alt="Ment2Be Logo"
-              className="w-7 h-7 md:w-8 md:h-8 brightness-0 invert"
-            />
+    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b ${
+      isScrolled 
+        ? 'bg-[#0a0a0a]/98 backdrop-blur-xl border-gray-700/50 shadow-lg shadow-black/20' 
+        : 'bg-[#0a0a0a]/95 backdrop-blur-md border-gray-800'
+    }`}>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16 md:h-18">
+          {/* Logo - Left */}
+          <div className="flex-shrink-0">
+            <Link
+              to="/"
+              state={{ fromNavbar: true }}
+              className="flex items-center space-x-3 group"
+            >
+              <div className="relative">
+                <img
+                  src={logoHat}
+                  alt="Ment2Be Logo"
+                  className="w-8 h-8 md:w-9 md:h-9 brightness-0 invert transition-transform duration-300 group-hover:scale-110"
+                />
+                <div className="absolute inset-0 bg-white/20 rounded-full blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              </div>
+              <span className="text-white text-xl md:text-2xl font-bold tracking-tight bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">Ment2Be</span>
+            </Link>
+          </div>
 
-            <span className="text-white text-xl font-semibold">Ment2Be</span>
-          </Link>
-
-          {/* Navigation Links */}
-          <div className="hidden md:flex items-center space-x-1">
+          {/* Navigation Links - Center */}
+          <div className="hidden lg:flex items-center space-x-2 absolute left-1/2 transform -translate-x-1/2">
             {/* Features Dropdown */}
             <div className="relative group">
-              <Link
-                to="/"
-                state={{ fromNavbar: true }}
-                className="px-4 py-2 text-gray-300 hover:text-white transition-colors flex items-center space-x-1"
+              <button
+                className="px-4 py-2.5 text-gray-300 hover:text-white transition-all duration-200 flex items-center space-x-1.5 rounded-lg hover:bg-white/5 group"
               >
-                <span>Features</span>
+                <span className="font-medium">Features</span>
                 <svg
-                  className="w-4 h-4"
+                  className="w-4 h-4 transition-transform duration-200 group-hover:translate-y-0.5"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -61,14 +76,14 @@ const LandingNavbar = () => {
                     d="M19 9l-7 7-7-7"
                   />
                 </svg>
-              </Link>
-              <div className="absolute top-full left-0 mt-2 w-80 bg-[#1a1a1a] border border-gray-700 rounded-lg shadow-xl p-4 space-y-3 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+              </button>
+              <div className="absolute top-full left-0 mt-3 w-80 bg-[#1a1a1a]/95 backdrop-blur-xl border border-gray-700/50 rounded-xl shadow-2xl shadow-black/50 p-3 space-y-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform group-hover:translate-y-0 -translate-y-2">
                 {/* Personal Dashboard */}
                 <button
                   onClick={() => scrollToSection("dashboard-section")}
-                  className="w-full flex items-start space-x-3 p-3 rounded-lg hover:bg-gray-800/50 transition-colors group text-left"
+                  className="w-full flex items-start space-x-3 p-3 rounded-lg hover:bg-gray-800/70 transition-all duration-200 group/item text-left border border-transparent hover:border-gray-700/50"
                 >
-                  <div className="flex-shrink-0 mt-1">
+                  <div className="flex-shrink-0 mt-0.5">
                     <svg
                       className="w-5 h-5 text-white transition-colors"
                       fill="none"
@@ -84,10 +99,10 @@ const LandingNavbar = () => {
                     </svg>
                   </div>
                   <div className="flex-1">
-                    <h4 className="text-white font-semibold text-sm">
+                    <h4 className="text-white font-semibold text-sm group-hover/item:text-gray-100 transition-colors">
                       Personal Dashboard
                     </h4>
-                    <p className="text-gray-400 text-xs mt-1">
+                    <p className="text-gray-400 text-xs mt-1 group-hover/item:text-gray-300 transition-colors leading-relaxed">
                       Track your progress and manage your learning journey
                     </p>
                   </div>
@@ -96,9 +111,9 @@ const LandingNavbar = () => {
                 {/* Connect with Mentors */}
                 <button
                   onClick={() => scrollToSection("connect-mentors-section")}
-                  className="w-full flex items-start space-x-3 p-3 rounded-lg hover:bg-gray-800/50 transition-colors group text-left"
+                  className="w-full flex items-start space-x-3 p-3 rounded-lg hover:bg-gray-800/70 transition-all duration-200 group/item text-left border border-transparent hover:border-gray-700/50"
                 >
-                  <div className="flex-shrink-0 mt-1">
+                  <div className="flex-shrink-0 mt-0.5">
                     <svg
                       className="w-5 h-5 text-white transition-colors"
                       fill="none"
@@ -114,10 +129,10 @@ const LandingNavbar = () => {
                     </svg>
                   </div>
                   <div className="flex-1">
-                    <h4 className="text-white font-semibold text-sm">
+                    <h4 className="text-white font-semibold text-sm group-hover/item:text-gray-100 transition-colors">
                       Connect with Mentors
                     </h4>
-                    <p className="text-gray-400 text-xs mt-1">
+                    <p className="text-gray-400 text-xs mt-1 group-hover/item:text-gray-300 transition-colors leading-relaxed">
                       Build meaningful connections with expert mentors
                     </p>
                   </div>
@@ -127,14 +142,12 @@ const LandingNavbar = () => {
 
             {/* Solutions Dropdown */}
             <div className="relative group">
-              <Link
-                to="/solutions"
-                state={{ fromNavbar: true }}
-                className="px-4 py-2 text-gray-300 hover:text-white transition-colors flex items-center space-x-1"
+              <button
+                className="px-4 py-2.5 text-gray-300 hover:text-white transition-all duration-200 flex items-center space-x-1.5 rounded-lg hover:bg-white/5 group"
               >
-                <span>Solutions</span>
+                <span className="font-medium">Solutions</span>
                 <svg
-                  className="w-4 h-4"
+                  className="w-4 h-4 transition-transform duration-200 group-hover:translate-y-0.5"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -146,15 +159,15 @@ const LandingNavbar = () => {
                     d="M19 9l-7 7-7-7"
                   />
                 </svg>
-              </Link>
-              <div className="absolute top-full left-0 mt-2 w-64 bg-[#1a1a1a] border border-gray-700 rounded-lg shadow-xl p-4 space-y-3 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+              </button>
+              <div className="absolute top-full left-0 mt-3 w-72 bg-[#1a1a1a]/95 backdrop-blur-xl border border-gray-700/50 rounded-xl shadow-2xl shadow-black/50 p-3 space-y-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform group-hover:translate-y-0 -translate-y-2">
                 {/* For Students */}
                 <Link
                   to="/solutions"
                   state={{ fromNavbar: true }}
-                  className="flex items-start space-x-3 p-3 rounded-lg hover:bg-gray-800/50 transition-colors group"
+                  className="flex items-start space-x-3 p-3 rounded-lg hover:bg-gray-800/70 transition-all duration-200 group/item border border-transparent hover:border-gray-700/50"
                 >
-                  <div className="flex-shrink-0 mt-1">
+                  <div className="flex-shrink-0 mt-0.5">
                     <svg
                       className="w-5 h-5 text-gray-400"
                       fill="none"
@@ -170,10 +183,10 @@ const LandingNavbar = () => {
                     </svg>
                   </div>
                   <div className="flex-1">
-                    <h4 className="text-white font-semibold text-sm">
+                    <h4 className="text-white font-semibold text-sm group-hover/item:text-gray-100 transition-colors">
                       For Students
                     </h4>
-                    <p className="text-gray-400 text-xs mt-1">
+                    <p className="text-gray-400 text-xs mt-1 group-hover/item:text-gray-300 transition-colors leading-relaxed">
                       Get personalized guidance and track progress
                     </p>
                   </div>
@@ -183,9 +196,9 @@ const LandingNavbar = () => {
                 <Link
                   to="/solutions"
                   state={{ fromNavbar: true }}
-                  className="flex items-start space-x-3 p-3 rounded-lg hover:bg-gray-800/50 transition-colors group"
+                  className="flex items-start space-x-3 p-3 rounded-lg hover:bg-gray-800/70 transition-all duration-200 group/item border border-transparent hover:border-gray-700/50"
                 >
-                  <div className="flex-shrink-0 mt-1">
+                  <div className="flex-shrink-0 mt-0.5">
                     <svg
                       className="w-5 h-5 text-gray-400"
                       fill="none"
@@ -201,10 +214,10 @@ const LandingNavbar = () => {
                     </svg>
                   </div>
                   <div className="flex-1">
-                    <h4 className="text-white font-semibold text-sm">
+                    <h4 className="text-white font-semibold text-sm group-hover/item:text-gray-100 transition-colors">
                       For Mentors
                     </h4>
-                    <p className="text-gray-400 text-xs mt-1">
+                    <p className="text-gray-400 text-xs mt-1 group-hover/item:text-gray-300 transition-colors leading-relaxed">
                       Share expertise and manage mentees
                     </p>
                   </div>
@@ -212,53 +225,54 @@ const LandingNavbar = () => {
               </div>
             </div>
 
-            <a
-              href="#"
+            <button
               onClick={(e) => {
                 e.preventDefault();
                 scrollToSection("footer");
               }}
-              className="px-4 py-2 text-gray-300 hover:text-white transition-colors"
+              className="px-4 py-2.5 text-gray-300 hover:text-white transition-all duration-200 font-medium rounded-lg hover:bg-white/5"
             >
               Our Socials
-            </a>
+            </button>
             <Link
               to="/contact-us"
               state={{ fromNavbar: true }}
-              className="px-4 py-2 text-gray-300 hover:text-white transition-colors"
+              className="px-4 py-2.5 text-gray-300 hover:text-white transition-all duration-200 font-medium rounded-lg hover:bg-white/5"
             >
               Contact Us
             </Link>
           </div>
-          {/* Hamburger Button (Mobile Only) */}
+          
+          {/* Mobile Hamburger Menu Button */}
           <button
-            className="md:hidden text-white text-2xl"
+            className="lg:hidden text-white p-2 hover:bg-white/10 rounded-lg transition-all duration-200"
             onClick={() => setIsOpen(!isOpen)}
           >
-            ☰
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              {isOpen ? (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              ) : (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              )}
+            </svg>
           </button>
 
           {/* Right Side Actions */}
-          <div className="flex items-center space-x-4">
-            {/* Copyright */}
-            <div className="hidden lg:block text-gray-500 text-xs">
-              © Arsh Chauhan
-            </div>
-
+          <div className="hidden lg:flex items-center space-x-3 flex-shrink-0">
             <Link
               to="/login"
-              className="hidden md:block px-4 py-2 text-gray-300 hover:text-white transition-colors text-sm"
+              className="px-5 py-2.5 text-gray-300 hover:text-white transition-all duration-200 font-medium rounded-lg hover:bg-white/5"
             >
               Log in
             </Link>
 
             <Link
               to="/register"
-              className="px-3 py-1.5 md:px-5 md:py-2 bg-white text-black font-medium rounded-lg hover:bg-gray-100 transition-colors text-xs md:text-sm flex items-center space-x-2"
+              className="px-6 py-2.5 bg-gradient-to-r from-white to-gray-100 text-black font-semibold rounded-lg hover:from-gray-100 hover:to-white transition-all duration-200 shadow-lg shadow-white/20 hover:shadow-white/30 hover:scale-105 flex items-center space-x-2"
             >
               <span>Get Started</span>
               <svg
-                className="w-4 h-4"
+                className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -276,77 +290,93 @@ const LandingNavbar = () => {
       </div>
       {/* Mobile Menu */}
       {isOpen && (
-        <div className="md:hidden bg-[#0a0a0a] px-6 pb-4 space-y-4 border-t border-gray-800 text-gray-300">
+        <div className="lg:hidden bg-[#0a0a0a]/98 backdrop-blur-xl px-4 sm:px-6 pb-6 pt-4 space-y-6 border-t border-gray-800 animate-slideDown">
           {/* FEATURES SECTION */}
-          <div>
-            <p className="text-white font-semibold mb-2">Features</p>
-            <button
-              onClick={() => {
-                scrollToSection("dashboard-section");
-                setIsOpen(false);
-              }}
-              className="block w-full text-left py-2"
-            >
-              Personal Dashboard
-            </button>
+          <div className="space-y-3">
+            <p className="text-white font-bold text-sm uppercase tracking-wider">Features</p>
+            <div className="space-y-1 pl-2">
+              <button
+                onClick={() => {
+                  scrollToSection("dashboard-section");
+                  setIsOpen(false);
+                }}
+                className="block w-full text-left py-2.5 px-3 text-gray-300 hover:text-white hover:bg-gray-800/50 rounded-lg transition-all duration-200"
+              >
+                Personal Dashboard
+              </button>
 
-            <button
-              onClick={() => {
-                scrollToSection("connect-mentors-section");
-                setIsOpen(false);
-              }}
-              className="block w-full text-left py-2"
-            >
-              Connect with Mentors
-            </button>
+              <button
+                onClick={() => {
+                  scrollToSection("connect-mentors-section");
+                  setIsOpen(false);
+                }}
+                className="block w-full text-left py-2.5 px-3 text-gray-300 hover:text-white hover:bg-gray-800/50 rounded-lg transition-all duration-200"
+              >
+                Connect with Mentors
+              </button>
+            </div>
           </div>
 
           {/* SOLUTIONS SECTION */}
-          <div>
-            <p className="text-white font-semibold mb-2">Solutions</p>
-            <Link
-              to="/solutions"
-              onClick={() => setIsOpen(false)}
-              className="block py-2"
-            >
-              For Students
-            </Link>
-            <Link
-              to="/solutions"
-              onClick={() => setIsOpen(false)}
-              className="block py-2"
-            >
-              For Mentors
-            </Link>
+          <div className="space-y-3">
+            <p className="text-white font-bold text-sm uppercase tracking-wider">Solutions</p>
+            <div className="space-y-1 pl-2">
+              <Link
+                to="/solutions"
+                onClick={() => setIsOpen(false)}
+                className="block py-2.5 px-3 text-gray-300 hover:text-white hover:bg-gray-800/50 rounded-lg transition-all duration-200"
+              >
+                For Students
+              </Link>
+              <Link
+                to="/solutions"
+                onClick={() => setIsOpen(false)}
+                className="block py-2.5 px-3 text-gray-300 hover:text-white hover:bg-gray-800/50 rounded-lg transition-all duration-200"
+              >
+                For Mentors
+              </Link>
+            </div>
           </div>
 
           {/* OTHER LINKS */}
-          <button
-            onClick={(e) => {
-              e.preventDefault();
-              scrollToSection("footer");
-              setIsOpen(false);
-            }}
-            className="block w-full text-left py-2"
-          >
-            Our Socials
-          </button>
+          <div className="space-y-1">
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                scrollToSection("footer");
+                setIsOpen(false);
+              }}
+              className="block w-full text-left py-2.5 px-3 text-gray-300 hover:text-white hover:bg-gray-800/50 rounded-lg transition-all duration-200"
+            >
+              Our Socials
+            </button>
 
-          <Link
-            to="/contact-us"
-            onClick={() => setIsOpen(false)}
-            className="block py-2"
-          >
-            Contact Us
-          </Link>
+            <Link
+              to="/contact-us"
+              onClick={() => setIsOpen(false)}
+              className="block py-2.5 px-3 text-gray-300 hover:text-white hover:bg-gray-800/50 rounded-lg transition-all duration-200"
+            >
+              Contact Us
+            </Link>
+          </div>
 
-          <Link
-            to="/login"
-            onClick={() => setIsOpen(false)}
-            className="block py-2"
-          >
-            Log in
-          </Link>
+          {/* Action Buttons */}
+          <div className="space-y-3 pt-4 border-t border-gray-800">
+            <Link
+              to="/login"
+              onClick={() => setIsOpen(false)}
+              className="block w-full py-3 px-4 text-center text-gray-300 hover:text-white bg-gray-800/50 hover:bg-gray-700/50 rounded-lg transition-all duration-200 font-medium"
+            >
+              Log in
+            </Link>
+            <Link
+              to="/register"
+              onClick={() => setIsOpen(false)}
+              className="block w-full py-3 px-4 text-center bg-gradient-to-r from-white to-gray-100 text-black font-semibold rounded-lg hover:from-gray-100 hover:to-white transition-all duration-200 shadow-lg"
+            >
+              Get Started
+            </Link>
+          </div>
         </div>
       )}
     </nav>
