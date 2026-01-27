@@ -73,6 +73,11 @@ const mentorProfileSchema = new mongoose.Schema(
       type: String,
       trim: true,
       default: null
+    },
+    location: {
+      type: String,
+      trim: true,
+      maxlength: [100, 'Location cannot be more than 100 characters']
     }
   },
   { 

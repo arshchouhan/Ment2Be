@@ -9,6 +9,8 @@ import TopExperts from '../components/Explore/TopExperts';
 import TopOfferings from '../components/Explore/TopOfferings';
 import CategoryList from '../components/Explore/CategoryList';
 import UserProfileCard from '../components/Explore/UserProfileCard';
+import MentorFilters from '../components/Explore/MentorFilters';
+import MentorSort from '../components/Explore/MentorSort';
 
 // Mock data
 import INDIAN_MENTORS_MOCK_DATA from '../mockData/indianMentorsApi';
@@ -20,6 +22,19 @@ const ExplorePage = () => {
   const [mentors, setMentors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  // Advanced filters state
+  const [filters, setFilters] = useState({
+    skills: [],
+    minRating: '',
+    minRate: '',
+    maxRate: '',
+    availability: [],
+    location: '',
+    experience: ''
+  });
+  const [sortBy, setSortBy] = useState('');
+  const [availableSkills, setAvailableSkills] = useState([]);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -34,11 +49,45 @@ const ExplorePage = () => {
       try {
         setLoading(true);
         const token = localStorage.getItem("token");
-        
+
         // Build query params
-        let url = `${API_BASE_URL}/mentors`;
+        const params = new URLSearchParams();
+
+        // Legacy category filter
         if (activeCategory !== 'All Mentors') {
-          url += `?skill=${activeCategory}`;
+          params.append('skill', activeCategory);
+        }
+
+        // Advanced filters
+        if (filters.skills.length > 0) {
+          params.append('skills', filters.skills.join(','));
+        }
+        if (filters.minRating) {
+          params.append('minRating', filters.minRating);
+        }
+        if (filters.minRate) {
+          params.append('minRate', filters.minRate);
+        }
+        if (filters.maxRate) {
+          params.append('maxRate', filters.maxRate);
+        }
+        if (filters.availability.length > 0) {
+          params.append('availability', filters.availability.join(','));
+        }
+        if (filters.location.trim()) {
+          params.append('location', filters.location.trim());
+        }
+        if (filters.experience) {
+          params.append('experience', filters.experience);
+        }
+        if (sortBy) {
+          params.append('sortBy', sortBy);
+        }
+
+        const queryString = params.toString();
+        let url = `${API_BASE_URL}/mentors`;
+        if (queryString) {
+          url += `?${queryString}`;
         }
 
         const response = await fetch(url, {
@@ -50,7 +99,7 @@ const ExplorePage = () => {
         });
 
         const data = await response.json();
-        
+
         if (data.success && data.mentors && data.mentors.length > 0) {
           // Transform API data to match your component's expected format
           const transformedMentors = data.mentors.map(mentor => {
@@ -63,6 +112,7 @@ const ExplorePage = () => {
               companies: mentor.company || 'N/A',
               experience: mentor.experience || 'N/A',
               bio: mentor.bio || '',
+              location: mentor.location || '',
               tags: Array.isArray(mentor.skills)
                 ? mentor.skills
                     .map((skill) => (typeof skill === 'string' ? skill : skill?.name))
@@ -73,15 +123,23 @@ const ExplorePage = () => {
               price: mentor.hourlyRate || 0,
               priceUnit: 'Per Min',
               image: profilePic,
-              isOnline: mentor.isOnline || false
+              isOnline: mentor.isOnline || false,
+              availability: mentor.availability || []
             };
           });
-          
+
+          // Collect available skills for filter dropdown
+          const allSkills = new Set();
+          transformedMentors.forEach(mentor => {
+            mentor.tags.forEach(tag => allSkills.add(tag));
+          });
+          setAvailableSkills(Array.from(allSkills).sort());
+
           // Merge with mock data - API data first, then mock data
           const apiIds = new Set(transformedMentors.map(m => m.id));
           const mockDataToAdd = INDIAN_MENTORS_MOCK_DATA.filter(mock => !apiIds.has(mock.id));
           const mergedMentors = [...transformedMentors, ...mockDataToAdd];
-          
+
           console.log('✅ Transformed mentors:', mergedMentors);
           setMentors(mergedMentors);
         } else {
@@ -98,7 +156,7 @@ const ExplorePage = () => {
     };
 
     fetchMentors();
-  }, [activeCategory]);
+  }, [activeCategory, filters, sortBy]);
 
   // Filter mentors based on search query
   const filteredMentors = mentors.filter(mentor => 
@@ -129,7 +187,7 @@ const ExplorePage = () => {
             {/* Main Content - Middle Column */}
             <div className="col-span-8 flex flex-col h-full overflow-hidden">
               {/* Search Bar */}
-              <div className="relative mb-6 flex-shrink-0">
+              <div className="relative mb-4 flex-shrink-0">
                 <input
                   type="text"
                   placeholder="Search mentors, skills, or topics..."
@@ -150,6 +208,19 @@ const ExplorePage = () => {
                     clipRule="evenodd"
                   />
                 </svg>
+              </div>
+
+              {/* Filters and Sort */}
+              <div className="flex items-center justify-between mb-6 flex-shrink-0">
+                <MentorFilters
+                  filters={filters}
+                  onFiltersChange={setFilters}
+                  availableSkills={availableSkills}
+                />
+                <MentorSort
+                  sortBy={sortBy}
+                  onSortChange={setSortBy}
+                />
               </div>
 
               {/* Mentor Cards */}
