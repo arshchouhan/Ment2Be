@@ -212,23 +212,9 @@ const LandingNavbar = () => {
               </div>
             </div>
 
-            <a
-              href="#"
-              onClick={(e) => {
-                e.preventDefault();
-                scrollToSection("footer");
-              }}
-              className="px-4 py-2 text-gray-300 hover:text-white transition-colors"
-            >
-              Our Socials
-            </a>
-            <Link
-              to="/contact-us"
-              state={{ fromNavbar: true }}
-              className="px-4 py-2 text-gray-300 hover:text-white transition-colors"
-            >
-              Contact Us
-            </Link>
+            <a href="#" onClick={(e) => { e.preventDefault(); scrollToSection('footer'); }} className="px-4 py-2 text-gray-300 hover:text-white transition-colors">Our Socials</a>
+            <Link to="/about-us" state={{ fromNavbar: true }} className="px-4 py-2 text-gray-300 hover:text-white transition-colors">About Us</Link>
+            <Link to="/contact-us" state={{ fromNavbar: true }} className="px-4 py-2 text-gray-300 hover:text-white transition-colors">Contact Us</Link>
           </div>
           {/* Hamburger Button (Mobile Only) */}
           <button
