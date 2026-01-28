@@ -1,7 +1,6 @@
 import express from 'express';
 import { createServer } from 'http';
 import cors from 'cors';
-import rateLimit from 'express-rate-limit';
 import connectDB from './config/db.js';
 import { initializeSocketIO, getSocketStats } from './config/socket.js';
 import authRouter from './routes/auth.routes.js';
@@ -53,43 +52,6 @@ initializeSocketIO(server);
 const PORT = process.env.PORT || 4000;
 const NODE_ENV = process.env.NODE_ENV || 'development';
 
-// Rate limiting configuration
-const generalLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // 100 requests per window
-  message: {
-    success: false,
-    message: 'Too many requests, please try again later',
-    retryAfter: '15 minutes'
-  },
-  standardHeaders: true,
-  legacyHeaders: false
-});
-
-const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5, // 5 login attempts per window
-  message: {
-    success: false,
-    message: 'Too many authentication attempts, please try again later',
-    retryAfter: '15 minutes'
-  },
-  skipSuccessfulRequests: true
-});
-
-const uploadLimiter = rateLimit({
-  windowMs: 60 * 60 * 1000, // 1 hour
-  max: 10, // 10 uploads per hour
-  message: {
-    success: false,
-    message: 'Upload limit exceeded, please try again later',
-    retryAfter: '1 hour'
-  }
-});
-
-// Apply rate limiting
-app.use(generalLimiter);
-
 app.use((req, res, next) => {
   res.setHeader("Cross-Origin-Opener-Policy", "same-origin-allow-popups");
   next();
@@ -106,7 +68,9 @@ app.use(cors({
     ],
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization", "Accept"]
+  allowedHeaders: ["Content-Type", "Authorization", "Accept"],
+  exposedHeaders: ["Content-Length", "X-JSON-Response"],
+  optionsSuccessStatus: 200
 }));
 
 
@@ -169,10 +133,10 @@ app.get('/api/socket/stats', (req, res) => {
 });
 
 // Apply specific rate limiters to routes
-app.use('/api/auth', authLimiter, authRouter);
-app.use('/api/auth/phone', authLimiter, phoneAuthRouter);
-app.use('/api/upload', uploadLimiter, uploadRouter);
-app.use('/api/mentors/upload-photo', uploadLimiter);
+app.use('/api/auth', authRouter);
+app.use('/api/auth/phone', phoneAuthRouter);
+app.use('/api/upload', uploadRouter);
+app.use('/api/mentors/upload-photo', uploadRouter);
 app.use('/api/user', userRouter);
 app.use('/api/mentors', mentorRouter);
 app.use('/api/mentors/karma', mentorKarmaRouter);

@@ -71,9 +71,21 @@ export const buildApiUrl = (endpoint) => {
   return `${apiUrl}${path}`;
 };
 
+/**
+ * Get the current active backend name
+ * @returns {string} The active backend ('nodejs', 'java', or 'render')
+ */
+export const getActiveBackend = () => {
+  return import.meta.env.VITE_BACKEND || (import.meta.env.PROD ? 'render' : 'nodejs');
+};
+
+// Export as constant for direct access
+export const ACTIVE_BACKEND = getActiveBackend();
+
 // Log configuration on import (helpful for debugging)
 if (import.meta.env.DEV) {
   console.log('[API Config] API URL:', getApiUrl());
   console.log('[API Config] Backend URL:', getBackendUrl());
+  console.log('[API Config] Active Backend:', ACTIVE_BACKEND);
   console.log('[API Config] VITE_BACKEND:', import.meta.env.VITE_BACKEND);
 }

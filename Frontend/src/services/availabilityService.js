@@ -3,7 +3,7 @@
  * Uses centralized API URL configuration
  */
 
-import { getApiUrl } from '../utils/apiUrl.js';
+import { getApiUrl, ACTIVE_BACKEND } from '../utils/apiUrl.js';
 
 const API_URL = `${getApiUrl()}/mentor-availability`;
 

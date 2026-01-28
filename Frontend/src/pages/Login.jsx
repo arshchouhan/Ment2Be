@@ -142,30 +142,71 @@ const Login = () => {
       setError("");
       setShowLoading(true);
 
-      const res = await fetch(`${API_URL}/auth/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: formData.email,
-          password: formData.password,
-        }),
-      });
+      console.log(`[Login] Attempting login to ${API_URL}/auth/login`);
 
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data.message || "Login failed");
-      }
+      // Create an abort controller for timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
 
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("user", JSON.stringify(data));
+      try {
+        const res = await fetch(`${API_URL}/auth/login`, {
+          method: "POST",
+          headers: { 
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+          },
+          credentials: "include",
+          body: JSON.stringify({
+            email: formData.email,
+            password: formData.password,
+          }),
+          signal: controller.signal
+        });
 
-      if (data.role === "mentor") {
-        navigate("/mentor/dashboard");
-      } else {
-        navigate("/student/dashboard");
+        clearTimeout(timeoutId);
+        console.log(`[Login] Response status: ${res.status}`);
+
+        let data;
+        try {
+          data = await res.json();
+        } catch (parseErr) {
+          console.error(`[Login] Failed to parse response:`, parseErr);
+          throw new Error("Server response was invalid");
+        }
+
+        console.log(`[Login] Response data:`, data);
+
+        if (!res.ok) {
+          throw new Error(data.message || `Login failed (${res.status})`);
+        }
+
+        if (!data.token) {
+          throw new Error("No token received from server");
+        }
+
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("user", JSON.stringify(data));
+
+        console.log(`[Login] Login successful, redirecting to ${data.role} dashboard`);
+
+        if (data.role === "mentor") {
+          navigate("/mentor/dashboard");
+        } else {
+          navigate("/student/dashboard");
+        }
+      } catch (fetchErr) {
+        clearTimeout(timeoutId);
+        throw fetchErr;
       }
     } catch (err) {
-      setError(err.message);
+      console.error(`[Login] Error:`, err);
+      if (err.name === 'AbortError') {
+        setError("Login request timed out. Backend may not be running. Please check and try again.");
+      } else if (err.message.includes("Failed to fetch")) {
+        setError(`Cannot reach backend at ${API_URL}. Make sure the server is running on port 4000.`);
+      } else {
+        setError(err.message || "Login failed. Please try again.");
+      }
     } finally {
       setShowLoading(false);
       setIsProcessingLogin(false);
