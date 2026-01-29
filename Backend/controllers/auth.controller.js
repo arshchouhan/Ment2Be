@@ -87,23 +87,34 @@ export async function Login(req, res) {
 
     if (!user) {
       console.log("User not found for email:", normalizedEmail);
-      return res.status(401).json({"success":false,"message":"User not found"});
+      return res.status(401).json({
+        success: false,
+        message: "Invalid email or password"
+      });
     }
 
     if (!user.password) {
       console.log("User has no password (Google OAuth user):", user._id);
-      return res.status(401).json({"success":false,"message":"Please use Google Sign In for this account"});
+      return res.status(401).json({
+        success: false,
+        message: "Please use Google Sign In for this account"
+      });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
-      return res.status(401).json({"success":false,"message":"Invalid email or password"});
+      console.log("Password mismatch for user:", user._id);
+      return res.status(401).json({
+        success: false,
+        message: "Invalid email or password"
+      });
     }
 
     const token = generateToken(user._id, user.role);
     const { password: _, ...userData } = user.toObject();
     
+    console.log("User logged in successfully:", user._id);
     return res.status(200).json({
       success: true,
       ...userData,
@@ -111,7 +122,11 @@ export async function Login(req, res) {
     });
   } catch (error) {
     console.error("Login error:", error);
-    return res.status(500).json({"success":false,"message":"Server error during login", "error": process.env.NODE_ENV === 'development' ? error.message : undefined});
+    return res.status(500).json({
+      success: false,
+      message: "Server error during login",
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 }
 

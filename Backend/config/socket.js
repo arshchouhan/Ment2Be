@@ -13,12 +13,16 @@ export const initializeSocketIO = (server) => {
       origin: [
         process.env.FRONTEND_URL,
         process.env.HOSTED_FRONTEND_DOMAIN,
+        "https://ment2be.arshchouhan.me",
+        "https://k23-dx.vercel.app",
         ...(process.env.NODE_ENV === 'development' ? [
           "http://localhost:3000",
-          "http://localhost:5173"
+          "http://localhost:5173",
+          "http://localhost:5174"
         ] : [])
       ].filter(Boolean),
-      methods: ["GET", "POST"]
+      methods: ["GET", "POST"],
+      credentials: true
     }
   });
 

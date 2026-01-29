@@ -3,7 +3,7 @@
  * Centralized API calls for task creation
  */
 
-import { buildApiUrl } from '../utils/apiUrl.js';
+import { buildApiUrl, ACTIVE_BACKEND } from '../utils/apiUrl.js';
 
 const API_URL = buildApiUrl('/tasks');
 

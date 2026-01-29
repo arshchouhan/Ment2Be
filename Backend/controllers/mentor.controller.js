@@ -127,18 +127,59 @@ export async function CreateOrUpdateMentorProfile(req, res) {
 
 export async function GetAllMentors(req, res) {
   try {
-    const { skill, minRate, maxRate, sortBy } = req.query;
+    const {
+      skill, // legacy single skill filter
+      skills, // new multiple skills filter (comma-separated)
+      minRate,
+      maxRate,
+      minRating,
+      sortBy,
+      availability, // comma-separated days: monday,tuesday
+      location,
+      experience
+    } = req.query;
 
     const profileFilters = { isProfileComplete: true };
 
-    if (skill && skill !== 'All Mentors') {
+    // Skills filtering - support both single skill (legacy) and multiple skills
+    if (skills) {
+      // Multiple skills filter - mentor must have ALL specified skills
+      const skillsArray = skills.split(',').map(s => s.trim()).filter(Boolean);
+      if (skillsArray.length > 0) {
+        profileFilters.skills = { $all: skillsArray.map(skill => new RegExp(`^${skill}$`, 'i')) };
+      }
+    } else if (skill && skill !== 'All Mentors') {
+      // Legacy single skill filter
       profileFilters.skills = { $regex: new RegExp(`^${skill}$`, 'i') };
     }
 
+    // Hourly rate filtering
     if (minRate || maxRate) {
       profileFilters.hourlyRate = {};
       if (minRate) profileFilters.hourlyRate.$gte = Number(minRate);
       if (maxRate) profileFilters.hourlyRate.$lte = Number(maxRate);
+    }
+
+    // Location filtering (case-insensitive partial match)
+    if (location && location.trim()) {
+      profileFilters.location = { $regex: new RegExp(location.trim(), 'i') };
+    }
+
+    // Availability filtering - mentor must be available on specified days
+    if (availability) {
+      const daysArray = availability.split(',').map(d => d.trim().toLowerCase()).filter(Boolean);
+      if (daysArray.length > 0) {
+        profileFilters.availability = {
+          $elemMatch: {
+            day: { $in: daysArray }
+          }
+        };
+      }
+    }
+
+    // Experience filtering
+    if (experience) {
+      profileFilters.experience = { $gte: Number(experience) };
     }
 
     const profiles = await MentorProfile.find(profileFilters)
@@ -155,7 +196,7 @@ export async function GetAllMentors(req, res) {
     // Get all ratings in one call
     const ratingsByMentorId = await getMentorRatingsMap(mentorIds);
 
-    const mentors = profiles
+    let mentors = profiles
       .filter(profile => profile.user !== null)
       .map((profile) => {
         const mentorId = profile.user?._id;
@@ -173,6 +214,8 @@ export async function GetAllMentors(req, res) {
           bio: profile.bio,
           hourlyRate: profile.hourlyRate,
           profilePicture: profile.profilePicture || null,
+          location: profile.location,
+          availability: profile.availability,
           isOnline: false,
           skills: profile.skills,
           averageRating: mentorRating.averageRating,
@@ -181,12 +224,23 @@ export async function GetAllMentors(req, res) {
         };
       });
 
+    // Apply rating filter after fetching (since rating is calculated)
+    if (minRating) {
+      const minRatingNum = Number(minRating);
+      mentors = mentors.filter(mentor => mentor.averageRating >= minRatingNum);
+    }
+
+    // Sorting
     if (sortBy === 'rating') {
       mentors.sort((a, b) => b.averageRating - a.averageRating);
     } else if (sortBy === 'price-low') {
       mentors.sort((a, b) => (a.hourlyRate || 0) - (b.hourlyRate || 0));
     } else if (sortBy === 'price-high') {
       mentors.sort((a, b) => (b.hourlyRate || 0) - (a.hourlyRate || 0));
+    } else if (sortBy === 'experience') {
+      mentors.sort((a, b) => (b.experience || 0) - (a.experience || 0));
+    } else if (sortBy === 'newest') {
+      mentors.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     }
 
     res.status(200).json({

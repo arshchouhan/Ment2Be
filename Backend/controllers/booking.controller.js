@@ -418,17 +418,79 @@ const updateBookingStatus = async (req, res) => {
       { path: 'mentor', select: 'name email profilePicture' }
     ]);
 
-    // Log the status change for notification purposes
-    console.log(`Booking ${bookingId} status changed to ${status} by user ${userId}`);
+    // Send notifications based on status change
+    const io = getIO();
 
-    // TODO: Add email/push notification to the other party
     if (status === 'confirmed') {
-      console.log(`Notification: Session confirmed by mentor ${booking.mentor.name} for student ${booking.student.name}`);
-      // Future: Send email to student about confirmation
+      // Create notification for student
+      const studentNotification = await Notification.create({
+        recipient: booking.student._id,
+        sender: booking.mentor._id,
+        type: 'booking_confirmed',
+        title: 'Booking Confirmed',
+        message: `Your session "${booking.sessionTitle}" with ${booking.mentor.name} has been confirmed.`,
+        data: { bookingId: booking._id },
+        priority: 'high'
+      });
+
+      // Send real-time notification via Socket.IO
+      if (io) {
+        io.to(`user_${booking.student._id}`).emit('notification', studentNotification);
+      }
+
+      // Send email notification
+      try {
+        await sendBookingConfirmationEmail(
+          booking.student.email,
+          booking.student.name,
+          booking.mentor.name,
+          booking.sessionTitle,
+          booking.sessionDate,
+          booking.sessionTime
+        );
+        studentNotification.isEmailSent = true;
+        await studentNotification.save();
+      } catch (emailError) {
+        console.error('Failed to send booking confirmation email:', emailError);
+      }
+
+      console.log(`✅ Notification sent: Session confirmed by mentor ${booking.mentor.name} for student ${booking.student.name}`);
     } else if (status === 'cancelled') {
-      const cancelledBy = isMentor ? 'mentor' : 'student';
-      console.log(`Notification: Session cancelled by ${cancelledBy} ${isMentor ? booking.mentor.name : booking.student.name}`);
-      // Future: Send email to the other party about cancellation
+      const cancelledBy = isMentor ? booking.mentor : booking.student;
+      const recipient = isMentor ? booking.student : booking.mentor;
+
+      // Create notification for the other party
+      const cancellationNotification = await Notification.create({
+        recipient: recipient._id,
+        sender: cancelledBy._id,
+        type: 'booking_cancelled',
+        title: 'Booking Cancelled',
+        message: `Your session "${booking.sessionTitle}" has been cancelled by ${cancelledBy.name}.`,
+        data: { bookingId: booking._id },
+        priority: 'high'
+      });
+
+      // Send real-time notification via Socket.IO
+      if (io) {
+        io.to(`user_${recipient._id}`).emit('notification', cancellationNotification);
+      }
+
+      // Send email notification
+      try {
+        await sendBookingCancellationEmail(
+          recipient.email,
+          recipient.name,
+          booking.sessionTitle,
+          isMentor ? booking.mentor.name : booking.student.name,
+          booking.cancellationReason
+        );
+        cancellationNotification.isEmailSent = true;
+        await cancellationNotification.save();
+      } catch (emailError) {
+        console.error('Failed to send booking cancellation email:', emailError);
+      }
+
+      console.log(`✅ Notification sent: Session cancelled by ${cancelledBy.name}`);
     }
 
     res.json({
