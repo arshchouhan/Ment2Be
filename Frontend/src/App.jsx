@@ -36,8 +36,6 @@ import ConnectedStudents from './pages/ConnectedStudents';
 import StudentConnectedMentors from './pages/StudentConnectedMentors';
 import SolutionsPage from './pages/SolutionsPage';
 import ContactUsPage from './pages/ContactUsPage';
-import AboutUsPage from './pages/AboutUsPage';
-import PricingPage from './pages/PricingPage';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import TermsOfService from "./pages/TermsOfService";
@@ -57,8 +55,6 @@ function App() {
         {/* Root redirect */}
         <Route path="/" element={<LandingPageWithLoader />} />
         <Route path="/solutions" element={<SolutionsPage />} />
-        <Route path="/pricing" element={<PricingPage />} />
-        <Route path="/about-us" element={<AboutUsPage />} />
         <Route path="/contact-us" element={<ContactUsPage />} />
 
         {/* Public Routes */}
